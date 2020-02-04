@@ -11,17 +11,19 @@
 ;;; "nuprl-init" by the desired name of the init file.
 
 ;;; The filename extension added to compiled Lisp files.
-(defparameter *bin-file-extension* "sbin")
+(defparameter *bin-file-extension*
+  #+ccl
+  (pathname-type ccl:*.fasl-pathname*))
 
 ;;; Nuprl's home directory.  Note the trailing "/" in the Unix pathname.
-(defparameter *nuprl-path-prefix* 
+(defparameter *nuprl-path-prefix*
   #+symbolics "nuprl:" 
     ;;; change the string below to the root directory for Nuprl
   #+(or unix mach) "/usr/fsys/nori/a/nuprl/")  ;change this string
 
 ;;; The name of Nuprl's init file is *init-file-name* followed by ".lisp"
 (defparameter *init-file-name*
-  (concatenate 'string "nuprl-init" "." *lisp-file-extension*))
+  (make-pathname :name "nuprl-init" :type *lisp-file-extension*))
 
 ;;; complete-nuprl-path takes a list of symbols representing directory
 ;;; names and symbol representing a file name and produces a symbol

@@ -80,8 +80,8 @@
 (setq lbrkt '|[|)
 (setq rbrkt '|]|)
 
-(setq starttermtok '|'|)    ;-- PRL  terms.
-(setq endtermtok '|'|)
+(defparameter starttermtok '|'|)    ;-- PRL  terms.
+(defparameter endtermtok '|'|)
 
 ; Object language tokens  ;-- removed for PRL
 ;-- (setq endcnrtok '|"|)
@@ -113,12 +113,12 @@
 (setq tml-sym '|;;|)
 (setq tokqt-sym '|`|)
 (setq escape-sym '|\\|)
-(setq exfix-sym '|$|)
-(setq neg-sym '|not|)   ;lc
+(defparameter exfix-sym '|$|)
+(defparameter neg-sym '|not|)   ;lc
 (setq arrow-sym '|->|)
 (setq prod-sym '|#|)
 (setq sum-sym '|+|)
-(setq list-sym '|list|)  ;lc
+(defparameter list-sym '|list|)  ;lc
 (setq null-sym '|.|)
 ;-- (setq cnr-sym '|"|)   Removed for PRL.
 ;-- (setq endcnr-sym '|"|)
@@ -127,18 +127,18 @@
 (setq end-term-sym '|'|)   ;--  ditto
 
 (setq mul-sym '|*|)
-(setq div-sym '|/| #|||#)
-(setq plus-sym '|+|)
-(setq mns-sym '|-|)
-(setq conc-sym '|@|)
+(defparameter div-sym '|/| #|||#)
+(defparameter plus-sym '|+|)
+(defparameter mns-sym '|-|)
+(defparameter conc-sym '|@|)
 (setq eq-sym '|=|)
-(setq lt-sym '|<|)
-(setq gt-sym '|>|)
-(setq conj-sym '|&|)
-(setq disj-sym '|or|)  ;lc
+(defparameter lt-sym '|<|)
+(defparameter gt-sym '|>|)
+(defparameter conj-sym '|&|)
+(defparameter disj-sym '|or|)  ;lc
 (setq condl-sym '|=>|)
-(setq lam-sym '|\\|)
-(setq asgn-sym '|:=|)
+(defparameter lam-sym '|\\|)
+(defparameter asgn-sym '|:=|)
 (setq else-sym '\| #|||#)   ; This crap to keep zmacs happy.
 (setq trap-then-sym '|?|)
 (setq trapif-then-sym '|??|)
@@ -177,7 +177,7 @@
 (setq declnconstrs '(mk-let mk-letrec mk-letref mk-deftype
                      mk-defrectype mk-abstype mk-absrectype))
 
-(setq exprconstrs '(mk-boolconst mk-intconst mk-tokconst mk-var
+(defparameter exprconstrs '(mk-boolconst mk-intconst mk-tokconst mk-var
                        mk-termconst mk-formconst  ;-- PRL
           mk-appn mk-abstr mk-null-abstr    ;-- last new for PRL
           mk-dupl mk-empty
@@ -189,7 +189,7 @@
 (setq tokbearer '|<TOKEN>|)
 (setq toklbearer '|<TOKEN-LIST>|)
 (setq term-bearer '|<PRL-TERM>|)  ;-- for prl.
-(setq pp-sym '" ... ")
+(defparameter pp-sym " ... ")
 
 
 

@@ -62,7 +62,7 @@
 ;  Sets Manifests:  tokempty
 
 
-(setq tokempty '#:|^|)            ; so prints as ^        NEW
+(defparameter tokempty '#:|^|)            ; so prints as ^        NEW
                                   ; noninterned, so is # `^`
 
 (defun tokof (x) (cond
@@ -216,7 +216,7 @@
 (dml |int_of_tok| 1 intof (token -> int))
 
 
-(setq tracelist nil)
+(defparameter tracelist nil)
 
 (defun checktraceable (F)
   (cond
@@ -251,10 +251,10 @@
          (ml-displace F (cdr x))
          t))))  ;ml-UNTRACE
 
-(prog ()
- (setq infixables  '(gcd |#| |*| |+| |-| |<| |=| |>| |?| |@| |^|))
- (setq mlreserved (append '(|=| |?|) rsvdwds))
-)
+
+(defparameter infixables  '(gcd |#| |*| |+| |-| |<| |=| |>| |?| |@| |^|))
+(defparameter mlreserved (append '(|=| |?|) rsvdwds))
+
 
 (defun trymlinfix (fun tok sort)
   (declare (special mlreserved infixables))

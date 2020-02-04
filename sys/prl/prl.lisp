@@ -1080,7 +1080,7 @@
                      (throw 'CMDERR '#.(istring "Filename must be specified."))
                   fi)
            || t  -->
-              (<- fname (merge-pathnames (implode cmd-text$)
+              (<- fname (merge-pathnames (symbol-name (implode cmd-text$))
 					 (concatenate 'string "foo."
 						      *lisp-file-extension*)))
            fi)

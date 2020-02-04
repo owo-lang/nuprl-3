@@ -18,6 +18,8 @@ it isn't up to date.
 
 `sys/` The source for Nuprl
 
+![screencapture](screen.png)
+
 ## start the system
 
 ```

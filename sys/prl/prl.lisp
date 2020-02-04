@@ -1183,7 +1183,8 @@
               (throw 'CMDERR '#.(istring "Filename must be specified."))
            fi)
 	  (<- short-fname (implode cmd-text$))
-          (<- fname (merge-pathnames short-fname (concatenate 'string "foo."
+     (<- fname (merge-pathnames
+                (symbol-name short-fname) (concatenate 'string "foo."
 							      *lisp-file-extension*)))
 
        (<- load-port (prl-open$ fname 'IN))

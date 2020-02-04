@@ -16,6 +16,9 @@ it isn't up to date.
 
 `ml/` ML tactics library
 
+`lib/` Nuprl theorems library NOTE: currently unable to load theorems due to
+incompatbility between Lisp Machine Lisp and Common Lisp.
+
 `sys/` The source for Nuprl
 
 ![screencapture](screen.png)

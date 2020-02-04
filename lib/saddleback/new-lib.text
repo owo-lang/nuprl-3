@@ -1,0 +1,404 @@
+* DEF c
+  %<c:comment>%==
+
+* DEF parens
+  (<a:anything>)==(<a>)
+
+* DEF t
+  (<T:tactic>...)==(\p.((<T>) THEN Autotactic) p)
+
+* DEF w
+  (<T:tactic>...)==(\p.((<T>) THEN WeakAutotactic) p)
+
+* DEF wf
+  (<T:tactic>...)==(\p. FastAp ((<T>) THEN WeakAutotactic) p)
+
+* DEF ts
+  (<T:tactic>...!)==
+  (\p.((<T>) THEN Repeat (Autotactic ORELSE MemberI)) p)
+
+* DEF tc
+  (<T:tactic>...*)==(\p. ((<T>) THEN (FastAp o Try) (CompleteAutotactic)) p)
+
+* DEF wc
+  (<T:tactic>...*)==(\p. ((<T>) THEN (FastAp o Try) (CompleteWeakAutotactic)) p)
+
+* DEF tp
+  (<T:tactic>...when (<P:bool (free p)>))==(\p.((<T>) THEN IfThen (\p.not(<P>) ? true) Autotactic) p)
+
+* DEF wp
+  (<T:tactic>...when (<P:bool (free p)>))==(\p.((<T>) THEN IfThen (\p.not(<P>) ? true) WeakAutotactic) p)
+
+* DEF tm
+  (<T:tactic>...)==(\p.((<T>) THEN IfThen is_membership_goal Autotactic) p)
+
+* DEF wm
+  (<T:tactic>...)==(\p.((<T>) THEN IfThen is_membership_goal WeakAutotactic) p)
+
+* DEF tw
+  (<T:tactic>...wf)==(\p.((<T>) THEN IfThen is_wf_goal Autotactic) p)
+
+* DEF ww
+  (<T:tactic>...wf)==(\p.((<T>) THEN IfThen is_wf_goal WeakAutotactic) p)
+
+* DEF tn
+  (<T:tactic>...)==(\p.((<T>) THENO Autotactic) p)
+
+* DEF wn
+  (<T:tactic>...)==(\p.((<T>) THENO WeakAutotactic) p)
+
+* DEF nothing
+  <a:anything>==
+
+* DEF e
+  <x:def>==term_of(<x>_)
+
+* DEF to
+  <x:thm name>==term_of(<x>)
+
+* DEF squash
+  (<T:type>)=={(0 in int)|(<T>)}
+
+* DEF spread
+  let <x:var>,<y:var>=<t:term> in <tt:term>
+  ==spread(<t>;<x>,<y>.<tt>)
+
+* DEF dblspread
+  let <w:var>,<x:var>,<y:var>,<z:var>=
+  <t1:term>,<t2:term> in <t3:term>==
+  let <w>,<x>=<t1> in let <y>,<z>=<t2> in <t3>
+
+* DEF and
+  <P:prop> & <Q:prop>==((<P>)#(<Q>))
+
+* DEF or
+  <P:prop>  <Q:prop>==((<P>)|(<Q>))
+
+* DEF imp
+  <P:prop> => <Q:prop>==((<P>)->(<Q>))
+
+* DEF not
+  (<P:prop>)==<P> => void
+
+* DEF neq
+  <t:term>  <tt:term> in <T:type>==((<t>)=(<tt>) in (<T>))
+
+* DEF iff
+  <P:prop> \<=> <Q:prop>==<P> => <Q> & <Q> => <P>
+
+* DEF all
+  <x:var>:<T:type>. <P:prop>==(<x>:(<T>)->(<P>))
+
+* DEF all2
+  <x:var>,<y:var>:<T:type>. <P:prop>
+  ==<x>:<T>. <y>:<T>. <P>
+
+* DEF all3
+  <x:var>,<y:var>,<z:var>:<T:type>. <P:prop>
+  ==<x>:<T>. <y>,<z>:<T>. <P>
+
+* DEF all4
+  <w:var>,<x:var>,<y:var>,<z:var>:<T:type>. <P:prop>
+  ==<w>:<T>. <x>,<y>,<z>:<T>. <P>
+
+* DEF set
+  {<x:var>:<T:type>|<P:prop>}==({<x>:(<T>)|(<P>)})
+
+* DEF all_where
+  <x:var>:<T:type> where <P:prop>. <PP:prop>==
+  <x>:<T>. (<P>) => <PP>
+
+* DEF all2_where
+  <x:var>,<y:var>:<T:type> where <P:prop>. <PP:prop>
+  ==<x>:<T>. <y>:<T> where <P>. <PP>
+
+* DEF all3_where
+  <x:var>,<y:var>,<z:var>:<T:type> where <P:prop>.<PP:prop>
+  ==<x>:<T>. <y>,<z>:<T> where <P>. <PP>
+
+* DEF some
+  <x:var>:<T:type>. <P:prop>==(<x>:(<T>)#(<P>))
+
+* DEF some2
+  <x:var>,<y:var>:<T:type>. <P:prop>
+  ==<x>:<T>. <y>:<T>. <P>
+
+* DEF some3
+  <x:var>,<y:var>,<z:var>:<T:type>.<P:prop>
+  ==<x>:<T>. <y>,<z>:<T>. <P>
+
+* DEF some_where
+  <x:var>:<T:type> where <P:prop>=={<x>:(<T>)|(<P>)}
+
+* DEF some2_where
+  <x:var>,<y:var>:<T:type> where <P:prop>==
+  <x>:<T>. <y>:<T> where <P>
+
+* DEF True
+  True==(0 in int)
+
+* DEF False
+  False==void
+
+* DEF ax
+  ax==axiom
+
+* DEF p1
+  <x:tuple>.1==spread(<x>;u,v.u)
+
+* DEF p2
+  <x:tuple>.2==spread(<x>;u,v.v)
+
+* DEF p3
+  <x:tuple>.3==<x>.2.2
+
+* DEF tup
+  \<<a:term>,<b:term>\>==<(<a>),(<b>)>
+
+* DEF tup3
+  \<<a:term>,<b:term>,<c:term>\>==<(<a>),<<b>,<c>>>
+
+* DEF tup4
+  \<<a:term>,<b:term>,<c:term>,<d:term>\>==<(<a>),<<b>,<c>,<d>>>
+
+* DEF let
+  let <x:var> = <t:term> in <tt:term>==((\ <x>.(<tt>))(<t>))
+
+* DEF let2
+  let <x:var>,<y:var> = <p:pair> in <t:term>==
+  let <x> = <p>.1 in let <y> = <p>.2 in <t>
+
+* DEF let3
+  let <x:var>,<y:var>,<z:var> = <p:triple> in <t:term>==
+  let <x> = <p>.1 in let <y> = <p>.2.1 in let <z> = <p>.2.2 in <t>
+
+* DEF let4
+  let <x:var>,<y:var>,<z:var>,<a:var> = <p:quad> in <t:term>==
+  let <x> = <p>.1 in let <y> = <p>.2.1 in let <z> = <p>.2.2.1 in let <a> = .2.2.2 in <t>
+
+* DEF if_eq
+  if <x:int>=<y:int> then <s:term> else <t:term>==int_eq(<x>;<y>;<s>;<t>)
+
+* DEF if_aeq
+  if <x:Atom>=<y:Atom> then <s:term> else <t:term>==atom_eq(<x>;<y>;<s>;<t>)
+
+* DEF if_l
+  if <x:int>\<<y:int> then <s:term> else <t:term>==less(<x>;<y>;<s>;<t>)
+
+* DEF dec
+  d(<a:term>;<u:var>.<t:term>;<v:var>.<tt:term>)==
+  decide(<a>;<u>.<t>;<v>.<tt>)
+
+* DEF isl
+  isl(<x:A|B>)==d(<x>;u.True;u.False)
+
+* DEF isr
+  isr(<x:A|B>)==d(<x>;u.False;u.True)
+
+* DEF outl
+  outl(<x:A|B>)==d(<x>;u.u;u."uu")
+
+* DEF l
+  ˆ<x:var>. <t:term>==(\ <x>.(<t>))
+
+* DEF l2
+  ˆ <x:var> <y:var>. <t:term>==ˆ<x>. ˆ<y>. <t>
+
+* DEF l3
+  ˆ <x:var> <y:var> <z:var>. <t:term>==ˆ<x>. ˆ<y>. ˆ<z>. <t>
+
+* DEF dl
+  ˆ <x:var>,<y:var>. <t:term>==ˆp. let <x>,<y> = p in <t>
+
+* DEF bv
+  <x:var> -> <t:term>==(\ <x>.(<t>))
+
+* DEF bv2
+  <x:var>,<y:var> -> <t:term>==<x> -> <y> -> <t>
+
+* DEF bv3
+  <x:var>,<y:var>,<z:var> -> <t:term>==<x> -> <y>,<z> -> <t>
+
+* DEF prim_rec
+  [ 0  <b:base case> ; <n:int var>, <y:var>  <t:term> ; @ <a:int>]==
+  ind( <a>; _,__.<b>; <b>; <n>,<y>. <t> )
+
+* DEF list
+  <A:Type> list==((<A>) list)
+
+* DEF list_rec
+  [ nil  <b:term>; <h:var>.<t:var>,<v:var>  <tt:term>; @ <a:list>]==
+  list_ind( <a>; <b>; <h>,<t>,<v>. <tt> )
+
+* DEF cons
+  <h:A>.<t:A list>==((<h>).(<t>))
+
+* DEF ap
+  <f:term>(<x:term>)==((<f>)(<x>))
+
+* DEF bin_ap
+  <r:term>(<a:term>,<b:term>)==<r>(<a>)(<b>)
+
+* DEF tri_ap
+  <r:term>(<a:term>,<b:term>,<c:term>)==<r>(<a>)(<b>)(<c>)
+
+* DEF ap4
+  <r:term>(<a:term>,<b:term>,<c:term>,<d:term>)==<r>(<a>)(<b>)(<c>)(<d>)
+
+* DEF bin_tap
+  <r:fun>(<t:arg1>,<tt:arg2>)==<r>(<(<t>),(<tt>)>)
+
+* DEF type_ap
+  <f:term><x:term>==((<f>)(<x>))
+
+* DEF le
+  <x:Int><y:Int>==( (<y>)<(<x>))
+
+* DEF lele
+  <x:Int><y:Int><z:Int>==<x><y> & <y><z>
+
+* DEF lle
+  <x:Int>\<<y:Int><z:Int>==(<x>)<(<y>) & <y><z>
+
+* DEF lel
+  <x:Int><y:Int>\<<z:Int>==<x><y> & (<y>)<(<z>)
+
+* DEF ll
+  <x:Int>\<<y:Int>\<<z:Int>==(<x>)<(<y>) & (<y>)<(<z>)
+
+* THM Int_abs_
+  >> Int -> Int
+  Extraction:
+  ˆ n.  less(n;0;-n;n)
+
+* DEF Int_abs
+  |<n:Int>|==term_of(Int_abs_)(<n>)
+
+* DEF eq
+  <m:Int> = <n:Int>==((<m>)=(<n>) in Int)
+
+* THM N_
+  >> U1
+  Extraction:
+  {n:Int|0n}
+
+* DEF N
+  N==term_of(N_)
+
+* THM Int_eq_if_N_eq
+  >> x,y:N. x=y in N => x=y in Int
+
+* THM N_max_
+  >> N -> N -> N
+  Extraction:
+  ˆ m n. if m<n then n else m
+
+* DEF N_max
+  max(<m:N>,<n:N>)==N_max(<m>)(<n>)
+
+* THM Int_tail_
+  >> Int -> U1
+  Extraction:
+  ˆm.  {n:int|mn}
+
+* DEF Int_tail
+  {<n:Int>..}==term_of(Int_tail_)(<n>)
+
+* THM Int_seg_
+  >> Int -> Int -> U1
+  Extraction:
+  ˆ  m  n .  {i:Int|min}
+
+* DEF Int_seg
+  {<m:Int>..<n:Int>}==term_of(Int_seg_)( <m>)( <n>)
+
+* THM N_plus_
+  >> U1
+  Extraction:
+  {n:Int|0<n}
+
+* DEF N_plus
+  N+==term_of(N_plus_)
+
+* DEF matrix_ap
+  <B:matrix>(<i:index>,<j:index>)==<B>( <i>)( <j>)
+
+* THM in_matrix_
+  >> m,n:N.  B:({0..(m-1)}->{0..(n-1)}->Int).  i,j,p,q:Int.  x:Int.  U1
+  Extraction:
+  ˆ m n B. ˆ i j. ˆ p q. ˆx. r:{0..(m-1)}.  s:{0..(n-1)}
+      where B(r,s)  =  x  &  i  r  p  &  j  s  q
+
+* DEF in_matrix
+  <x:Int><B:matrix>{<m:numrows>,<n:numcols>}(<i:Int>:<p:Int>, <j:Int>:<q:Int>)==term_of(in_matrix_)(<m>)(<n>)(<B>)(<i>)(<j>)(<p>)(<q>)(<x>)
+
+* THM sorted_
+  >> m,n:N.  B:({0..(m-1)}->{0..(n-1)}->Int).  U1
+  Extraction:
+  ˆ m n B. j:{0..(n-1)}.  i,p:{0..(m-1)}.  i<p  =>  B(i,j)  B(p,j) 
+   &  i:{0..(m-1)}.  j,q:{0..(n-1)}.  j<q  =>  B(i,j)  B(i,q)
+
+* DEF sorted
+  sorted(<B:matrix>{<m:numrows>,<n:numcols>})==term_of(sorted_)(<m>)(<n>)(<B>)
+
+* ML RowSorted
+  let RowSorted row col1 col2 i p =
+    let n = number_of_hyps p  in
+  ( CH i 
+    THEN (E i)
+    THEN InstantiateHyp [row; col1; col2] (n+2)
+    THEN Thinning [n+1; n+2]
+  ) p
+  ;; 
+     
+    
+
+* ML ColSorted
+  let ColSorted col row1 row2 i p =
+    let n = number_of_hyps p  in
+  ( CH i 
+    THEN (E i)
+    THEN InstantiateHyp [col; row1; row2] (n+1)
+    THEN Thinning [n+1; n+2]
+  ) p
+  ;; 
+     
+    
+
+* THM saddleback_lemma
+  >> m,n:N+.  B:({0..(m-1)}->{0..(n-1)}->Int) where sorted(B{m,n}).  x:Int. 
+     k:N.  i:{0..(m-1)}.  j:{0..(n-1)} where i+(n-j)  =  k. 
+       x  B{m,n}(0:i, j:(n-1))    (x  B{m,n}(0:i, j:(n-1)))
+
+* THM saddleback
+  >> m,n:N+.  B:({0..(m-1)}->{0..(n-1)}->Int) where sorted(B{m,n}).  x:Int. 
+     x  B{m,n}(0:(m-1), 0:(n-1))    (x  B{m,n}(0:(m-1), 0:(n-1)))
+
+* EVAL eval_defs
+  let search = ˆ m  n.  ˆB.  ˆx.  term_of(saddleback)( m )(n )(B )(axiom )(x);;
+  
+  % The first item on a list is in position zero. %
+  let select =
+   ˆ i l. [ nil  "uu"; h.t,f  ˆi. if i=0 then h else f(i-1); @ l](i)
+  ;;
+  
+  % Lookup an array element, given a list of lists representation of a matrix
+   (indices start at 0).
+  % 
+  let lookup = 
+    ˆ B_rep.  ˆ i  j.  select(j,select(i,B_rep))
+  ;;
+  
+  let array1 = 
+  lookup
+         (( (1 . 2 . 3 . 4 . nil)
+         . (5 . 6 . 7 . 8 . nil)
+         . (5 . 9 . 9 . 17 . nil)     
+         . nil
+         ))
+  ;;
+  
+  let search_array1 = 
+   ˆx.  decide(search (3)(4)(array1)(x); u.(let i,j = u in <i+1,j+1>); v."not found") 
+  ;;
+

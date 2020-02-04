@@ -1,0 +1,111 @@
+>> l:Term list. (t:l. match?(t)) => match?(l) 
+BY (On `l` Induction ...+s) 
+|  >> match?(nil) 
+|  BY (Expand ``lmatchp`` ...+s) 
+|  |  1. l2: Term list   
+|  |  >> s:Sub. nil=l2 & min(s) & x:Var. (xdom(s))  s:Sub. (nil=l2) 
+|  |  BY (On `l2` Unroll ...+s) 
+|  |  |  >> s:Sub. min(s) & x:Var. (xdom(s))  s:Sub. void 
+|  |  |  BY (ILeft THENM ITerm 'nil' ...+s) 
+|  1. l: Term list   2. h3: Term   3. t:l. match?(t) => match?(l)   4. match?(h3)   5. t:l. match?(t)   
+|  >> match?(h3.l) 
+|  BY (AndThin E 3 ...) 
+|  |  5. match?(l)   
+|  |  >> match?(h3.l) 
+|  |  BY (Thin 4 THEN Expand1 ``lmatchp`` 0 ...sc) 
+|  |  |  5. l2: Term list   
+|  |  |  >> s:Sub. s(h3).s(l)=l2 & min(s) & x:Var. xdom(s) <=> xh3  xl  s:Sub. (s(h3).s(l)=l2) 
+|  |  |  BY (On `l2` Unroll ...sc) 
+|  |  |  |  6. h5: Term   
+|  |  |  |  >> s:Sub. s(h3)=h5 & s(l)=l2 & min(s) & x:Var. xdom(s) <=> xh3  xl  s:Sub. (s(h3)=h5 & s(l)=l2) 
+|  |  |  |  BY (Expand ``matchp lmatchp`` THEN HypCases ['h5'] 3 ...) 
+|  |  |  |  |  3. l2:Term list. s:Sub. s(l)=l2 & min(s) & x:Var. xdom(s) <=> xl  s:Sub. (s(l)=l2)   6. s:Sub. s(h3)=h5 & min(s) & x:Var. xdom(s) <=> xh3   
+|  |  |  |  |  >> s:Sub. s(h3)=h5 & s(l)=l2 & min(s) & x:Var. xdom(s) <=> xh3  xl  s:Sub. (s(h3)=h5 & s(l)=l2) 
+|  |  |  |  |  BY (HypCases ['l2'] 3 ...) 
+|  |  |  |  |  |  6. s:Sub. s(l)=l2 & min(s) & x:Var. xdom(s) <=> xl   
+|  |  |  |  |  |  >> s:Sub. s(h3)=h5 & s(l)=l2 & min(s) & x:Var. xdom(s) <=> xh3  xl  s:Sub. (s(h3)=h5 & s(l)=l2) 
+|  |  |  |  |  |  BY (SomeE ``s2`` 6 THEN SomeE ``s1`` 5 THEN  CaseLemma `sub_union` ['s1';'s2']...) 
+|  |  |  |  |  |  |  5. s2: Sub   6. s2(l)=l2   7. min(s2)   8. x:Var. xdom(s2) <=> xl   9. s1: Sub   10. s1(h3)=h5   
+|  |  |  |  |  |  |  11. min(s1)   12. x:Var. xdom(s1) <=> xh3   13. ncst(s1,s2)   
+|  |  |  |  |  |  |  >> s:Sub. s(h3)=h5 & s(l)=l2 & min(s) & x:Var. xdom(s) <=> xh3  xl  s:Sub. (s(h3)=h5 & s(l)=l2) 
+|  |  |  |  |  |  |  BY (Expand ``ncst`` THEN OnLast (SomeE ``x``) THEN IRight ...) 
+|  |  |  |  |  |  |  |  13. x: Var   14. xdom(s1)   15. xdom(s2)   16. (s1(x)=s2(x))   17. s: Sub   18. s(h3)=h5   19. s(l)=l2   
+|  |  |  |  |  |  |  |  >> void 
+|  |  |  |  |  |  |  |  BY (AndThin E 16 ...) THEN SplitEq 's(x)' 
+|  |  |  |  |  |  |  |  |  >> s1(x)=s(x) in Term 
+|  |  |  |  |  |  |  |  |  BY (LemmaUsing `eq_sub_aps` ['h3'] ...) THEN  (Backchain ...) 
+|  |  |  |  |  |  |  |  |  >> s(x)=s2(x) in Term 
+|  |  |  |  |  |  |  |  |  BY (LemmaUsing `eq_sub_laps` ['l'] ...) THEN  (Backchain ...) 
+|  |  |  |  |  |  |  5. s2: Sub   6. s2(l)=l2   7. min(s2)   8. x:Var. xdom(s2) <=> xl   9. s1: Sub   10. s1(h3)=h5   11. min(s1)   
+|  |  |  |  |  |  |  12. x:Var. xdom(s1) <=> xh3   13. s:Sub. min(s) & s1 s & s2 s & x:Var. xdom(s) => xdom(s1)  xdom(s2)   
+|  |  |  |  |  |  |  >> s:Sub. s(h3)=h5 & s(l)=l2 & min(s) & x:Var. xdom(s) <=> xh3  xl  s:Sub. (s(h3)=h5 & s(l)=l2) 
+|  |  |  |  |  |  |  BY (OnLast (SomeE ``s``) THEN ILeft THENM ITerm 's' ...) 
+|  |  |  |  |  |  |  |  13. s: Sub   14. min(s)   15. s1 s   16. s2 s   17. x:Var. xdom(s) => xdom(s1)  xdom(s2)   
+|  |  |  |  |  |  |  |  >> s(h3)=h5 
+|  |  |  |  |  |  |  |  BY (SplitEq 's1(h3)' THEN Try (Lemma `eq_sub_aps`) ...) THEN ThinVars ``l l2 h5 s2`` 
+|  |  |  |  |  |  |  |  |  8. x: Var   9. xh3   
+|  |  |  |  |  |  |  |  |  >> s(x)=s1(x) 
+|  |  |  |  |  |  |  |  |  BY (Expand ``sub_sub`` THEN Backchain ...) 
+|  |  |  |  |  |  |  |  13. s: Sub   14. min(s)   15. s1 s   16. s2 s   17. x:Var. xdom(s) => xdom(s1)  xdom(s2)   18. s(h3)=h5   
+|  |  |  |  |  |  |  |  >> s(l)=l2 
+|  |  |  |  |  |  |  |  BY (SplitEq 's2(l)' THEN Try (Lemma `eq_sub_laps`) ...) THEN ThinVars ``l2 h3 h5 s1`` 
+|  |  |  |  |  |  |  |  |  8. x: Var   9. xl   
+|  |  |  |  |  |  |  |  |  >> s(x)=s2(x) 
+|  |  |  |  |  |  |  |  |  BY (Expand ``sub_sub`` THEN Backchain ...) 
+|  |  |  |  |  |  |  |  13. s: Sub   14. min(s)   15. s1 s   16. s2 s   17. x:Var. xdom(s) => xdom(s1)  xdom(s2)   18. s(h3)=h5   19. s(l)=l2   20. min(s)   21. x: Var   22. xdom(s)   
+|  |  |  |  |  |  |  |  >> xh3  xl 
+|  |  |  |  |  |  |  |  BY (HypCases ['x'] 17 ...) THENL [(ILeft ...); (IRight ...)]  THEN (Expand ``sub_sub`` THEN Backchain ...) 
+|  |  |  |  |  |  |  |  13. s: Sub   14. min(s)   15. s1 s   16. s2 s   17. x:Var. xdom(s) => xdom(s1)  xdom(s2)   18. s(h3)=h5   19. s(l)=l2   20. min(s)   21. x: Var   22. xh3  xl   
+|  |  |  |  |  |  |  |  >> xdom(s) 
+|  |  |  |  |  |  |  |  BY (HypCases [] 22 THEN Expand ``sub_sub`` THEN Backchain ...) 
+|  |  |  |  |  |  6. s:Sub. (s(l)=l2)   
+|  |  |  |  |  |  >> s:Sub. s(h3)=h5 & s(l)=l2 & min(s) & x:Var. xdom(s) <=> xh3  xl  s:Sub. (s(h3)=h5 & s(l)=l2) 
+|  |  |  |  |  |  BY (IRight ...) 
+|  |  |  |  |  |  |  7. s: Sub   8. s(h3)=h5   9. s(l)=l2   
+|  |  |  |  |  |  |  >> void 
+|  |  |  |  |  |  |  BY (BackThruHypUsing ['s'] 6 ...) 
+|  |  |  |  |  3. l2:Term list. s:Sub. s(l)=l2 & min(s) & x:Var. xdom(s) <=> xl  s:Sub. (s(l)=l2)   6. s:Sub. (s(h3)=h5)   
+|  |  |  |  |  >> s:Sub. s(h3)=h5 & s(l)=l2 & min(s) & x:Var. xdom(s) <=> xh3  xl  s:Sub. (s(h3)=h5 & s(l)=l2) 
+|  |  |  |  |  BY (IRight ...) 
+|  |  |  |  |  |  7. s: Sub   8. s(h3)=h5   9. s(l)=l2   
+|  |  |  |  |  |  >> void 
+|  |  |  |  |  |  BY (BackThruHypUsing ['s'] 6 ...) 
+
+>> t:Term. match?(t) 
+BY (On `t` Induction ...) 
+|  1. x: Var   
+|  >> match?(x) 
+|  BY (Expand ``matchp`` ...+s) 
+|  |  2. t2: Term   
+|  |  >> s:Sub. s(x)=t2 & min(s) & x@0:Var. x@0dom(s) <=> x=x@0  s:Sub. (s(x)=t2) 
+|  |  BY (ILeft THENM ITerm '[<x,t2>]' ...+s) 
+|  1. l: Term list   2. f: Fun   3. t:l. match?(t)   
+|  >> match?(f(l)) 
+|  BY (FLemma `lmatch_thm` [3] ...) THEN Thin 3  
+|  |  3. match?(l)   
+|  |  >> match?(f(l)) 
+|  |  BY (Expand ``matchp`` ...+s) 
+|  |  |  3. t2: Term   4. match?(l)   
+|  |  |  >> s:Sub. f(s(l))=t2 & min(s) & x:Var. xdom(s) <=> xl  s:Sub. (f(s(l))=t2) 
+|  |  |  BY (On `t2` Unroll ...) 
+|  |  |  |  3. match?(l)   4. x: Var   
+|  |  |  |  >> s:Sub. f(s(l))=x & min(s) & x:Var. xdom(s) <=> xl  s:Sub. (f(s(l))=x) 
+|  |  |  |  BY (IRight ...+s) 
+|  |  |  |  4. l@0: Term list   5. f@0: Fun   
+|  |  |  |  >> s:Sub. f(s(l))=f@0(l@0) & min(s) & x:Var. xdom(s) <=> xl  s:Sub. (f(s(l))=f@0(l@0)) 
+|  |  |  |  BY (Decide 'f=f@0' ...) 
+|  |  |  |  |  6. f=f@0   
+|  |  |  |  |  >> s:Sub. f(s(l))=f@0(l@0) & min(s) & x:Var. xdom(s) <=> xl  s:Sub. (f(s(l))=f@0(l@0)) 
+|  |  |  |  |  BY (Expand ``lmatchp`` THEN HypCases ['l@0'] 3 ...) 
+|  |  |  |  |  |  6. s:Sub. s(l)=l@0 & min(s) & x:Var. xdom(s) <=> xl   
+|  |  |  |  |  |  >> s:Sub. f(s(l))=f@0(l@0) & min(s) & x:Var. xdom(s) <=> xl  s:Sub. (f(s(l))=f@0(l@0)) 
+|  |  |  |  |  |  BY ((OnLast (SomeE ``s``) THEN ILeft THENM ITerm 's' ...) ...sc) 
+|  |  |  |  |  |  5. f=f@0   6. s:Sub. (s(l)=l@0)   
+|  |  |  |  |  |  >> s:Sub. f(s(l))=f@0(l@0) & min(s) & x:Var. xdom(s) <=> xl  s:Sub. (f(s(l))=f@0(l@0)) 
+|  |  |  |  |  |  BY (IRight ...+s) 
+|  |  |  |  |  |  |  5. s: Sub   6. s(l)=l@0   7. s1:Sub. (s1(l)=l@0)   8. f=f@0   
+|  |  |  |  |  |  |  >> void 
+|  |  |  |  |  |  |  BY (EOn 's' 7 ...) THEN (Contradiction ...) 
+|  |  |  |  |  3. match?(l)   6. (f=f@0)   
+|  |  |  |  |  >> s:Sub. f(s(l))=f@0(l@0) & min(s) & x:Var. xdom(s) <=> xl  s:Sub. (f(s(l))=f@0(l@0)) 
+|  |  |  |  |  BY (IRight ...+s) 

@@ -1,0 +1,271 @@
+%-------------------------------------------------------------------------------------------+
+|                                                                                           |
+|  tactics.ml:                   Tactics for general use in PRL                             |
+|                                                                                           |
++-------------------------------------------------------------------------------------------%
+
+
+
+% ********************* LIST OF USED PREDEFINED FUNCTIONS OR TACTICS  ***********************
+*                                                                                           *
+*  From MRB:>kreitz>prl_extensions>supply                                                   * 
+*                                                                                           * 
+*        is_alpha_convertible : term -> term -> bool                                        * 
+*        match_subterms       : term -> term -> proof -> term_list                          *
+*        imp                  : term                                                        * 
+*        andl                 : term                                                        * 
+*        andr                 : term                                                        * 
+*                                                                                           * 
+*                                                                                           * 
+* From MRB:>prl>ml>tactics-1 (-2/ -3/ -4)                                                   * 
+*                                                                                           * 
+*        Elim                 : int -> tactic                                               * 
+*        RepeatFor            : int -> tactic -> tactic                                     * 
+*        ComputeConclUsing    : (term -> term) -> tactic                                    * 
+*        NormalizeConcl       : tactic                                                      * 
+*        NormalizeHyp         : int -> tactic                                               * 
+*        NormalizeHyps        : int list -> tactic                                          * 
+*        TopLevelComputeConcl : tactic                                                      * 
+*        TopLevelComputeHyp   : int -> tactic                                               * 
+*        SubstFor             : term -> tactic                                              * 
+*        Cases                : term list -> tactic                                         * 
+*        ThinToEnd            : int -> tactic                                               * 
+*        RepeatAndElim        : int -> tactic                                               * 
+*                                                                                           * 
+****************************** END LIST OF PREDEFINED FUNCTIONS ****************************%
+
+
+ 
+   product_equality_independent : rule    (found in the manual but not in the PRL-system)
+   ---------------------------------------------------------------------------------------   
+
+
+
+   Elementary tactics & Rule-tactics
+   ---------------------------------
+
+    Intro            = tactic                PRL-rule    intro
+
+    Set_elim         = int -> int -> tactic  PRL-rule    elim hyp level       for sets
+   
+    Hyp number       = int -> tactic         PRL-rule    hyp
+    Last_hyp proof   = tactic
+    Last_1_hyp proof = tactic
+    Last_2_hyp proof = tactic
+
+    CUMULATIVITY     = int -> tactic         PRL-rule    cumulativity level
+    Cumulativity     = tactic                PRL-rule    cumulativity 1
+
+    Thinning         = int_list -> tactic    PRL-rule    thinning 
+    ThinLast         = int -> tactic         thinning of the last n hypotheses
+    Thin_last        = tactic                thinning of the last hypothesis
+
+    equal            = tactic                PRL-rule    equality;;
+    Equal            = TRY equal
+    Arith            = tactic                PRL-rule    arith at U1
+    Decision         = tactic                equal ORELSE (COMPLETE Arith)
+
+    Lemma            = tok -> tactic         PRL-rule    lemma name
+
+    Seq term_list    = term list -> tactic   PRL-rule    seq 
+
+    Extensionality   = tactic                PRL-rule    extensionality
+
+    FAILTAC          = tactic                fails always
+
+    Int_minus        = tactic                PRL-rule    integer_equality_minus
+    Int_add          = tactic                PRL-rule    integer_equality_addition
+    Int_sub          = tactic                PRL-rule    integer_equality_subtraction
+    Int_mult         = tactic                PRL-rule    integer_equality_multiplication
+    Int_mod          = tactic                PRL-rule    integer_equality_modulo
+    Int_number       = tactic                PRL-rule    integer_equality_natural_number
+   
+    Ui_equality      = tactic                PRL-rule    equal_equality
+    UiUjtac          = tactic                PRL-rule    universe_equality
+    ProdUitac        = tactic                PRL-rule    product_equality_independent
+    FuncUitac        = tactic                PRL-rule    function_equality_independent
+ 
+    Int_computation  = tok -> int -> tactic  PRL-rule    integer_computation kind no
+    Inteq_computation= int -> bool -> tactic PRL-rule    int_eq_computation no bool
+
+    List_computation = int -> tactic         PRL-rule    list_computation no
+
+    Int_elim         = int -> tactic         PRL rule    elim hyp    for integers  (induction)
+
+    Direct_computation= term -> tactics      PRL rule    direct_computation term
+    Hyp_computation  = int -> term ->tactic  PRL rule    direct_computation_hyp hyp term
+
+
+    Trivial_types    = tactic 
+      a collection of all the Intro-rules which don't leave subgoals
+
+
+
+
+
+   Computation tactics
+   -------------------
+
+   H >> redex                                            Compute howoften
+      >> contractum
+
+   H >> redex in T                                       Compute_term howoften
+      >> contractum in T
+
+   H >> redex = t in T                                   Compute_term howoften
+      >> contractum = t in T
+
+   H >> t = redex in T                                   Compute_snd_term howoften
+      >> t = contractum in T
+
+   H >> t in redex                                       Compute_type howoften
+      >> t in contractum
+
+   H >> y:redex -> T                                     Compute_function_left howoften
+      >> y:contractum -> T
+
+   H >> y:T -> redex                                     Compute_function_right howoften
+      >> y:T -> contractum
+
+   H >> t in y:T -> redex                                Compute_equal_function_right howoften
+      >> t in y:T -> contractum
+
+   H >> t in y:redex -> T                                Compute_equal_function_left howoften
+      >> t in y:contractum -> T
+
+   The same for products, sets, unions, applications, lists (some day) 
+
+   The same for hypotheses :
+      Hyp_compute hyp howoften
+      Hyp_compute_term hyp howoften 
+      Hyp_compute_snd_term hyp howoften
+      Hyp_compute_type hyp howoften 
+
+
+   (TO BE COMPLETED)
+
+   (Definition instantiations will be destroyed - so use these only within completion tactics)
+
+
+
+
+   Elementary tacticals 
+   --------------------
+
+   THENMEMBER  =  tactic -> tactic -> tactic    
+      apply tac2 to all membership subgoals of tac1
+   
+   REPEATL     =  (tactic -> tactic) -> tactic list -> tactic
+      repeat application of the tactical to all tactics in the tactic list
+   
+
+
+
+
+
+   Hypothesis elimination
+   ----------------------
+
+   elim_using        : tactic -> term list -> int -> tactic
+   eliminate_using   : term list -> int -> tactic
+
+   Given an instantiation_list of the form [a1;a2;...an] where ai might be 
+    either instance terms or one of the special terms "imp", "andl" or "andr"
+    elim_using eliminates the named hypothesis hyp corresponding to the ai's
+    nulltac will be used if inst_list is empty
+    subgoals that the ai are of the right type are left over
+
+   Example:
+    hypothesis hyp be   "x1:T1 -> x2:T2 -> (x3:T3 -> T4 & T4') & (y3:T3' -> T4'')
+   and      inst_list =    [a;imp;andl;b;andr]
+
+   Result  H >> T by elim_using .....
+               >> a in T1
+               >> T2    
+               >> b in T3
+               T4'[a,b/x1,x3] >> T
+
+
+
+
+
+   Extended hypothesis tactic 
+   --------------------------
+
+   Direct_hypotheses    = tactic                   try all hypotheses
+
+   Hyp_elim_on          =                          same as eliminate_using 
+
+   HYP                  = int -> tactic         
+      try if goal follows from named hyp via function or product elimination (uses matching)
+
+   Try_elimination_in_hypotheses    =  tactic
+      try if goal follows from hypotheses via function or product elimination (uses matching)
+
+   HYPOTHESIS           =  tactic
+      tries all kinds of manipulations with hypotheses which end up without
+      leaving subgoals. This includes decision procedures and elimination
+      within hypotheses if they succeed.
+
+   
+
+
+   Membership tactic
+   -----------------
+
+   membertac   : tactic -> tactic;
+   membership  : tactic
+
+     Intended to solve all kind of membership ("a in T") problems - particularly
+     wellformedness.
+     For increasing speed and specially defined types a tactic "special_tac",
+     which will be applied first, may be used first. special_tac should fail if it
+     is not applicable. Default is FAILTAC which leads to membership    
+
+     "SIDE-effect": proofs "x = y in T" which can be solved by introduction steps
+                    (except set_equality and quotient_equality and formation)
+                    are also covered by membership
+
+     sometimes somewhat unpredictable (needs improvement but under a different name)
+
+
+
+
+
+
+   THEOREM APPLICATION  (including elimination of all's and &'s if necessary )
+   -------------------
+
+   THEOREM1    : tok -> term list -> tactic
+   THEOREM     : tok -> tactic
+
+
+    the named theorem be (as an example)
+
+      >> all x1:T1. all x2:T2. (T3 => ((all x4:T4. T5) & (S4 => S5)) ) & S3
+
+   THEOREM1 needs a given instantiation list and produces
+
+      H >> T by THEOREM1 name [t1;t2;andl;imp;andl;t4]
+         >> t1 in T1
+         >> t2 in T2[t1/x1]
+         >> T3[t1,t2/x1,x2]
+         >> t4 in T4[t1,t2/x1,x2]
+         T5[t1,t2,t4/x1,x2,x4] >> T
+
+
+   THEOREM  tries to find the instantiation list itself but for this the goal T
+            has to match one of the theorems subterms (e.g. T5[t1,t2,t4/x1,x2,x4])
+
+      H >> T by THEOREM name
+         >> t1 in T1
+         >> t2 in T2[t1/x1]
+         >> T3[t1,t2/x1,x2]
+         >> t4 in T4[t1,t2/x1,x2]
+
+   No attempts will be made in the above THEOREM rules to solve one ove the subgoals.
+   A combination of THEOREM/THEOREM1 with a membership tactic will do that.
+
+   thm      :  tok -> term list -> tactic
+   theorem  :  tok -> tactic
+

@@ -1,0 +1,660 @@
++-----------------------------------------------------------------------+
+| Library   Automata                                                    |
+|-----------------------------------------------------------------------| 
+|* AUTOMATA_THEORY                                                      |
+|  DEF PRL-Version by Christoph Kreitz                                  |
+|     February 25, 1986                                                 |
+|                                                                       |
+|* c1                                                                   |
+|  DEF                                                                  |
+|                                                                       |
+|           CHAPTER 1:     PRELIMINARIES                                |
+|           ----------------------------                                |
+|                                                                       |
+|                                                                       |
+|                                                                       |
+|                                                                       |
+|* c10                                                                  |
+|  DEF                                                                  |
+|                                                                       |
+|           1.0:    general definitions for tactics                     |
+|           ----                                                        |
+|                                                                       |
+|                                                                       |
+|* c                                                                    |
+|  DEF (*<>*)                                                           |
+|                                                                       |
+|* tac                                                                  |
+|  DEF -<tactic>                                                        |
+|                                                                       |
+|* tacm                                                                 |
+|  DEF @<tactic>                                                        |
+|                                                                       |
+|* tacmember                                                            |
+|  DEF &<tactic>                                                        |
+|                                                                       |
+|* theorem                                                              |
+|  DEF THEOREM <theorem_name>                                           |
+|                                                                       |
+|* c11                                                                  |
+|  DEF                                                                  |
+|                                                                       |
+|           1.1:    NOTATION: logic definitions, tupling, functions     |
+|           ----                                                        |
+|                                                                       | 
+|                                                                       |
+|* and                                                                  |
+|  DEF <prop> & <prop>                                                  |
+|                                                                       |
+|* all                                                                  |
+|  DEF <var>:<type>. <prop>                                            |
+|                                                                       |
+|* all2                                                                 |                                               
+|  DEF <var>,<var>:<type>. <prop>                                      |
+|                                                                       |
+|* all3                                                                 |
+|  DEF <var>,<var>,<var>:<type>. <prop>                                |
+|                                                                       |
+|* some                                                                 |
+|  DEF <var>:<type>. <prop>                                            |
+|                                                                       |
+|* some2                                                                |
+|  DEF <var>,<var>:<type>. <prop>                                      |   
+|                                                                       |   
+|* some3                                                                |   
+|  DEF <var>,<var>,<var>:<type>. <prop>                                |   
+|                                                                       |   
+|* imp                                                                  |   
+|  DEF <prop> => <prop>                                                 |   
+|                                                                       |   
+|* equiv                                                                |   
+|  DEF <prop> <=> <prop>                                                |   
+|                                                                       |   
+|* false                                                                |   
+|  DEF false                                                            |   
+|                                                                       |   
+|* not                                                                  |   
+|  DEF <prop>                                                          |   
+|                                                                       |   
+|* type                                                                 |   
+|  DEF TYPE                                                             |   
+|                                                                       |   
+|* tup2                                                                 |   
+|  DEF (<term>,<term>)                                                  |   
+|                                                                       |   
+|* tup3                                                                 |   
+|  DEF (<term>,<term>,<term>)                                           |   
+|                                                                       |   
+|* tup4                                                                 |   
+|  DEF (<term>,<term>,<term>,<term>)                                    |   
+|                                                                       |   
+|* detup2                                                               |   
+|  DEF <term> -where (<term>,<term>)=<term>-                            |   
+|                                                                       |   
+|* detup3                                                               |   
+|  DEF <term>- where (<term>,<term>,<term>)=<term>-                     |   
+|                                                                       |   
+|* detup4                                                               |   
+|  DEF <term>- where (<term>,<term>,<term>,<term>)=<term>-              |   
+|                                                                       |   
+|* fun2                                                                 |   
+|  DEF ˆ<id>,<id>.<term>                                                |   
+|                                                                       |   
+|* c12                                                                  |   
+|  DEF                                                                  |   
+|                                                                       |   
+|           1.2:     SETS                                               |   
+|           ----                                                        |   
+|                                                                       |   
+|                                                                       |   
+|* c12a                                                                 |   
+|  DEF                                                                  |   
+|                                                                       |   
+|      1.2.a SETS & POWERSETS                                           |   
+|      -----                                                            |   
+|                                                                       |   
+|                                                                       |   
+|* sets                                                                 |   
+|  DEF SETS                                                             |   
+|                                                                       |   
+|* setdef                                                               |   
+|  DEF {<id>:<TYPE>||<TYPE>}                                            |   
+|                                                                       |   
+|* singleton                                                            |   
+|  DEF {<element>:<TYPE>}                                               |   
+|                                                                       |   
+|* carrier                                                              |   
+|  DEF carrier(<SETS>)                                                  |   
+|                                                                       |   
+|* pred                                                                 |   
+|  DEF pred(<SETS>)                                                     |   
+|                                                                       |   
+|* inset                                                                |   
+|  DEF <element>  {<SETS>}                                             |   
+|                                                                       |   
+|* setconversion                                                        |   
+|  DEF {<SETS into a set>}                                              |   
+|                                                                       |   
+|* powerset                                                             |   
+|  DEF P(<TYPE>)                                                        |   
+|                                                                       |   
+|* c12b                                                                 |   
+|  DEF                                                                  |   
+|                                                                       |   
+|      1.2.b NATURAL NUMBERS & NUMBER THEORY                            |   
+|      -----                                                            |   
+|                                                                       |   
+|                                                                       |   
+|* leq                                                                  |   
+|  DEF <int><int>                                                      |   
+|                                                                       |   
+|* uneq                                                                 |   
+|  DEF <int><int>                                                      |   
+|                                                                       |   
+|* N                                                                    |   
+|  DEF N                                                                |   
+|                                                                       |   
+|* int_arith                                                            |   
+|  THM >>x,y:int. (x = y in int) | xy                                 |   
+|                                                                       |   
+|* intsub                                                               |   
+|  THM >>i,j:int. i=j in int => j-i = 0 in int                         |   
+|                                                                       |   
+|* lessarith                                                            |   
+|  THM >>i,j:int. i<j => 0<j-i                                         |   
+|                                                                       |   
+|* lessarith1                                                           |   
+|  THM >>i,j,k:int. ij & 0k => ij+k                                 |   
+|                                                                       |   
+|* c12c                                                                 |   
+|  DEF                                                                  |   
+|                                                                       |   
+|      1.2.c: FINITE SETS & Cardinality                                 |   
+|      ------                                                           |   
+|                                                                       |   
+|* nbar                                                                 |   
+|  DEF {1,..,<N>}                                                       |   
+|                                                                       |   
+|* nbar1                                                                |   
+|  DEF {0,..,<N>}                                                       |   
+|                                                                       |   
+|* finite                                                               |   
+|  DEF FINITE SETS                                                      |   
+|                                                                       |  
+|* finset                                                               |  
+|  DEF {<FINITE SETS into a set>}                                       |  
+|                                                                       |  
+|* finsettype                                                           |  
+|  THM >>A:FINITE SETS. {A} in TYPE                                    |  
+|                                                                       |  
+|* wf1                                                                  |  
+|  THM >>n:N. x:{1,..,n}. x in int                                    |  
+|                                                                       |  
+|* wf2                                                                  |  
+|  THM >>n:N. x:{1,..,n}. xn                                         |  
+|                                                                       |  
+|* wf3                                                                  |  
+|  THM >>n:N. x:{1,..,n}. 0 < x                                       |  
+|                                                                       |  
+|* fineq                                                                |  
+|  THM >>m:N. x:{1,..,(m-1)+1}. x in {1,..,m}                         |  
+|                                                                       |  
+|* extend                                                               |  
+|  THM >>k:N. y:{1,..,k}. y in {1,..,k+1}                             |  
+|                                                                       |  
+|* extend1                                                              |  
+|  THM >>k:N. x:{1,..,(k-1)+1}. x in {1,..,k+1}                       |  
+|                                                                       |  
+|* restrict                                                             |  
+|  THM >>m:N. x:{1,..,m}. x<m => x in {1,..,m-1}                      |  
+|                                                                       |  
+|* restrict1                                                            |  
+|  THM >>m:N. x:{1,..,m}. xm => x in {1,..,m-1}                      |  
+|                                                                       |  
+|* finarith                                                             |  
+|  THM >>m:N. x:{1,..,m}. ( x = m in {1,..,m}) | (x<m)                |  
+|                                                                       |  
+|* finfuntype                                                           |  
+|  THM >>m:N. f:{1,..,m+1}->{1,..,m}. x:{1,..,m+1}. f(x) in int      |  
+|                                                                       |  
+|* hole1                                                                |  
+|  THM >>k:int. 0k                                                    |  
+|       => n:N. f:{1,..,k}->{1,..,n}. y:{1,..,n}                     |  
+|        . x:{1,..,k}. f(x)=y in int  |  x:{1,..,k}. f(x)y           |  
+|                                                                       |  
+|* pigeon_type                                                          |  
+|  THM >>k:N. f:({1,..,k+1} -> {1,..,k})                              |  
+|      . i,j:{1,..,k+1}. (i<j & f(i) = f(j) in int) in U1              |  
+|                                                                       |  
+|* pigeon                                                               |  
+|  THM >>k:int. 0k => f:{1,..,k+1} -> {1,..,k}                       |  
+|      . i,j:{1,..,k+1}                                                |  
+|      . i<j & f(i) = f(j) in int                                       |  
+|                                                                       |  
+|* pigeon_variant                                                       |  
+|  THM >>n:N. h:{0,..,n} -> {1,..,n}                                  |  
+|      . k,l:int                                                       |  
+|      . 0k & k<l & ln &   h(k) = h(l) in {1,..,n}                    |  
+|                                                                       |  
+|* c13                                                                  |  
+|  DEF                                                                  |  
+|                                                                       |  
+|           1.3:     Words                                              |  
+|           ----                                                        |  
+|                                                                       |  
+|           For convenience strings (WORDS) are viewed as lists over    |  
+|           a fixed alphabet (int)                                      |  
+|                                                                       |  
+|                                                                       |  
+|* c13a                                                                 |  
+|  DEF                                                                  |  
+|                                                                       |  
+|            1.3.a: basic definitions                                   |  
+|            -----                                                      |  
+|                                                                       |  
+|                                                                       |  
+|* symbols                                                              |  
+|  DEF SYMBOLS                                                          |  
+|                                                                       |  
+|* words                                                                |  
+|  DEF WORDS                                                            |  
+|                                                                       |  
+|* eps                                                                  |  
+|  DEF                                                                 |  
+|                                                                       |  
+|* noteps                                                               |  
+|  DEF <words>                                                        |  
+|                                                                       |  
+|* concat                                                               |  
+|  DEF (<words> <words>)                                                |  
+|                                                                       |  
+|* sym                                                                  |  
+|  DEF <symbol into word conversion>                                   |  
+|                                                                       |  
+|* anticons                                                             |  
+|  DEF <WORDS>*<SYMBOLS>                                                |  
+|                                                                       |  
+|* rev                                                                  |  
+|  DEF <words>                                                         |  
+|                                                                       |  
+|* hd                                                                   |  
+|  DEF hd(<words>)                                                      |  
+|                                                                       |  
+|* tl                                                                   |  
+|  DEF tl(<words>)                                                      |  
+|                                                                       |  
+|* lg                                                                   |  
+|  DEF |<WORDS>|                                                        |  
+|                                                                       |  
+|* iter                                                                 |  
+|  DEF <words><N>                                                      |  
+|                                                                       |  
+|* cutprefix                                                            |  
+|  DEF <words>[<N>+1..lg]                                               |  
+|                                                                       |  
+|* select                                                               |  
+|  DEF <words>(<N>)                                                     |  
+|                                                                       |  
+|* cutsuffix                                                            |  
+|  DEF <words>[1..<N>]                                                  |  
+|                                                                       |  
+|* range                                                                |  
+|  DEF <words>[<N>+1..<N>]                                              |  
+|                                                                       |  
+|* c13b                                                                 |  
+|  DEF                                                                  |  
+|                                                                       |  
+|            1.3.b: basic properties of words                           |  
+|            -----                                                      |  
+|                                                                       |  
+|                                                                       |  
+|* eps1                                                                 |  
+|  THM >>v:WORDS. ( v) = v in WORDS                                   |  
+|                                                                       |  
+|* eps2                                                                 |  
+|  THM >>v:WORDS. (v ) = v in WORDS                                   |  
+|                                                                       |  
+|* symconcat                                                            |  
+|  THM >>w:WORDS. a:SYMBOLS. (a w) = a.w in WORDS                    |  
+|                                                                       |  
+|* symcon                                                               |  
+|  THM >>u,v:WORDS. a:SYMBOLS. (a.u v) = a.(u v) in WORDS             |  
+|                                                                       |  
+|* conassoz                                                             |  
+|  THM >> u,v,w:WORDS. ((u v) w) = (u (v w)) in WORDS                  |  
+|                                                                       |  
+|* epsrev                                                               |  
+|  THM >> =  in WORDS                                                |  
+|                                                                       |  
+|* symrev                                                               |  
+|  THM >>a:SYMBOLS. a = a in WORDS                                  |  
+|                                                                       |  
+|* consrev                                                              |  
+|  THM >>a:SYMBOLS. u:WORDS. a.u = u*a in WORDS                     |  
+|                                                                       |  
+|* anticonsrev                                                          |  
+|  THM >>w:WORDS. a:SYMBOLS. w*a = a.w in WORDS                     |  
+|                                                                       |  
+|* revcon                                                               |  
+|  THM >>u,v:WORDS. ((u v)) = (v u) in WORDS                        |  
+|                                                                       |  
+|* doublerev                                                            |  
+|  THM >>u:WORDS. (u) = u in WORDS                                   |  
+|                                                                       |  
+|* hdprop                                                               |  
+|  THM >>a:SYMBOLS. u:WORDS. hd(a.u) = a in SYMBOLS                   |  
+|                                                                       |  
+|* hd1                                                                  |  
+|  THM >>u,v:WORDS. u => hd((u v)) = hd(u) in SYMBOLS                |  
+|                                                                       |  
+|* tlprop                                                               |  
+|  THM >>a:SYMBOLS. u:WORDS. tl(a.u) = u in WORDS                     |  
+|                                                                       |  
+|* tl1                                                                  |  
+|  THM >>a:SYMBOLS. u,v:WORDS. tl((a.u v)) = (u v) in WORDS           |  
+|                                                                       |  
+|* tlcon                                                                |  
+|  THM >>u,v:WORDS. u => tl((u v)) = (tl(u) v) in WORDS              |  
+|                                                                       |  
+|* lgtype1                                                              |  
+|  THM >>w:WORDS. 0|w|                                                |  
+|                                                                       |  
+|* lgprop                                                               |  
+|  THM >>w:WORDS. w =  in WORDS <=> |w| = 0 in int                    |  
+|                                                                       |  
+|* lgprop1                                                              |  
+|  THM >>w:WORDS. w <=> 0<|w|                                        |  
+|                                                                       |  
+|* lgeps                                                                |  
+|  THM >>|| = 0 in int                                                 |  
+|                                                                       |  
+|* lgcons                                                               |  
+|  THM >>a:SYMBOLS. u:WORDS. |a.u| = (|u|+1) in int                   |  
+|                                                                       |  
+|* lgsym                                                                |  
+|  THM >>a:SYMBOLS. |a| = 1 in int                                    |  
+|                                                                       |  
+|* lgconcat                                                             |  
+|  THM >>u,v:WORDS. |(u v)| = (|u|+|v|) in int                         |  
+|                                                                       |  
+|* lganti                                                               |  
+|  THM >>w:WORDS. a:SYMBOLS. |w*a| = |w|+1 in int                     |  
+|                                                                       |  
+|* lgrev                                                                |  
+|  THM >>w:WORDS. |w| = |w| in int                                    |  
+|                                                                       |  
+|* lgtl                                                                 |  
+|  THM >>w:WORDS. w => |tl(w)| = (|w|-1) in int                      |  
+|                                                                       |  
+|* lgpre                                                                |  
+|  THM >>w:WORDS. k:int. 0k & k|w|                                  |  
+|       => |w[k+1..lg]| = |w|-k in int                                  |  
+|                                                                       |  
+|* lgsel                                                                |  
+|  THM >>w:WORDS. i:int. |w(i)| = 1 in int                           |  
+|                                                                       |  
+|* lgsuf                                                                |  
+|  THM >>w:WORDS. l:int. 0l => |w[1..l]| = l in int                  |  
+|                                                                       |  
+|* lgrange                                                              |  
+|  THM >>w:WORDS. l,r:int. 0l & lr                                  |  
+|       => |w[l+1..r]| = r-l in int                                     |  
+|                                                                       |  
+|* iter1                                                                |  
+|  THM >>w:WORDS. k:int. k<1 => wk =  in WORDS                      |  
+|                                                                       |  
+|* iter2                                                                |  
+|  THM >>w:WORDS. k:int. 0<k => wk = (w wk-1) in WORDS              |  
+|                                                                       |  
+|* word1                                                                |  
+|  THM >>l:WORDS. a:SYMBOLS. z:WORDS. b:SYMBOLS                     |  
+|      . a.l = z*b in WORDS                                             |  
+|                                                                       |  
+|* noteps1                                                              |  
+|  THM >>w:WORDS. (w =  in WORDS) | w                               |  
+|                                                                       |  
+|* notepsthm                                                            |  
+|  THM >>w:WORDS. w <=> w= in WORDS                                |  
+|                                                                       |  
+|* preeps                                                               |  
+|  THM >>k:int. [k+1..lg] =  in WORDS                                |  
+|                                                                       |  
+|* pre0                                                                 |  
+|  THM >>u:WORDS. i:int. 0i & i<|u| => u[i+1..lg]                  |  
+|                                                                       |  
+|* pre1                                                                 |  
+|  THM >>w:WORDS. w[0+1..lg] = w in WORDS                              |  
+|                                                                       |  
+|* pre2                                                                 |  
+|  THM >>w:WORDS. k:N                                                 |  
+|      . w[k+1+1..lg] = tl(w[k+1..lg]) in WORDS                         |  
+|                                                                       |  
+|* pretl                                                                |  
+|  THM >>w:WORDS. k:int                                               |  
+|      . tl(w[k+1..lg]) = tl(w)[k+1..lg] in WORDS                       |  
+|                                                                       |  
+|* precons                                                              |  
+|  THM >>a:SYMBOLS. l:WORDS. k:int. 0<k                              |  
+|       => a.l[k+1..lg] = l[k-1+1..lg] in WORDS                         |  
+|                                                                       |  
+|* pre3                                                                 |  
+|  THM >>w:WORDS. w[|w|+1..lg] =  in WORDS                            |  
+|                                                                       |  
+|* pre4                                                                 |  
+|  THM >>w:WORDS. a:SYMBOLS. w*a[|w|+1..lg] = a in WORDS             |  
+|                                                                       |  
+|* pre5                                                                 |  
+|  THM >>u,v:WORDS. i:int. 0i & i|u|                                |  
+|       => (u v)[i+1..lg] = (u[i+1..lg] v) in WORDS                     |  
+|* selcon1                                                              |  
+|  THM >>u,v:WORDS. i:int. 0<i & i|u|                                |  
+|       => (u v)(i) = u(i) in SYMBOLS                                   |  
+|                                                                       |  
+|* sel1                                                                 |  
+|  THM >>w:WORDS. w(1) = hd(w) in SYMBOLS                              |  
+|                                                                       |  
+|* sel6                                                                 |  
+|  THM >>w:WORDS. a:SYMBOLS. w*a(|w*a|) = a in SYMBOLS                |  
+|                                                                       |  
+|* suf1                                                                 |  
+|  THM >>w:WORDS. w[1..0] =  in WORDS                                 |  
+|                                                                       |  
+|* suf2                                                                 |  
+|  THM >>w:WORDS. l:N. w[1..l+1] = w[1..l]*w(l+1) in WORDS            |  
+|                                                                       |  
+|* sufcon                                                               |  
+|  THM >>u,v:WORDS. k:int. k|u|                                      |  
+|       => (u v)[1..k] = u[1..k] in WORDS                               |  
+|                                                                       |  
+|* suf3                                                                 |  
+|  THM >>w:WORDS. w[1..|w|] = w in WORDS                               |  
+|                                                                       |  
+|* suf5                                                                 |  
+|  THM >>u,v:WORDS. (u v)[1..|u|] = u in WORDS                         |  
+|                                                                       |  
+|* range1                                                               |  
+|  THM >>w:WORDS. r:int. w[0+1..r] = w[1..r] in WORDS                 |  
+|                                                                       |  
+|* range2                                                               |  
+|  THM >>w:WORDS. l:int. 0l & l|w|                                  |  
+|       => w[l+1..|w|] = w[l+1..lg] in WORDS                            |  
+|                                                                       |  
+|* range4                                                               |  
+|  THM >>w:WORDS. l,r:int. 0l & l<r                                  |  
+|       => w[l+1..r] = w[l+1..r-1]*w(r) in WORDS                        |  
+|                                                                       |  
+|* range5                                                               |  
+|  THM >>w:WORDS. r:N. w[r+1..r] =  in WORDS                         |  
+|                                                                       |  
+|* range5a                                                              |  
+|  THM >>w:WORDS. l,r,k:int. 0l & lr & 0k                          |  
+|       => (w[l+1..r] w[r+1..r+k]) = w[l+1..r+k] in WORDS               |  
+|                                                                       |  
+|* range6                                                               |  
+|  THM >>w:WORDS. l,r,k:int. 0l & lr & rk                          |  
+|       => (w[l+1..r] w[r+1..k]) = w[l+1..k] in WORDS                   |  
+|                                                                       |  
+|* range7                                                               |  
+|  THM >>w:WORDS. w[0+1..|w|] = w in WORDS                             |  
+|                                                                       |  
+|* range9                                                               |  
+|  THM >>w:WORDS. l,r:int. 0l & lr                                  |  
+|       => (w[1..l] w[l+1..r]) = w[1..r] in WORDS                       |  
+|                                                                       |  
+|* rangethm                                                             |  
+|  THM >>w:WORDS. l,r:int. 0l & lr & r|w|                          |  
+|       => w = ((w[1..l] w[l+1..r]) w[r+1..lg]) in WORDS                |  
+|                                                                       |  
+|* c15                                                                  |  
+|  DEF                                                                  |  
+|                                                                       |  
+|           1.5:     Induction                                          |  
+|           ----                                                        |  
+|                                                                       |  
+|                                                                       |  
+|                                                                       |  
+|* induction_thm                                                        |  
+|  THM >>P:WORDS->U10                                                  |  
+|      . (v:WORDS. P(v)) <=> (u:WORDS. P(u))                         |  
+|                                                                       |  
+|* ind_principle                                                        |  
+|  THM >>P:WORDS->U10                                                  |  
+|      .   P()  &   b:SYMBOLS. z:WORDS.  P(z) => P(z*b)              |  
+|       => w:WORDS. P(w)                                               |  
+|                                                                       |  
+|* induction_thm1                                                       |  
+|  THM >>P:WORDS->U10.                                                 |  
+|          i:int. w:WORDS. |w| = i in int => P(w)                     |  
+|       => w:WORDS. P(w)                                               |  
+|                                                                       |  
+|* ind_principle1                                                       |       
+|  THM >>P:WORDS->U10                                                  |
+|      . (P() &                                                        |
+|         i:int. 0<i =>                                                |
+|             z:WORDS. |z|=(i-1) in int => P(z)                        |
+|          => z:WORDS. |z| = i in int   => P(z)                        |
+|        )                                                              |
+|       => w:WORDS. P(w)                                               |
+|                                                                       |
+|* trk                                                                  |
+|  DEF TRK(<A->B>,<B#SYMBOLS->B>)                                       |
+|                                                                       |
+|* trktype                                                              |
+|  THM >>A,B:TYPE. g:A->B. h:(B#SYMBOLS)->B.                         |
+|      TRK(g,h) in (A#WORDS)->B                                         |
+|                                                                       |
+|* trk1                                                                 |
+|  THM >>A,B:TYPE. g:A->B. h:(B#SYMBOLS)->B. x:A                    | 
+|      . TRK(g,h)(x,) = g(x) in B                                      |
+|                                                                       |
+|* trk2                                                                 |
+|  THM >>A,B:TYPE. g:A->B. h:(B#SYMBOLS)->B                          |
+|      . x:A. w:WORDS. a:SYMBOLS                                     |
+|      . TRK(g,h)(x,w*a) = h(TRK(g,h)(x,w),a) in B                      |
+|                                                                       |
+|* idtrk                                                                |
+|  DEF <B#SYMBOLS->B>*                                                  |
+|                                                                       |
+|* trk3                                                                 |
+|  THM >>A,B:TYPE. g:A->B. h:(B#SYMBOLS)->B. x:A. w:WORDS          |
+|      . TRK(g,h)(x,w) = h*(g(x),w) in B                                |
+|                                                                       |
+|* trk4                                                                 |
+|  THM >>B:TYPE. h:(B#SYMBOLS)->B. u,v:WORDS. x:B                   |
+|      . h*(x,(u v)) = h*(h*(x,u),v) in B                               |
+|                                                                       |
+|* c2                                                                   |
+|  DEF                                                                  |
+|                                                                       |
+|                                                                       |
+|           CHAPTER 2:     FINITE AUTOMATA                              |
+|           ------------------------------                              |
+|                                                                       |
+|                                                                       |
+|                                                                       |
+|                                                                       |
+|* c21                                                                  |
+|  DEF                                                                  |
+|                                                                       |
+|           2.1:     Basic definitions                                  |
+|           ----                                                        |
+|                                                                       |
+|                                                                       |
+|* states                                                               |
+|  DEF STATES                                                           |
+|                                                                       |
+|* dfa                                                                  |
+|  DEF DFA                                                              |
+|                                                                       |
+|* delstar                                                              |
+|  DEF <QxSYMBOLS->Q>*                                                  |
+|                                                                       |
+|* delstartype                                                          |
+|  THM >>Q:STATES. d:({Q}#SYMBOLS) ->{Q}                              |
+|      . d* in ({Q}#WORDS) -> {Q}                                       |
+|                                                                       |
+|* delprop                                                              |
+|  THM >>Q:STATES. d:({Q}#SYMBOLS) ->{Q}. q:{Q}                      |
+|      . d*(q,) = q   in {Q}                                           |
+|                                                                       |
+|* delprop0                                                             |
+|  THM >>Q:STATES. d:({Q}#SYMBOLS) ->{Q}. q:{Q}. w:WORDS            |
+|      . a:SYMBOLS                                                     |
+|                  . d*(q,w*a) = d(d*(q,w),a) in {Q}                    |
+|                                                                       |
+|* delprop1                                                             |
+|  THM >>Q:STATES. d:({Q}#SYMBOLS)->{Q}. v,w:WORDS. q:{Q}           |
+|      . d*(q,(v w)) = d*(d*(q,v),w) in {Q}                             |
+|                                                                       |
+|* accepted                                                             |
+|  DEF <WORDS>  L(<DFA>)                                               |
+|                                                                       |
+|* acceptedtype                                                         |
+|  THM >>M:DFA. w:WORDS. w  L(M) in U1                               |
+|                                                                       |
+|* accept                                                               |
+|  DEF L(<DFA>)                                                         |
+|                                                                       |
+|* c3                                                                   |
+|  DEF                                                                  |
+|                                                                       |
+|                                                                       |
+|           CHAPTER 3:     PROPERTIES OF REGULAR SETS                   |
+|           -----------------------------------------                   |
+|                                                                       |
+|                                                                       |
+|                                                                       |
+|* c31                                                                  |
+|  DEF                                                                  |
+|           3.1: PUMPING LEMMA                                          |
+|           ----                                                        |
+|                                                                       |
+|                                                                       |
+|                                                                       |
+|                                                                       |
+|* pumping_type                                                         |
+|  THM >>M:DFA. n:int. z:WORDS. u,v,w:WORDS                         |
+|       . ( z=((u v) w) in WORDS & |(u v)|n & 0 < |v|                  |
+|           & k:int. ((u (vk)) w)  L(M)                              |
+|         ) in U1                                                       |
+|                                                                       |
+|* pumping                                                              |
+|  THM >>M:DFA. n:int. z:WORDS. z  L(M) & n|z|                     |
+|       => u,v,w:WORDS                                                 |
+|      . z=((u v) w) in WORDS & |(u v)|n & 0 < |v|                     |
+|       & k:int. ((u (vk)) w)  L(M)                                  |
+|                                                                       |
+|* pumping_demo                                                         |
+|  EVAL                                                                 |
+|                                                                       |
+|* end                                                                  |
+|  DEF                                                                  |
+|                                                                       |
+|      END AUTOMATA THEORY                                              |
+|                                                                       |
+|                                                                       |
+|                                                                       |
++-----------------------------------------------------------------------+                                     
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       

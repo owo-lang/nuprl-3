@@ -1,0 +1,34 @@
+
+
+Jan 21 1986
+
+
+
+        This directory contains a library that contains a proof of the
+fundamental theorem of arithmetic (i.e., the theorem that every integer
+greater than one has a unique factorization into a product of powers of
+primes).  It is self-contained (and reasonably self-documenting).  Expanding
+the whole library (e.g., by loading it using "load fully") takes about an
+hour on a Symbolics lisp machine.  See the file lib.text for a printout of
+the library.
+
+        The library is contained in the file lib.lisp, but in the file
+demo-lib.lisp there is a version of the library in which several proofs have
+been "prettied-up".  Before loading the library, make sure that Nuprl is
+using the old set rules (see the file nuprl:lib;=readme).
+
+A description of the library can be found in my technical report
+"Implementing Number Theory: An Experiment with Nuprl", which was also
+published as part of the proceedings of the 8th CADE (a volume of the
+Springer-Verlag LNCS series).
+
+        At the time this library was constructed, Nuprl's "division" rule had
+not yet been implemented.  Since the operators axiomatized by this rule were
+used in this library, the needed properties had to be assumed.  Thus the six
+library objects from pos_remainder_division to division_uniqueness have been
+"proved" using the "because rule".
+
+
+                                - Doug Howe
+
+

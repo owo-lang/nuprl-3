@@ -1,0 +1,21 @@
+
+The library in this directory contains a proof of Girard's Paradox.  The
+proof is a formalization of Martin-Lof's adaption of Girard's proof to
+his type theory.  Roughly, the library proceeds as follows.  First, an
+assumption is made (by stating a theorem and "proving" it using
+"because") that there is a type of all types.  Then the concept of
+well-founded orderings is formalized, and it is shown that the
+assumption allows one to define the collection of all well-founded
+orderings, and to show that this collection is itself well-founded with
+respect to the embedding ordering.  This leads to a contradiction (i.e.
+a proof of "void").
+
+The files "Ylib" and "analysis-lib" in this directory contain variations
+of the main library.  These variations were constructed as part of an
+effort to analyse the computational behaviour of the term extracted from
+the proof.  This effort has been superceded; see the directory
+"NewGirardsParadox".
+
+This library uses the old set rules.
+
+- Doug Howe

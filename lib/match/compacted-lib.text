@@ -1,0 +1,102 @@
+-*- Default-character-style: (:FIX :ROMAN :VERY-LARGE) -*-
+
+Var == Atom
+
+Fun == Atom
+
+Term == rec(T. Var | Fun # T list)
+
+t1=t2 == t1=t2 in Term
+
+t1=t2 == t1=t2 in Term list
+
+x == inl(x)
+
+f(l) == inr(<f,l>)
+
+>> P:Term->U1. (x:Var. P(x))
+             => (l:Term list. f:Fun. (t:l. P(t)) => P(f(l)))
+             => t:Term. P(t)
+
+>> P:Term->U1. x:Var. P(x)
+             => l:Term list. f:Fun. P(f(l))
+             => t:Term. P(t)
+
+case t: xa; f,lb == d(t; x.a; ap. let f,l=ap in b) 
+
+xt == rind(t; P,z. case z: y  y=x; f,l  u:l. P(u))
+
+xl == t:l. xt 
+
+Sub == Var#Term list
+
+s(x) == lind(s; x; h,ll,v. if h.1=x then h.2 else v)
+
+s(t) == rind(t; h,z. case z: xs(x); f,lf(map(h,l)))
+
+
+s(l) == map(ˆt. s(t), l)
+
+xdom(s) == p:s. p.1=x 
+
+
+
+s1s2 == x:Var. xdom(s1) => xdom(s2) & s1(x)=s2(x)
+
+min(s) == lind(s; True; h,l,v. (h.1dom(l)) & v)
+
+match?(t) == t2:Term. s:Sub. s(t1)=t2 & min(s) 
+                               & x:Var. xdom(s) <=> xt1
+                        s:Sub. (s(t1)=t2)
+
+ncst(s1,s2) == x:Var. xdom(s1) & xdom(s2) & (s1(x)=s2(x) in Term)
+
+match?(l) ==  l2:Term list. s:Sub. s(l1)=l2 & min(s)
+                                     & x:Var. xdom(s) <=> xl1
+                              s:Sub. (s(l1)=l2)
+
+>> x,y:Var. s:Sub. t:Term. x=y => (<x,t>.s)(y) = t
+
+>> x,y:Var. s:Sub. t:Term. (x=y) => (<x,t>.s)(y) = s(y)
+
+>> x,y:Var. s:Sub. t:Term. x=y => xdom((<y,t>).s) <=> True
+
+>> x,y:Var. s:Sub. t:Term. (x=y) => xdom((<y,t>).s) <=> xdom(s)
+
+>> x,y:Var. x=y <=> x=y
+
+>> f1,f2:Fun. l1,l2:Term list. f1(l1)=f2(l2) <=> f1=f2 & l1=l2
+
+>> x:Var. f:Fun. l:Term list. x=f(l) <=> False
+
+>> t1,t2:Term. t1=t2  (t1=t2)
+
+>> s1,s2:Sub. t:Term. 
+    s1(t)=s2(t)
+    <=> x:Var. xt => s1(x)=s2(x)
+
+>> l:Term list. s1,s2:Sub. 
+      s1(l)=s2(l) <=> (x:Var. xl => s1(x)=s2(x))
+
+>> x:Var. s:Sub. (xdom(s))  t:Term. xdom(s) & s(x)=t
+
+>> s1,s2:Sub. x:Var. t:Term. 
+      s1s2 => (<x,t>.s1  <x,t>.s2 <=> True)
+
+>> s1,s2:Sub. x:Var. t:Term. 
+      s1s2 => (xdom(s1)) => (s1  <x,t>.s2 <=> True)
+
+>> s1,s2:Sub. x:Var. t:Term. 
+    s1s2 => xdom(s2) => s2(x)=t => (<x,t>.s1  s2 <=> True)
+
+>> s1,s2:Sub. min(s1) & min(s2) 
+     => ncst(s1,s2) 
+         s:Sub. min(s) & s1s & s2s
+                  & x:Var. xdom(s) => xdom(s1)  xdom(s2)
+
+>> l:Term list. (t:l. match?(t)) => match?(l)
+
+>> t:Term. match?(t)
+
+
+

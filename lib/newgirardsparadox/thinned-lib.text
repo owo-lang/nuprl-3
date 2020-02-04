@@ -1,0 +1,353 @@
+-*- Fonts: TVFONT -*-
+
+% This listing was obtained from the full one (lib.text) by removing all standard definitions,
+  all ML objects, and all "pattern" theorems.
+%
+
+* THM assumption
+
+      >> U1 in U1
+
+
+* THM Type_
+
+      >> object
+
+      Extraction:
+      U1
+
+
+* DEF Type
+
+      Type==term_of(Type_)
+
+
+* THM Type__
+
+      >> Type in Type
+
+      Extraction:
+      term_of(assumption)
+
+
+* DEF all
+
+      <x:var>:<T:type>. <P:prop>==(<x>:(<T>)->(<P>))
+
+
+* DEF all2
+
+      <x:var>,<y:var>:<T:type>. <P:prop>
+      ==<x>:<T>. <y>:<T>. <P>
+
+
+* DEF all3
+
+      <x:var>,<y:var>,<z:var>:<T:type>. <P:prop>
+      ==<x>:<T>. <y>,<z>:<T>. <P>
+
+
+* DEF all4
+
+      <w:var>,<x:var>,<y:var>,<z:var>:<T:type>. <P:prop>
+      ==<w>:<T>. <x>,<y>,<z>:<T>. <P>
+
+
+* DEF uall
+
+      <x:typevar>. <P:prop>==<x>:Type. <P>
+
+
+* DEF uall2
+
+      <x:typevar>,<y:typevar>. <P:prop>
+      ==<x>. <y>. <P>
+
+
+* DEF some
+
+      <x:var>:<A:type>. <B:prop>==
+      C. (<x>:<A>. <B>  =>  C)  =>  C
+
+
+* DEF some2
+
+      <x:var>,<y:var>:<T:type>. <P:prop>
+      ==<x>:<T>. <y>:<T>. <P>
+
+
+* DEF some3
+
+      <x:var>,<y:var>,<z:var>:<T:type>. <P:prop>
+      ==<x>:<T>. <y>,<z>:<T>. <P>
+
+
+* DEF some4
+
+      <w:var>,<x:var>,<y:var>,<z:var>:<T:type>. <P:prop>
+      ==<w>:<T>. <x>,<y>,<z>:<T>. <P>
+
+
+* THM and_
+
+      >> A:Type -> B:Type -> Type
+
+      Extraction:
+      ˆ A B. C:Type. (A  =>  B  =>  C)  =>  C
+
+
+* DEF and
+
+      <P:prop> & <Q:prop>==((term_of(and_) <P>) <Q>)
+
+
+* THM and_Intro_lemma
+
+      >> A,B:Type. A  =>  B  =>  A & B
+
+
+* THM and_Elim_lemma_1
+
+      >> A,B:Type. A & B => A 
+
+
+* THM and_Elim_lemma_2
+
+      >> A,B:Type. A & B => B
+
+
+* DEF or
+
+      <P:prop><Q:prop>==C. (<P> => C)  =>  (<Q> => C)  =>  C
+
+
+* THM assumed_type_
+
+      >> U1
+
+      Extraction:
+      "A"
+
+
+* DEF assumed_type
+
+      assumed_type==term_of(assumed_type_)
+
+
+* THM assumed_function_
+
+      >> assumed_type -> assumed_type
+
+      Extraction:
+      "F"
+
+
+* DEF assumed_function
+
+      F==term_of(assumed_function_)
+
+
+* THM embeds_
+
+      >> A:Type -> r:(A->A->Type) -> d:(A->Type) ->
+      B:Type -> s:(B->B->Type) -> e:(B->Type) ->
+      f:(A->B) -> b:B -> Type
+        
+
+      Extraction:
+      ˆ A r d. ˆ B s e. ˆ f b. 
+      e(b) & x:A. d(x) => e(f(x)) & 
+      x,y:A. d(x) => d(y) => r(x,y) => s(f(x),f(y)) & 
+      x:A. d(x) => s(f(x),b)
+
+
+* DEF embeds
+
+      (<f:A-\>B>,<b:B>) embeds (<A:A:Type>,<r:A-\>A-\>Type>,<d:A-\>Type>) in (<B:B:Type>,<s:B-\>B-\>Type>,<e:B-\>Type>)==((((((((term_of(embeds_) <A>) <r>) <d>) <B>) <s>) <e>) <f>) <b>)
+
+
+* THM emb_
+
+      >> A:Type -> r:(A->A->Type) -> d:(A->Type) ->
+      B:Type -> s:(B->B->Type) -> e:(B->Type) -> Type
+
+      Extraction:
+      ˆ A r d. ˆ B s e. f:A->B. b:B. (f,b) embeds (A,r,d) in (B,s,e)
+
+
+* DEF emb
+
+      (<A:A:Type>,<r:A-\>A-\>Type>,<d:A-\>Type>) \< (<B:B:Type>,<s:B-\>B-\>Type>,<e:B-\>Type>)==((((((term_of(emb_) <A>) <r>) <d>) <B>) <s>) <e>)
+
+
+* THM eq_
+
+      >> A:Type -> a:A -> b:A -> Type
+
+      Extraction:
+      ˆ A a b. P:A->Type. P(a) => P(b)
+
+
+* DEF eq
+
+      <a:A><b:A>  <A:A:Type>==(((term_of(eq_) <A>) <a>) <b>)
+
+
+* THM U_
+
+      >> Type
+
+      Extraction:
+      ( B:Type -> (B->B->Type) -> (B->Type) -> Type ) -> Type
+
+
+* DEF U
+
+      U==term_of(U_)
+
+
+* THM i_
+
+      >> A:Type -> r:(A->A->Type) -> d:(A->Type) -> U
+
+      Extraction:
+      ˆ A r d. ˆx. x(A,r,d)
+
+
+* DEF i
+
+      i(<A:A:Type>, <r:A-\>A-\>Type>, <d:A-\>Type>)==(((term_of(i_) <A>) <r>) <d>)
+
+
+* THM trans_
+
+      >> A:Type -> r:(A->A->Type) -> d:(A->Type) -> Type
+
+      Extraction:
+      ˆ A r d. x,y,z:A. r(x,y) => r(y,z) => r(x,z)
+
+
+* DEF trans
+
+      trans(<A:A:Type>,<r:A-\>A-\>Type>,<d:A-\>Type>)==(((term_of(trans_) <A>) <r>) <d>)
+
+
+* THM chain_in_
+
+      >> A:Type -> r:(A->A->Type) -> d:(A->Type) -> P:(A->Type) -> Type
+
+      Extraction:
+      ˆ A r d. ˆP. x:A. P(x) & d(x) & y:A. P(y) => x:A. P(x) & r(x,y)
+
+
+* DEF chain_in
+
+      <P:A-\>Type> chain in (<A:A:Type>,<r:A-\>A-\>Type>,<d:A-\>Type>)==
+      ((((term_of(chain_in_) <A>) <r>) <d>) <P>)
+
+
+* THM wf_
+
+      >> A:Type -> r:(A->A->Type) -> d:(A->Type) -> Type
+
+      Extraction:
+      ˆ A r d. P:A->Type. P chain in (A,r,d) => assumed_type
+
+
+* DEF wf
+
+      wf(<A:A:Type>,<r:A-\>A-\>Type>,<d:A-\>Type>)==(((term_of(wf_) <A>) <r>) <d>)
+
+
+* THM Uless_
+
+      >> U -> U -> Type
+
+      Extraction:
+      ˆ u v. A:Type. r:A->A->Type. d:A->Type. 
+      B:Type. s:B->B->Type. e:B->Type. 
+         ui(A, r, d)  U & vi(B, s, e)  U & (A,r,d) < (B,s,e)
+
+
+* DEF Uless
+
+      Uless==term_of(Uless_)
+
+
+* THM dU_
+
+      >> U -> Type
+
+      Extraction:
+      ˆu. A:Type. r:A->A->Type. d:A->Type. 
+          ui(A, r, d)  U & trans(A,r,d) & wf(A,r,d)
+
+
+* DEF dU
+
+      dU==term_of(dU_)
+
+
+* THM eq_sym
+
+      >> A:Type. a,b:A. ab  A => ba  A
+
+
+* THM eq_lemma
+
+      >> A:Type. x,y,z:A. yx  A => yz  A => xz  A
+
+
+* THM embedding_lemma
+
+      >> A1:Type. r1:A1->A1->Type. d1:A1->Type. 
+      A2:Type. r2:A2->A2->Type. d2:A2->Type. 
+      A3:Type. r3:A3->A3->Type. d3:A3->Type. 
+      f2:A2->A3. b2:A3. 
+         (A1,r1,d1) < (A2,r2,d2) => (f2,b2) embeds (A2,r2,d2) in (A3,r3,d3) => 
+         f3:A1->A3. b3:A3. r3(b3,b2) & (f3,b3) embeds (A1,r1,d1) in (A3,r3,d3)
+
+
+* THM dU_implies_trans
+
+      >> A1:Type. r1:A1->A1->Type. d1:A1->Type. 
+        dU(i(A1, r1, d1)) => trans(A1,r1,d1)
+
+
+* THM dU_implies_wf
+
+      >> A1:Type. r1:A1->A1->Type. d1:A1->Type. 
+        dU(i(A1, r1, d1)) => wf(A1,r1,d1)
+
+
+* THM Uord_trans
+
+      >> trans(U,Uless,dU)
+
+
+* THM Uord_wf
+
+      >> wf(U,Uless,dU)
+
+
+* THM Uord_in_dU
+
+      >> dU(i(U, Uless, dU))
+
+
+* THM Rb_in_dU
+
+      >> B:Type. s:B->B->Type. e:B->Type. b:B. 
+      dU(i(B, s, e)) => e(b) => dU(i(B, s, ˆx. e(x) & s(x,b)))
+
+
+* THM Uord_max
+
+      >> Z:Type. q:Z->Z->Type. c:Z->Type. 
+         dU(i(Z, q, c)) => (Z,q,c) < (U,Uless,dU)
+
+
+* THM contradiction
+
+      >> assumed_type
+

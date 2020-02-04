@@ -1,0 +1,390 @@
+>> :Env -> Complete()
+|  BY (Unfold `Complete` ...)
+|  1. alpha:Env
+|  2. hyps:{t:PropTerm()|t{}} list
+|  3. concl:PropTerm()
+|- >> ?(concl{})
+|  |  BY (Assume 'x,y:Term(). A:Atom where wf@(,x=y in A) & concl = (x=y in A) in Term()' ...)
+|  |  4. x:Term()#(y:Term()#({A:Atom|(wf@(,x=y in A)#(concl=x=y in A in Term()))}))
+|  |- >> ?(concl{})
+|  |  |  BY (OnLastHyp (RepeatProductE ``x y A``) THEN
+|  |  |      Assert '( A in AtomicMType() & y {} A )'  % will be needed often %
+|  |  |     ...)
+|  |  |  4. x:Term()
+|  |  |  5. y:Term()
+|  |  |  6. A:Atom
+|  |  |  7. wf@(,x=y in A)
+|  |  |  8. concl=x=y in A in Term()
+|  |  |- >> A in AtomicMType()
+|  |  |  |  BY (SimpHypTermPreds [] 7 THEN SetElementI ...)
+|  |  |  4. x:Term()
+|  |  |  5. y:Term()
+|  |  |  6. A:Atom
+|  |  |  7. wf@(,x=y in A)
+|  |  |  8. concl=x=y in A in Term()
+|  |  |  9. A in AtomicMType()
+|  |  |- >> y {} A
+|  |  |  |  BY (SimpHypTermPreds [] 7 THEN UnfoldInConcl `term_in_mtype` ...)
+|  |  |  4. x:Term()
+|  |  |  5. y:Term()
+|  |  |  6. A:Atom
+|  |  |  7. wf@(,x=y in A)#(concl=x=y in A in Term())
+|  |  |  8.  A in AtomicMType() & y {} A
+|  |  |- >> ?(concl{})
+|  |  |  |  BY Assert 
+|  |  |  |     'l: { q:Term()#Term() | q.1 = q.2 {} A } list. 
+|  |  |  |        t:Term() where t {} A. ?(t = y {} A)' 
+|  |  |  |- >> l: { q:Term()#Term() | q.1 = q.2 {} A } list. 
+|  |  |  |        t:Term() where t {} A. ?(t = y {} A)
+|  |  |  |  |  BY OnVar `x` Thin THEN FixedPointInd
+|  |  |  |  |  4. y:Term()
+|  |  |  |  |  5. A:Atom
+|  |  |  |  |  6.  A in AtomicMType() & y {} A
+|  |  |  |  |- >> l: { q:Term()#Term() | q.1 = q.2 {} A } list. 
+|  |  |  |  |        t:Term() where t {} A. ?(t = y {} A)
+|  |  |  |  |  |  BY (Id ...) THEN (IRight ...)
+|  |  |  |  |  4. y:Term()
+|  |  |  |  |  5. A:Atom
+|  |  |  |  |  6.  A in AtomicMType() & y {} A
+|  |  |  |  |  7. l: { q:Term()#Term() | q.1 = q.2 {} A } list. 
+|  |  |  |  |        t:Term() where t {} A. ?(t = y {} A)
+|  |  |  |  |- >> l: { q:Term()#Term() | q.1 = q.2 {} A } list. 
+|  |  |  |  |        t:Term() where t {} A. ?(t = y {} A)
+|  |  |  |  |  |  BY (I ...) THEN 
+|  |  |  |  |  |     (Assume '(t = y {} A)' % check for trivial equality % ...)
+|  |  |  |  |  |  8. l:{ q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |  9. t:Term()
+|  |  |  |  |  |  10. t {} A
+|  |  |  |  |  |  11. ((eq_terms_in_mtype()(t))(y))(A)
+|  |  |  |  |  |- >> ?(t = y {} A)
+|  |  |  |  |  |  |  BY (% the terms are trivially equal % ILeft ...)
+|  |  |  |  |  |  8. l:{ q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |  9. t:Term()
+|  |  |  |  |  |  10. t {} A
+|  |  |  |  |  |- >> ?(t = y {} A)
+|  |  |  |  |  |  |  BY (Decide 'null(l)' ...)
+|  |  |  |  |  |  |  11. null(l)
+|  |  |  |  |  |  |- >> ?(t = y {} A)
+|  |  |  |  |  |  |  |  BY (IRight ...)
+|  |  |  |  |  |  |  11. (null(l))
+|  |  |  |  |  |  |- >> ?(t = y {} A)
+|  |  |  |  |  |  |  |  BY Thin 11 % so we can graft in an existing proof %
+|  |  |  |  |  |  |  |- >> ?(t = y {} A)
+|  |  |  |  |  |  |  |  |  BY % Find a member of l that has one component equal to t, and find the remainder of l. %
+|  |  |  |  |  |  |  |  |     Assert 
+|  |  |  |  |  |  |  |  |     '?t2:Term() where t = t2 {} A
+|  |  |  |  |  |  |  |  |      & { q:Term()#Term() | q.1 = q.2 {} A } list'
+|  |  |  |  |  |  |  |  |- >> ?t2:Term() where t = t2 {} A
+|  |  |  |  |  |  |  |  |      & { q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |  |  |  |  |  BY Thin 7 THEN OnVar `l` E
+|  |  |  |  |  |  |  |  |  |  7. l:{ q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |  |  |  |  |  8. t:Term()
+|  |  |  |  |  |  |  |  |  |  9. t {} A
+|  |  |  |  |  |  |  |  |  |- >> ?t2:Term() where t = t2 {} A
+|  |  |  |  |  |  |  |  |  |      & { q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |  |  |  |  |  |  BY (% the null case % I THEN (IRight ORELSE ExplicitI 'nil') ...)
+|  |  |  |  |  |  |  |  |  |  7. l:{ q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |  |  |  |  |  8. t:Term()
+|  |  |  |  |  |  |  |  |  |  9. t {} A
+|  |  |  |  |  |  |  |  |  |  10. h2:{ q:Term()#Term() | q.1 = q.2 {} A }
+|  |  |  |  |  |  |  |  |  |  11. ?t2:Term() where t = t2 {} A
+|  |  |  |  |  |  |  |  |  |      & { q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |  |  |  |  |- >> ?t2:Term() where t = t2 {} A
+|  |  |  |  |  |  |  |  |  |      & { q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |  |  |  |  |  |  BY % check the components of h2 %
+|  |  |  |  |  |  |  |  |  |  |     (OnVar `h2` E THEN Assume '(t = h2.1 {} A)' ...)
+|  |  |  |  |  |  |  |  |  |  |  6. l:{ q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |  |  |  |  |  |  7. t:Term()
+|  |  |  |  |  |  |  |  |  |  |  8. t {} A
+|  |  |  |  |  |  |  |  |  |  |  9. h2:Term()#Term()
+|  |  |  |  |  |  |  |  |  |  |  10. (((eq_terms_in_mtype())(spread(h2;u,v.u)))(spread(h2;u,v.v)))(A)
+|  |  |  |  |  |  |  |  |  |  |  11. :Env. t,u:Term(). A:AtomicMType() where t {} A & u {} A. ?(t = u {} A)
+|  |  |  |  |  |  |  |  |  |  |  12. ?t2:Term() where t = t2 {} A
+|  |  |  |  |  |  |  |  |  |  |  13. { q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |  |  |  |  |  |  14. A in AtomicMType()
+|  |  |  |  |  |  |  |  |  |  |  15. y {} A
+|  |  |  |  |  |  |  |  |  |  |  16. t {} A
+|  |  |  |  |  |  |  |  |  |  |- >> ((term_in_mtype())(h2.1))(A)
+|  |  |  |  |  |  |  |  |  |  |  |  BY (E 10 ...)
+|  |  |  |  |  |  |  |  |  |  |  10. h2:Term()#Term()
+|  |  |  |  |  |  |  |  |  |  |  11. (((eq_terms_in_mtype())(spread(h2;u,v.u)))(spread(h2;u,v.v)))(A)
+|  |  |  |  |  |  |  |  |  |  |  12. ?t2:Term() where t = t2 {} A
+|  |  |  |  |  |  |  |  |  |  |      & { q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |  |  |  |  |  |  13. {(0 in int)|((eq_terms_in_mtype()(t))(h2.1))(A)}
+|  |  |  |  |  |  |  |  |  |  |- >> ?t2:Term() where t = t2 {} A
+|  |  |  |  |  |  |  |  |  |  |      & { q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |  |  |  |  |  |  |  BY % t is equal to h2.1, so we can make progress by introducing h2.2 %
+|  |  |  |  |  |  |  |  |  |  |  |     Assert '(t = h2.2 {} A)' THENS
+|  |  |  |  |  |  |  |  |  |  |  |     ((I THEN Try Hypothesis THEN ILeft ...) THEN (ITerm 'h2.2' ...))
+|  |  |  |  |  |  |  |  |  |  |  |- >> (t = h2.2 {} A)
+|  |  |  |  |  |  |  |  |  |  |  |  |  BY (LemmaUsing `terms_eq_in_mtype_trans_2` ['h2.1']...)
+|  |  |  |  |  |  |  |  |  |  |  10. h2:Term()#Term()
+|  |  |  |  |  |  |  |  |  |  |  11. (((eq_terms_in_mtype())(spread(h2;u,v.u)))(spread(h2;u,v.v)))(A)
+|  |  |  |  |  |  |  |  |  |  |  12. ?t2:Term() where t = t2 {} A
+|  |  |  |  |  |  |  |  |  |  |      & { q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |  |  |  |  |  |- >> ?t2:Term() where t = t2 {} A
+|  |  |  |  |  |  |  |  |  |  |      & { q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |  |  |  |  |  |  |  BY (Assume '(t = h2.2 {} A)' ...)
+|  |  |  |  |  |  |  |  |  |  |  |  6. l:{ q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |  |  |  |  |  |  |  7. t:Term()
+|  |  |  |  |  |  |  |  |  |  |  |  8. t {} A
+|  |  |  |  |  |  |  |  |  |  |  |  9. h2:Term()#Term()
+|  |  |  |  |  |  |  |  |  |  |  |  10. (((eq_terms_in_mtype())(spread(h2;u,v.u)))(spread(h2;u,v.v)))(A)
+|  |  |  |  |  |  |  |  |  |  |  |  11. :Env. t,u:Term(). A:AtomicMType() where t {} A & u {} A. ?(t = u {} A)
+|  |  |  |  |  |  |  |  |  |  |  |  12. ?t2:Term() where t = t2 {} A
+|  |  |  |  |  |  |  |  |  |  |  |  13. { q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |  |  |  |  |  |  |  14. A in AtomicMType()
+|  |  |  |  |  |  |  |  |  |  |  |  15. y {} A
+|  |  |  |  |  |  |  |  |  |  |  |  16. t {} A
+|  |  |  |  |  |  |  |  |  |  |  |- >> ((term_in_mtype())(h2.2))(A)
+|  |  |  |  |  |  |  |  |  |  |  |  |  BY (E 10 ...)
+|  |  |  |  |  |  |  |  |  |  |  |  13. {(0 in int)|((eq_terms_in_mtype()(t))(h2.2))(A)}
+|  |  |  |  |  |  |  |  |  |  |  |- >> ?t2:Term() where t = t2 {} A
+|  |  |  |  |  |  |  |  |  |  |  |      & { q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |  |  |  |  |  |  |  |  BY Assert '(t = h2.1 {} A)' THENS
+|  |  |  |  |  |  |  |  |  |  |  |  |     ((I THEN Try Hypothesis THEN ILeft ...) THEN (ITerm 'h2.1' ...))
+|  |  |  |  |  |  |  |  |  |  |  |  |- >> (t = h2.1 {} A)
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  BY (LemmaUsing `terms_eq_in_mtype_trans_2` ['h2.2'] ...*)
+|  |  |  |  |  |  |  |  |  |  |  |  |  |- >> {(0 in int)|(((eq_terms_in_mtype())(h2.2))(h2.1))(A)}
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  BY (Lemma `terms_eq_in_mtype_sym_2` ...)
+|  |  |  |  |  |  |  |  |  |  |  |- >> ?t2:Term() where t = t2 {} A
+|  |  |  |  |  |  |  |  |  |  |  |      & { q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |  |  |  |  |  |  |  |  BY % Use the induction hypothesis. %
+|  |  |  |  |  |  |  |  |  |  |  |  |     (E 12 THEN OnLastHyp (ˆi. TagHyp i `l2`) THEN 
+|  |  |  |  |  |  |  |  |  |  |  |  |      Refine product_intro THENL [Id; ExplicitI 'h2.l2'] ...)
+|  |  |  |  |  |  |  |  |  11. ?t2:Term() where t = t2 {} A
+|  |  |  |  |  |  |  |  |      & { q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |  |  |  |- >> ?(t = y {} A)
+|  |  |  |  |  |  |  |  |  |  BY (Id ...)
+|  |  |  |  |  |  |  |  |  |  11. ?t2:Term() where t = t2 {} A
+|  |  |  |  |  |  |  |  |  |  12. { q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |  |  |  |  |- >> ?(t = y {} A)
+|  |  |  |  |  |  |  |  |  |  |  BY CaseHyp 11 THENL [OnLastHyp E; Id]
+|  |  |  |  |  |  |  |  |  |  |  11. { q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |  |  |  |  |  |  12. t2:Term()
+|  |  |  |  |  |  |  |  |  |  |  13. t = t2 {} A
+|  |  |  |  |  |  |  |  |  |  |- >> ?(t = y {} A)
+|  |  |  |  |  |  |  |  |  |  |  |  BY % Progress has been made, so try the induction hypothesis on the new term and list. %
+|  |  |  |  |  |  |  |  |  |  |  |     (TagHyp 11 `l2` THEN RepeatFunctionE ['l2';'t2'] 7 THENS OnLastHyp CaseHyp ...)
+|  |  |  |  |  |  |  |  |  |  |  |  6. l: { q:Term()#Term() | q.1 = q.2 {} A } list. 
+|  |  |  |  |  |  |  |  |  |  |  |        t:Term() where t {} A. ?(t = y {} A)
+|  |  |  |  |  |  |  |  |  |  |  |  7. l:{ q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |  |  |  |  |  |  |  8. t:Term()
+|  |  |  |  |  |  |  |  |  |  |  |  9. t {} A
+|  |  |  |  |  |  |  |  |  |  |  |  10. t2:Term()
+|  |  |  |  |  |  |  |  |  |  |  |  11. t = t2 {} A
+|  |  |  |  |  |  |  |  |  |  |  |  12. l2:{ q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |  |  |  |  |  |  |  13. A in AtomicMType()
+|  |  |  |  |  |  |  |  |  |  |  |  14. y {} A
+|  |  |  |  |  |  |  |  |  |  |  |- >> ((term_in_mtype())(t2))(A)
+|  |  |  |  |  |  |  |  |  |  |  |  |  BY (CH 11 ...)
+|  |  |  |  |  |  |  |  |  |  |  |  11. t2:Term()
+|  |  |  |  |  |  |  |  |  |  |  |  12. t = t2 {} A
+|  |  |  |  |  |  |  |  |  |  |  |  13. l2:{ q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |  |  |  |  |  |  |  14. (((eq_terms_in_mtype())(t2))(y))(A)
+|  |  |  |  |  |  |  |  |  |  |  |- >> ?(t = y {} A)
+|  |  |  |  |  |  |  |  |  |  |  |  |  BY (ILeft THENW LemmaUsing `terms_eq_in_mtype_trans_2` ['t2']...)
+|  |  |  |  |  |  |  |  |  |  |  |  11. t2:Term()
+|  |  |  |  |  |  |  |  |  |  |  |  12. t = t2 {} A
+|  |  |  |  |  |  |  |  |  |  |  |  13. l2:{ q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |  |  |  |  |  |  |  14. True
+|  |  |  |  |  |  |  |  |  |  |  |- >> ?(t = y {} A)
+|  |  |  |  |  |  |  |  |  |  |  |  |  BY % The induction hypothesis failed on t2 and l, so try it again with t and l2. %
+|  |  |  |  |  |  |  |  |  |  |  |  |     (RepeatFunctionE ['l2';'t'] 7 ...)
+|  |  |  |  |  |  |  |  |  |  |  11. { q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |  |  |  |  |  |  12. True
+|  |  |  |  |  |  |  |  |  |  |- >> ?(t = y {} A)
+|  |  |  |  |  |  |  |  |  |  |  |  BY % l had no suitable members, so we're dead. %
+|  |  |  |  |  |  |  |  |  |  |  |     (IRight ...)
+|  |  |  |  9. l: { q:Term()#Term() | q.1 = q.2 {} A } list. 
+|  |  |  |        t:Term() where t {} A. ?(t = y {} A)
+|  |  |  |- >> ?(concl{})
+|  |  |  |  |  BY E 9 THENS (OnLastHyp (InstantiateHyp ['x']) ...)
+|  |  |  |  |- >> { q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |  BY % Get equalities from hyps. %
+|  |  |  |  |  |     OnVar `hyps` E
+|  |  |  |  |  |- >> { q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |  |  BY (Id ...)
+|  |  |  |  |  |  10. h2:{t:PropTerm()|t{}}
+|  |  |  |  |  |  11. { q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |- >> { q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |  |  BY (Assume 'u,v:Term(). A:Atom where wf@(,u=v in A) & h2 = (u=v in A) in Term()' ...)
+|  |  |  |  |  |  |  12. x:Term()#(y:Term()#({A:Atom|(wf@(,x=y in A)#(h2=x=y in A in Term()))}))
+|  |  |  |  |  |  |- >> { q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |  |  |  BY (RepeatProductE ``u v B`` 12 THEN Assume 'A=B in Atom' ...)
+|  |  |  |  |  |  |  |  12. u:Term()
+|  |  |  |  |  |  |  |  13. v:Term()
+|  |  |  |  |  |  |  |  14. B:Atom
+|  |  |  |  |  |  |  |  15. (wf_term@())(((ine(u))(v))(B))#(h2=((ine(u))(v))(B) in Term())
+|  |  |  |  |  |  |  |  16. A=B in Atom
+|  |  |  |  |  |  |  |- >> { q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |  |  |  |  BY (TagHyp 11 `l` THEN ExplicitI '<u,v>.l' THEN OnVar `h2` E ...)
+|  |  |  |  |  |  |  |  |  7. l: { q:Term()#Term() | q.1 = q.2 {} A } list. 
+|  |  |  |  |  |  |  |  |        t:Term() where t {} A. ?(t = y {} A)
+|  |  |  |  |  |  |  |  |  8. h2:PropTerm()
+|  |  |  |  |  |  |  |  |  9. (true_prop_term())(h2)
+|  |  |  |  |  |  |  |  |  10. u:Term()
+|  |  |  |  |  |  |  |  |  11. v:Term()
+|  |  |  |  |  |  |  |  |  12. B:Atom
+|  |  |  |  |  |  |  |  |  13. A=B in Atom
+|  |  |  |  |  |  |  |  |  14. l:{ q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |  |  |  |  15. (wf_term@())(((ine(u))(v))(B))
+|  |  |  |  |  |  |  |  |  16. h2=((ine(u))(v))(B) in Term()
+|  |  |  |  |  |  |  |  |  17. A in AtomicMType()
+|  |  |  |  |  |  |  |  |  18. y {} A
+|  |  |  |  |  |  |  |  |  19. wf@(,x=y in A)
+|  |  |  |  |  |  |  |  |  20. concl=x=y in A in Term()
+|  |  |  |  |  |  |  |  |- >> (((eq_terms_in_mtype())(spread(<u,v>;u,v.u)))(spread(<u,v>;u,v.v)))(A)
+|  |  |  |  |  |  |  |  |  |  BY Assert 'val(,u=v in B)' THEN ReduceConcl
+|  |  |  |  |  |  |  |  |  |- >> val(,u=v in B)
+|  |  |  |  |  |  |  |  |  |  |  BY (FoldInConcl ``true_prop_term`` THEN
+|  |  |  |  |  |  |  |  |  |  |      SubstFor 'u=v in B = h2 in PropTerm()' ...)
+|  |  |  |  |  |  |  |  |  |  |- >> u=v in B = h2 in PropTerm()
+|  |  |  |  |  |  |  |  |  |  |  |  BY (SwapEquands THEN E 8 THEN SetElementI ...)
+|  |  |  |  |  |  |  |  |  |  21. val(,u=v in B)
+|  |  |  |  |  |  |  |  |  |- >> (((eq_terms_in_mtype())(u))(v))(A)
+|  |  |  |  |  |  |  |  |  |  |  BY (SimpHypTermPreds [] 21 THEN SubstFor 'A=B in AtomicMType()' ...)
+|  |  |  |  |  |  |  |  |  |  |  21. (eos((type_atom_val())(B)))(<(term_val())(u),(term_val())(v)>)
+|  |  |  |  |  |  |  |  |  |  |- >> A=B in AtomicMType()
+|  |  |  |  |  |  |  |  |  |  |  |  BY (SimpHypTermPreds [] 15 THEN Lemma `AtomicMType_eq_char` ...)
+|  |  |  |  |  |  |  |  |  |  |  |  15. h2=((ine(u))(v))(B) in Term()
+|  |  |  |  |  |  |  |  |  |  |  |  16. A in AtomicMType()
+|  |  |  |  |  |  |  |  |  |  |  |  17. y {} A
+|  |  |  |  |  |  |  |  |  |  |  |  18. wf@(,x=y in A)
+|  |  |  |  |  |  |  |  |  |  |  |  19. concl=x=y in A in Term()
+|  |  |  |  |  |  |  |  |  |  |  |  20. (eos((type_atom_val())(B)))(<(term_val())(u),(term_val())(v)>)
+|  |  |  |  |  |  |  |  |  |  |  |  21. (wf_term@())(u)
+|  |  |  |  |  |  |  |  |  |  |  |  22. (wf_term@())(v)
+|  |  |  |  |  |  |  |  |  |  |  |  23. (type_atom(spread(;u,v.u)))(B)
+|  |  |  |  |  |  |  |  |  |  |  |  24. ((val_member())(<(term_mtype())(u),(term_val())(u)>))(B)
+|  |  |  |  |  |  |  |  |  |  |  |  25. ((val_member())(<(term_mtype())(v),(term_val())(v)>))(B)
+|  |  |  |  |  |  |  |  |  |  |  |- >> B in AtomicMType()
+|  |  |  |  |  |  |  |  |  |  |  |  |  BY (SetElementI ...)
+|  |  |  |  |  |  |  |  |  |  |  21. (eos((type_atom_val())(B)))(<(term_val())(u),(term_val())(v)>)
+|  |  |  |  |  |  |  |  |  |  |- >> (((eq_terms_in_mtype())(u))(v))(B)
+|  |  |  |  |  |  |  |  |  |  |  |  BY (UnfoldInConcl `eq_terms_in_mtype` ...)
+|  |  |  |  |  |  |  |  |  |  |  |- >> ((term_in_mtype())(u))(B)
+|  |  |  |  |  |  |  |  |  |  |  |  |  BY (UnfoldInConcl `term_in_mtype` THEN SimpHypTermPreds [] 15 ...)
+|  |  |  |  |  |  |  |  |  |  |  |  22. ((term_in_mtype())(u))(B)
+|  |  |  |  |  |  |  |  |  |  |  |- >> ((term_in_mtype())(v))(B)
+|  |  |  |  |  |  |  |  |  |  |  |  |  BY (UnfoldInConcl `term_in_mtype` THEN SimpHypTermPreds [] 15 ...)
+|  |  |  |  |  |  |  |  12. u:Term()
+|  |  |  |  |  |  |  |  13. v:Term()
+|  |  |  |  |  |  |  |  14. B:Atom
+|  |  |  |  |  |  |  |  15. (wf_term@())(((ine(u))(v))(B))#(h2=((ine(u))(v))(B) in Term())
+|  |  |  |  |  |  |  |  16. (A=B in Atom)->void
+|  |  |  |  |  |  |  |- >> { q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |  |  |  |  BY (Id ...)
+|  |  |  |  |  |  |- >> { q:Term()#Term() | q.1 = q.2 {} A } list
+|  |  |  |  |  |  |  |  BY (Id ...)
+|  |  |  |  |  7. l: { q:Term()#Term() | q.1 = q.2 {} A } list. 
+|  |  |  |  |        t:Term() where t {} A. ?(t = y {} A)
+|  |  |  |  |  8. t:Term() where t {} A. ?(t = y {} A)
+|  |  |  |  |  9. A in AtomicMType()
+|  |  |  |  |  10. y {} A
+|  |  |  |  |  11. wf@(,x=y in A)
+|  |  |  |  |  12. concl=x=y in A in Term()
+|  |  |  |  |- >> ((term_in_mtype())(x))(A)
+|  |  |  |  |  |  BY (UnfoldInConcl `term_in_mtype` THEN SimpHypTermPreds [] 11 ...)
+|  |  |  |  |  10. t:Term() where t {} A. ?(t = y {} A)
+|  |  |  |  |  11. ({(0 in int)|(((eq_terms_in_mtype())(x))(y))(A)})|(True)
+|  |  |  |  |- >> ?(concl{})
+|  |  |  |  |  |  BY CaseHyp 11 
+|  |  |  |  |  |  11. {(0 in int)|(((eq_terms_in_mtype())(x))(y))(A)}
+|  |  |  |  |  |- >> ?(concl{})
+|  |  |  |  |  |  |  BY (ILeft THENW SubstFor 'concl = (x=y in A) in PropTerm()' ...)
+|  |  |  |  |  |  |  7. l: { q:Term()#Term() | q.1 = q.2 {} A } list. 
+|  |  |  |  |  |  |        t:Term() where t {} A. ?(t = y {} A)
+|  |  |  |  |  |  |  8. t:Term() where t {} A. ?(t = y {} A)
+|  |  |  |  |  |  |  9. A in AtomicMType()
+|  |  |  |  |  |  |  10. y {} A
+|  |  |  |  |  |  |  11. wf@(,x=y in A)
+|  |  |  |  |  |  |  12. concl=x=y in A in Term()
+|  |  |  |  |  |  |  13. (((eq_terms_in_mtype())(x))(y))(A)
+|  |  |  |  |  |  |- >> concl = x=y in A in PropTerm()
+|  |  |  |  |  |  |  |  BY (E 3 THEN SetElementI ...)
+|  |  |  |  |  |  |  7. l: { q:Term()#Term() | q.1 = q.2 {} A } list. 
+|  |  |  |  |  |  |        t:Term() where t {} A. ?(t = y {} A)
+|  |  |  |  |  |  |  8. t:Term() where t {} A. ?(t = y {} A)
+|  |  |  |  |  |  |  9. (((eq_terms_in_mtype())(x))(y))(A)
+|  |  |  |  |  |  |  10. A in AtomicMType()
+|  |  |  |  |  |  |  11. y {} A
+|  |  |  |  |  |  |  12. wf@(,x=y in A)
+|  |  |  |  |  |  |  13. concl=x=y in A in Term()
+|  |  |  |  |  |  |- >> (true_prop_term())(x=y in A)
+|  |  |  |  |  |  |  |  BY (Unfolds ``eq_terms_in_mtype true_prop_term`` THEN SimpConclTermPreds [] ...)
+|  |  |  |  |  |  11. True
+|  |  |  |  |  |- >> ?(concl{})
+|  |  |  |  |  |  |  BY (IRight ...)
+|  |- >> ?(concl{})
+|  |  |  BY (IRight ...)
+
+
+
+
+
+
+
+
+* top 
+>> :Env -> Complete()
+
+BY (Unfold `Complete` ...)
+   
+1* 1. alpha: Env
+   2. hyps: {t:PropTerm()|t{}} list
+   3. concl: PropTerm()
+   >> ?(concl{})   
+
+
+
+
+
+
+* top 1
+1. alpha: Env
+2. hyps: {t:PropTerm()|t{}} list
+3. concl: PropTerm()
+>> ?(concl{})
+
+BY (Assume 'x,y:Term(). A:Atom where wf@(,x=y in A) & concl = (x=y in A) in Term()' ...)
+
+1* 4. x:Term()# y:Term()# { A:Atom | wf@(,x=y in A) # concl=(x=y in A) in Term() }
+   >> ?(concl{})
+
+2* >> ?(concl{})   
+
+
+
+
+
+
+
+* top 1 1 3
+1. alpha: Env
+2. hyps: {t:PropTerm()|t{}} list
+3. concl: PropTerm()
+4. x: Term()
+5. y: Term()
+6. A: Atom
+[7]. wf@(,x=y in A) # concl=(x=y in A) in Term()
+[8].  A in AtomicMType() & y {} A
+>> ?(concl{})
+
+BY Assert 
+   'l: { q:Term()#Term() | q.1 = q.2 {} A } list. 
+      t:Term() where t {} A. ?(t = y {} A)' 
+   
+   
+1* >> l: { q:Term()#Term() | q.1 = q.2 {} A } list. 
+         t:Term() where t {} A. ?(t = y {} A)
+
+2* 9. l: { q:Term()#Term() | q.1 = q.2 {} A } list. 
+         t:Term() where t {} A. ?(t = y {} A)
+   >> ?(concl{})   
+
+
+
+
+
+

@@ -1,0 +1,68 @@
+-*- Default-character-style: (:FIX :ROMAN :NORMAL) -*-
+
+
+
+
+
+* top 
+>> :Env -> Complete()
+
+BY (Unfold `Complete` ...)
+   
+1* 1. : Env
+   2. hyps: {t:PropTerm()|t{}} list
+   3. concl: PropTerm()
+   >> ?(concl{})   
+
+
+
+
+
+* top 1
+1. : Env
+2. hyps: {t:PropTerm()|t{}} list
+3. concl: PropTerm()
+>> ?(concl{})
+
+BY (Assume 'x,y:Term(). A:Atom where 
+              wf@(,x=y in A) & concl = (x=y in A) in Term()' ...) 
+
+1* 4. x:Term()# y:Term()# 
+      { A:Atom | wf@(,x=y in A) # concl=(x=y in A) in Term() }
+   >> ?(concl{})
+
+2* >> ?(concl{})   
+
+
+
+
+
+
+* top 1 1 3
+1. : Env
+2. hyps: {t:PropTerm()|t{}} list
+3. concl: PropTerm()
+4. x: Term()
+5. y: Term()
+6. A: Atom
+[7]. wf@(,x=y in A) # concl=(x=y in A) in Term()
+[8].  A in AtomicMType() & y {} A
+>> ?(concl{})
+
+BY Assert 
+   'l: { q:Term()#Term() | q.1 = q.2 {} A } list. 
+      t:Term() where t {} A. ?(t = y {} A)' 
+   
+   
+1* >> l: { q:Term()#Term() | q.1 = q.2 {} A } list. 
+         t:Term() where t {} A. ?(t = y {} A)
+
+2* 9. l: { q:Term()#Term() | q.1 = q.2 {} A } list. 
+         t:Term() where t {} A. ?(t = y {} A)
+   >> ?(concl{})   
+
+
+
+
+
+

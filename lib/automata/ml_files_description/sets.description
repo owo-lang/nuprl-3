@@ -1,0 +1,122 @@
+%-------------------------------------------------------------------------------------------+
+|                                                                                           |
+|  sets.ml        PRL_extensions for the type SETS                                          |
+|                                                                                           |
++-------------------------------------------------------------------------------------------%
+
+
+   I. Term constructors, predicates and destructors
+   ------------------------------------------------
+
+
+   Ia:   Constructors
+   ------------------
+    make_SETS_term         = term                                       "SETS"
+    make_carrier_term      = term -> term                   S into      "carrier(S)"
+    make_pred_term         = term -> term                   S into      "pred(S)"
+    make_setdef_term       = term -> term -> term -> term   x A B into  "{x:A||B}"
+    make_singon_term       = term -> term -> term           x A into    "{x:A}"
+    make_inset_term        = term -> term -> term           x S into    "x  S"
+    make_set_conversion    = term -> term                   S into      "{S}"
+    make_powerset_term     = term -> term                   A into      "P(A)"
+
+    SETS                   = make_SETS_term
+
+
+   Ib:   Destructors
+   -----------------
+
+   Ic:   Predicates
+   ----------------
+      --- as usual ---
+   -----------------------------------------------------------------------------------------%
+
+
+
+
+   II.   RULES       (incomplete)
+   -----------
+    
+      helptactics 
+      -----------    
+      
+       SETS_spread   = tactic
+       Scarrier      = tactic
+
+
+   IIa:  Formation   
+   ---------------
+
+   H >> SETS in Ui by Sintro                 SETS_equality  (i>1)       / SETSeq
+                              
+   H >> {S} in Ui by Sintro                  SETS_equality_conversion   / Sconversion
+      >> S in SETS
+
+   H >> P(A) in Ui by Sintro                 SETS_equality_power (i>1)  / Spower
+      >> A in TYPE
+
+   H >> x  {S} in Ui by Sintro              SETS_equality_inset        / Sinset 
+      >> S in SETS
+      >> x in carrier(S)
+
+   
+
+   IIb:  Introduction                        
+   ------------------
+
+   H >> (X,P) in SETS by Sintro              SETS_equality_pair         / Spair
+      >> X in TYPE
+      >> P:X -> U1
+
+   H >> S in P(A) by Sintro                  SETS_power_element         / Spowerel
+      >> S in SETS
+      S in SETS >> carrier(S) = A in U1
+
+   H >> x in {S} by Sintro                   SETS_conversion_element    / Sconvel
+      >> x in carrier (S)
+      >> pred(S)(x)
+
+   H >> carrier(S) in Ui by Sintro           SETS_equality_carrier      / Scarrier
+      >> S in SETS
+
+   H >> pred(S) in carrier(S)->U1 by Sintro  SETS_equality_pred         / Spred
+      >> S in SETS
+
+
+
+   IIc:  Elimination
+   -----------------
+
+   H, S:SETS, H' >> T                                                SETS_elim hyp
+      carrier:TYPE, pred:carrier->U1, S = (carrier,pred) in SETS 
+       >> T[(carrier,pred)/S]                                        
+
+   H, x:{S}, H' >> T                                                 conversion_elim hyp
+      x in carrier(S), x  {S} >> T
+
+   H, S:P(A), H' >> T                                                powerset_elim hyp
+      >> A in TYPE
+      pred:A->U1, S = (A,pred) in SETS >> T[(A,pred)/ S]          
+   
+   (The last two should include reductions of the hypotheses if possible )
+
+
+
+   IId:  Computation                            
+   -----------------                            
+
+   ---------------------------------------------------------------------------------------- 
+
+
+
+
+   III:  Miscellaneous  functions and tactics 
+   ------------------------------------------
+
+
+    sets_all_intro = tactic            all-introduction for SETS
+
+   ---------------------------------------------------------------------------------------- 
+
+
+

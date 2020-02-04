@@ -1,0 +1,210 @@
+
+
+
+EDIT THM sub_union
+
+* top                                                           
+>> s1,s2:Sub. min(s1) & min(s2) => ncst(s1,s2)                
+     s:Sub. min(s) & s1s & s2s                               
+             & x:Var. xdom(s) => xdom(s1)  xdom(s2)        
+                                                                
+BY (Id ...) THEN (On `s1` Induction ...)                        
+                                                                
+1* 1. s2: (Atom & Term) list                                    
+   2. min(s2)                                                   
+   3. min(nil)                                                  
+   >> ncst(nil,s2)  s:(Atom & Term) list. min(s) & nils & s2
+      s & x:Var. xdom(s) => xdom(nil)  xdom(s2)            
+                                                                
+2* 1. s1: (Atom & Term) list                                    
+   2. s2: (Atom & Term) list                                    
+   3. min(s2)                                                   
+   4. h9: Atom & Term                                           
+   5. min(s1) => ncst(s1,s2)  s:(Atom & Term) list. min(s) & s
+      1s & s2s & x:Var. xdom(s) => xdom(s1)  xdom(s2)    
+   6. min(h9.s1)                                                
+   >> ncst(h9.s1,s2)  s:(Atom & Term) list. min(s) & h9.s1s &
+       s2s & x:Var. xdom(s) => xdom(h9.s1)  xdom(s2)      
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+D,#TD1PsT[Begin using 006 escapes]
+
+
+EDIT THM sub_union
+
+* top 2                                                         
+1. s1: (Atom & Term) list                                       
+2. s2: (Atom & Term) list                                       
+3. min(s2)                                                      
+4. h9: Atom & Term                                              
+5. min(s1) => ncst(s1,s2)  s:(Atom & Term) list. min(s) & s1s
+    & s2s & x:Var. xdom(s) => xdom(s1)  xdom(s2)          
+6. min(h9.s1)                                                   
+>> ncst(h9.s1,s2)  s:(Atom & Term) list. min(s) & h9.s1s & s2
+   s & x:Var. xdom(s) => xdom(h9.s1)  xdom(s2)            
+                                                                
+BY HypCases [] 5                                                
+                                                                
+1* >> min(s1)                                                   
+                                                                
+2* 6. ncst(s1,s2)                                               
+   >> ncst(h9.s1,s2)  s:(Atom & Term) list. min(s) & h9.s1s &
+       s2s & x:Var. xdom(s) => xdom(h9.s1)  xdom(s2)      
+                                                                
+3* 6. s:(Atom & Term) list. min(s) & s1s & s2s & x:Var. xdo
+      m(s) => xdom(s1)  xdom(s2)                             
+   >> ncst(h9.s1,s2)  s:(Atom & Term) list. min(s) & h9.s1s &
+       s2s & x:Var. xdom(s) => xdom(h9.s1)  xdom(s2)      
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+D,#TD1PsT[Begin using 006 escapes]
+
+
+EDIT THM sub_union
+
+* top 2 3 1                                                     
+1. s1: (Atom & Term) list                                       
+2. s2: (Atom & Term) list                                       
+3. min(s2)                                                      
+4. a10: (Atom & Term) list                                      
+5. a11: Atom                                                    
+6. a12: Term                                                    
+7. min(a10)                                                     
+8. s1a10                                                       
+9. s2a10                                                       
+10. x:Var. xdom(a10) => xdom(s1)  xdom(s2)                 
+11. min(<a11,a12>.s1)                                           
+>> ncst(<a11,a12>.s1,s2)  s:(Atom & Term) list. min(s) & <a11,
+   a12>.s1s & s2s & x:Var. xdom(s) => xdom(<a11,a12>.s1)  
+   xdom(s2)                                                    
+                                                                
+BY (CaseLemma `sub_lookup` ['a11';'s2'] ...)                    
+   THENL [(IRight ...); (OnLast (AndThin E) ...)]               
+                                                                
+1* 1. s1: (Atom & Term) list                                    
+   2. s2: (Atom & Term) list                                    
+   3. min(s2)                                                   
+   4. a10: (Atom & Term) list                                   
+   5. a11: Atom                                                 
+   6. a12: Term                                                 
+   7. min(a10)                                                  
+   8. s1a10                                                    
+   9. s2a10                                                    
+   10. x:Var. xdom(a10) => xdom(s1)  xdom(s2)              
+   11. min(<a11,a12>.s1)                                        
+D,#TD1PsT[Begin using 006 escapes]
+
+
+EDIT THM sub_union
+
+* top 2 3 1 1                                                   
+1. s1: (Atom & Term) list                                       
+2. s2: (Atom & Term) list                                       
+3. min(s2)                                                      
+4. a10: (Atom & Term) list                                      
+5. a11: Atom                                                    
+6. a12: Term                                                    
+7. min(a10)                                                     
+8. s1a10                                                       
+9. s2a10                                                       
+10. x:Var. xdom(a10) => xdom(s1)  xdom(s2)                 
+11. min(<a11,a12>.s1)                                           
+12. (a11dom(s2))                                              
+>> s:(Atom & Term) list. min(s) & <a11,a12>.s1s & s2s & x:Va
+   r. xdom(s) => xdom(<a11,a12>.s1)  xdom(s2)               
+                                                                
+BY (ITerm '<a11,a12>.a10' ...+s)                                
+                                                                
+1* 1. s1: (Atom & Term) list                                    
+   2. s2: (Atom & Term) list                                    
+   3. a10: (Atom & Term) list                                   
+   4. a11: Atom                                                 
+   5. a12: Term                                                 
+   6. (a11dom(s2))                                            
+   7. x:atom. xdom(a10) => xdom(s1)  xdom(s2)              
+   8. s2a10                                                    
+   9. s1a10                                                    
+   10. min(a10)                                                 
+   11. min(s2)                                                  
+   12. (a11dom(s1))                                           
+D,#TD1PsT[Begin using 006 escapes]
+
+
+EDIT THM sub_union
+
+* top 2 3 1 2 1                                                 
+1. s1: (Atom & Term) list                                       
+2. s2: (Atom & Term) list                                       
+3. min(s2)                                                      
+4. a10: (Atom & Term) list                                      
+5. a11: Atom                                                    
+6. a12: Term                                                    
+7. min(a10)                                                     
+8. s1a10                                                       
+9. s2a10                                                       
+10. x:Var. xdom(a10) => xdom(s1)  xdom(s2)                 
+11. min(<a11,a12>.s1)                                           
+12. a14: Term                                                   
+13. a11dom(s2)                                                 
+14. s2(a11)=a14                                                 
+15. a12=a14                                                     
+>> ncst(<a11,a12>.s1,s2)  s:(Atom & Term) list. min(s) & <a11,
+   a12>.s1s & s2s & x:Var. xdom(s) => xdom(<a11,a12>.s1)  
+   xdom(s2)                                                    
+                                                                
+BY (IRight THENM ITerm 'a10' ...s)                              
+                                                                
+1* 1. s1: (Atom & Term) list                                    
+   2. s2: (Atom & Term) list                                    
+   3. a10: (Atom & Term) list                                   
+   4. a11: Atom                                                 
+   5. a12: Term                                                 
+   6. a14: Term                                                 
+   7. a12=a14                                                   
+   8. s2(a11)=a14                                               
+D,#TD1PsT[Begin using 006 escapes]
+
+
+EDIT THM sub_union
+
+* top 2 3 1 2 2                                                 
+1. s1: (Atom & Term) list                                       
+2. s2: (Atom & Term) list                                       
+3. min(s2)                                                      
+4. a10: (Atom & Term) list                                      
+5. a11: Atom                                                    
+6. a12: Term                                                    
+7. min(a10)                                                     
+8. s1a10                                                       
+9. s2a10                                                       
+10. x:Var. xdom(a10) => xdom(s1)  xdom(s2)                 
+11. min(<a11,a12>.s1)                                           
+12. a14: Term                                                   
+13. a11dom(s2)                                                 
+14. s2(a11)=a14                                                 
+15. (a12=a14)                                                  
+>> ncst(<a11,a12>.s1,s2)  s:(Atom & Term) list. min(s) & <a11,
+   a12>.s1s & s2s & x:Var. xdom(s) => xdom(<a11,a12>.s1)  
+   xdom(s2)                                                    
+                                                                
+BY (ILeft THENM ITerm 'a11' ...sc) THEN                         
+   (BackchainWith Trivial ...)                                  
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                

@@ -1,0 +1,1289 @@
+* DEF c
+
+      %<c:comment>%==
+
+
+* DEF nothing
+
+      <a:anything>==
+
+
+* DEF ap
+
+      (<f:term> <x:term>)==((<f>)(<x>))
+
+
+* DEF l
+
+      ˆ<x:var>. <t:term>==(\ <x>. (<t>))
+
+
+* DEF l2
+
+      ˆ<x:var><y:var>. <t:term>==ˆ<x>. ˆ<y>. <t>
+
+
+* DEF l3
+
+      ˆ<x:var><y:var><z:var>. <t:term>==ˆ<x>. ˆ<y><z>. <t>
+
+
+* DEF l4
+
+      ˆ<x:var><y:var><z:var><a:var>. <t:term>==ˆ<x>. ˆ<y><z><a>. <t>
+
+
+* DEF bin_ap
+
+      <f:A-\>B-\>C>(<x:A>,<y:B>)==((<f>  <x>)  <y>)
+
+
+* DEF tri_ap
+
+      <f:A-\>B-\>C-\>D>(<x:A>,<y:B>,<z:C>)==(((<f>  <x>)  <y>) <z>)
+
+
+* DEF type_ap
+
+      <f:term><x:term>==((<f>)(<x>))
+
+
+* DEF t
+
+      (<T:tactic> ...)==(\p.((<T>) THEN Autotactic) p)
+
+
+* DEF letp
+
+      let p = goal in
+      <T:tactic>==\p. ((<T>) p)
+
+
+* DEF letnum
+
+      let p = the goal
+      and n = number of hypotheses in
+      <T:tactic>==\p. (let n = number_of_hyps p in (<T>) p)
+
+
+* DEF tc
+
+      (<T:tactic> ...*)==(\p. ((<T>) THEN (FastAp o Try o Complete) Autotactic) p) 
+                          THEN (FastAp o Try o Complete) (Reduce THEN Autotactic)
+
+
+* DEF tw
+
+      (<T:tactic> ... {wf})==(<T>) 
+          THEN (IfThen is_wf_goal Autotactic)
+
+
+* DEF tm
+
+      (<T:tactic> ... {})==(<T>) 
+          THEN (IfThen is_membership_goal Autotactic)
+
+
+* DEF to
+
+      -- <T:tactic>==(<T>) THENO Autotactic
+
+
+* THM assumption
+
+      >> U1 in U1
+
+
+* THM Type_
+
+      >> object
+
+      Extraction:
+      U1
+
+
+* DEF Type
+
+      Type==term_of(Type_)
+
+
+* THM Type__
+
+      >> Type in Type
+
+      Extraction:
+      term_of(assumption)
+
+
+* DEF all
+
+      <x:var>:<T:type>. <P:prop>==(<x>:(<T>)->(<P>))
+
+
+* DEF all2
+
+      <x:var>,<y:var>:<T:type>. <P:prop>
+      ==<x>:<T>. <y>:<T>. <P>
+
+
+* DEF all3
+
+      <x:var>,<y:var>,<z:var>:<T:type>. <P:prop>
+      ==<x>:<T>. <y>,<z>:<T>. <P>
+
+
+* DEF all4
+
+      <w:var>,<x:var>,<y:var>,<z:var>:<T:type>. <P:prop>
+      ==<w>:<T>. <x>,<y>,<z>:<T>. <P>
+
+
+* DEF uall
+
+      <x:typevar>. <P:prop>==<x>:Type. <P>
+
+
+* DEF uall2
+
+      <x:typevar>,<y:typevar>. <P:prop>
+      ==<x>. <y>. <P>
+
+
+* DEF imp
+
+      <P:prop> => <Q:prop>==((<P>)->(<Q>))
+
+
+* ML ArrowIntro
+
+      let ArrowIntro p =
+        let def = top_def_of_term (concl p) ? `NIL` in
+        if member def (words `all all2 all3 all4`)
+          then PatternAllIntro p
+        if def = `imp` 
+          then Intro p
+        if def = `NIL` & (fst (destruct_function (concl p))) = `NIL` ? false
+          then Intro p
+        if def = `NIL` 
+          then PatternAllIntro p
+        else failwith `ArrowIntro`
+      ;;
+
+
+* DEF some
+
+      <x:var>:<A:type>. <B:prop>==
+      C. (<x>:<A>. <B>  =>  C)  =>  C
+
+
+* ML some_Intro
+
+      set_d_tactic_args 0 ['"t"'] [] [] ;;
+      define_patterned_DIntro 
+        `some_Intro_pattern`
+        (make_macro_recognizer `some`)
+      ;;
+
+
+# THM some_Intro_pattern
+
+      >> x:"A". "B"
+
+
+* ML some_Elim
+
+      set_d_tactic_args 1 ['"t"'] [] [`z`] ;;
+      define_patterned_DElim
+        `some_Elim_pattern`
+        (make_macro_recognizer `some`)
+      ;;
+
+
+# THM some_Elim_pattern
+
+      >> x:"A". "B" -> void
+
+
+* DEF some2
+
+      <x:var>,<y:var>:<T:type>. <P:prop>
+      ==<x>:<T>. <y>:<T>. <P>
+
+
+* ML some2_Intro
+
+      set_d_tactic_args 0 ['"t"'; '"t"'] [] [] ;;
+      define_patterned_DIntro 
+        `some2_Intro_pattern`
+        (make_macro_recognizer `some2`)
+      ;;
+
+
+# THM some2_Intro_pattern
+
+      >> x,y:"A". "B"
+
+
+* ML some2_Elim
+
+      set_d_tactic_args 1 [] [] [] ;;
+      define_patterned_DElim
+        `some2_Elim_pattern`
+        (make_macro_recognizer `some2`)
+      ;;
+
+
+# THM some2_Elim_pattern
+
+      >> x,y:"A". "B" -> void
+
+
+* DEF some3
+
+      <x:var>,<y:var>,<z:var>:<T:type>. <P:prop>
+      ==<x>:<T>. <y>,<z>:<T>. <P>
+
+
+* ML some3_Intro
+
+      set_d_tactic_args 0 ['"t"'; '"t"';'"t"'] [] [] ;;
+      define_patterned_DIntro 
+        `some3_Intro_pattern`
+        (make_macro_recognizer `some3`)
+      ;;
+
+
+# THM some3_Intro_pattern
+
+      >> x,y,z:"A". "B"
+
+
+* ML some3_Elim
+
+      set_d_tactic_args 1 [] [] [] ;;
+      define_patterned_DElim
+        `some3_Elim_pattern`
+        (make_macro_recognizer `some3`)
+      ;;
+
+
+# THM some3_Elim_pattern
+
+      >> x,y,z:"A". "B" -> void
+
+
+* DEF some4
+
+      <w:var>,<x:var>,<y:var>,<z:var>:<T:type>. <P:prop>
+      ==<w>:<T>. <x>,<y>,<z>:<T>. <P>
+
+
+* ML some4_Intro
+
+      set_d_tactic_args 0 ['"t"'; '"t"'; '"t"'; '"t"'] [] [] ;;
+      define_patterned_DIntro 
+        `some4_Intro_pattern`
+        (make_macro_recognizer `some4`)
+      ;;
+
+
+# THM some4_Intro_pattern
+
+      >> w,x,y,z:"A". "B"
+
+
+* ML some4_Elim
+
+      set_d_tactic_args 1 [] [] [] ;;
+      define_patterned_DIntro 
+        `some4_Intro_pattern`
+        (make_macro_recognizer `some4`)
+      ;;
+
+
+# THM some4_Elim_pattern
+
+      >> w,x,y,z:"A". "B" -> void
+
+
+* THM and_
+
+      >> A:Type -> B:Type -> Type
+
+      Extraction:
+      ˆ A B. C:Type. (A  =>  B  =>  C)  =>  C
+
+
+* DEF and
+
+      <P:prop> & <Q:prop>==((term_of(and_) <P>) <Q>)
+
+
+* ML AndIntro
+
+      let AndIntro = 
+        IfOnConcl (\c. `and` = top_def_of_term c) CtdDIntro Fail 
+      ;;
+
+
+* THM and_Intro_lemma
+
+      >> A,B:Type. A  =>  B  =>  A & B
+
+
+* THM and_Elim_lemma_1
+
+      >> A,B:Type. A & B => A 
+
+
+* THM and_Elim_lemma_2
+
+      >> A,B:Type. A & B => B
+
+
+* ML and_Intro
+
+      define_lemmad_DIntro 
+        `and_Intro_lemma`
+        (make_def_recognizer `and` 2)
+      ;;
+
+
+* ML and_Elim
+
+      define_lemmad_DElim 
+        [`and_Elim_lemma_1`; `and_Elim_lemma_2`]
+        true
+        (make_def_recognizer `and` 2)
+      ;;
+
+
+* DEF or
+
+      <P:prop><Q:prop>==C. (<P> => C)  =>  (<Q> => C)  =>  C
+
+
+* ML or_Intro
+
+      set_d_tactic_args 0 [] [`left`] [] ;;
+      define_patterned_DIntro 
+        `or_Intro_pattern`
+        (make_macro_recognizer `or`)
+      ;;
+
+
+# THM or_Intro_pattern
+
+      >> "A"  "B"
+
+
+* ML or_Elim
+
+      set_d_tactic_args 1 [] [] [] ;;
+      define_patterned_DElim
+        `or_Elim_pattern`
+        (make_macro_recognizer `or`)
+      ;;
+
+
+# THM or_Elim_pattern
+
+      >> "A"  "B" -> void
+
+
+* ML OnHyp
+
+      letrec OnHyp i (T: int->tactic) p =
+      ( if i > number_of_hyps p then Intro THENW OnHyp i T
+        else T i
+      ) 
+      p
+      ;;
+
+
+* ML ExplicitIntro
+
+      let ExplicitIntro t = Refine (explicit_intro t) ;;
+
+
+* ML OnEveryHyp
+
+      let OnEveryHyp T p =
+        ChainHypTactics 
+          (map T (rev (upto 1 (number_of_hyps p))))
+          p
+      ;;
+
+
+* THM assumed_type_
+
+      >> U1
+
+      Extraction:
+      "A"
+
+
+* DEF assumed_type
+
+      assumed_type==term_of(assumed_type_)
+
+
+* THM assumed_function_
+
+      >> assumed_type -> assumed_type
+
+      Extraction:
+      "F"
+
+
+* DEF assumed_function
+
+      F==term_of(assumed_function_)
+
+
+* THM embeds_
+
+      >> A:Type -> r:(A->A->Type) -> d:(A->Type) ->
+      B:Type -> s:(B->B->Type) -> e:(B->Type) ->
+      f:(A->B) -> b:B -> Type
+        
+
+      Extraction:
+      ˆ A r d. ˆ B s e. ˆ f b. 
+      e(b) & x:A. d(x) => e(f(x)) & 
+      x,y:A. d(x) => d(y) => r(x,y) => s(f(x),f(y)) & 
+      x:A. d(x) => s(f(x),b)
+
+
+* DEF embeds
+
+      (<f:A-\>B>,<b:B>) embeds (<A:A:Type>,<r:A-\>A-\>Type>,<d:A-\>Type>) in (<B:B:Type>,<s:B-\>B-\>Type>,<e:B-\>Type>)==((((((((term_of(embeds_) <A>) <r>) <d>) <B>) <s>) <e>) <f>) <b>)
+
+
+* ML embeds_Intro
+
+      set_d_tactic_args 0 [] [] [] ;;
+      define_patterned_DIntro 
+        `embeds_Intro_pattern`
+        (make_def_recognizer `embeds` 8)
+      ;;
+
+
+# THM embeds_Intro_pattern
+
+      >> ("f","b") embeds ("A","r","d") in ("B","s","e")
+
+
+* ML embeds_Elim
+
+      set_d_tactic_args 1 [] [] [] ;;
+      define_patterned_DElim
+        `embeds_Elim_pattern`
+        (make_def_recognizer `embeds` 8)
+      ;;
+
+
+# THM embeds_Elim_pattern
+
+      >> ("f","b") embeds ("A","r","d") in ("B","s","e") -> void
+
+
+* THM emb_
+
+      >> A:Type -> r:(A->A->Type) -> d:(A->Type) ->
+      B:Type -> s:(B->B->Type) -> e:(B->Type) -> Type
+
+      Extraction:
+      ˆ A r d. ˆ B s e. f:A->B. b:B. (f,b) embeds (A,r,d) in (B,s,e)
+
+
+* DEF emb
+
+      (<A:A:Type>,<r:A-\>A-\>Type>,<d:A-\>Type>) \< (<B:B:Type>,<s:B-\>B-\>Type>,<e:B-\>Type>)==((((((term_of(emb_) <A>) <r>) <d>) <B>) <s>) <e>)
+
+
+* ML emb_Intro
+
+      set_d_tactic_args 0 ['"f"'; '"b"'] [] [] ;;
+      define_patterned_DIntro 
+        `emb_Intro_pattern`
+        (make_def_recognizer `emb` 6)
+      ;;
+
+
+# THM emb_Intro_pattern
+
+      >> ("A","r","d") < ("B","s","e")
+
+
+* ML emb_Elim
+
+      set_d_tactic_args 1 [] [] [] ;;
+      define_patterned_DElim
+        `emb_Elim_pattern`
+        (make_def_recognizer `emb` 6)
+      ;;
+
+
+# THM emb_Elim_pattern
+
+      >> ("A","r","d") < ("B","s","e") -> void
+
+
+* THM eq_
+
+      >> A:Type -> a:A -> b:A -> Type
+
+      Extraction:
+      ˆ A a b. P:A->Type. P(a) => P(b)
+
+
+* DEF eq
+
+      <a:A><b:A>  <A:A:Type>==(((term_of(eq_) <A>) <a>) <b>)
+
+
+* ML eq_Intro
+
+      set_d_tactic_args 0 [] [] [] ;;
+      define_patterned_DIntro 
+        `eq_Intro_pattern`
+        (make_def_recognizer `eq` 3)
+      ;;
+
+
+# THM eq_Intro_pattern
+
+      >> "a""b"  "A"
+
+
+* ML eq_Elim
+
+      set_d_tactic_args 1 ['"P"'] [] [] ;;
+      define_patterned_DElim
+        `eq_Elim_pattern`
+        (make_def_recognizer `eq` 3)
+      ;;
+
+
+# THM eq_Elim_pattern
+
+      >> "a""b"  "A" -> void
+
+
+* THM U_
+
+      >> Type
+
+      Extraction:
+      ( B:Type -> (B->B->Type) -> (B->Type) -> Type ) -> Type
+
+
+* DEF U
+
+      U==term_of(U_)
+
+
+* THM i_
+
+      >> A:Type -> r:(A->A->Type) -> d:(A->Type) -> U
+
+      Extraction:
+      ˆ A r d. ˆx. x(A,r,d)
+
+
+* DEF i
+
+      i(<A:A:Type>, <r:A-\>A-\>Type>, <d:A-\>Type>)==(((term_of(i_) <A>) <r>) <d>)
+
+
+* ML U_eq_Elim
+
+      set_d_tactic_args 1 ['ˆ A r d. "P"'] [] [] ;;
+      let U_eq_Elim i t p =
+        set_d_tactic_args i [t] [] [] ;
+        ApplyPattern ( (hd o children o proof_of_theorem) `U_eq_Elim_pattern` ) p
+      ;;
+
+
+# THM U_eq_Elim_pattern
+
+      >> i("A", "r", "d")i("B", "s", "e")  "U" -> void
+
+
+* THM trans_
+
+      >> A:Type -> r:(A->A->Type) -> d:(A->Type) -> Type
+
+      Extraction:
+      ˆ A r d. x,y,z:A. r(x,y) => r(y,z) => r(x,z)
+
+
+* DEF trans
+
+      trans(<A:A:Type>,<r:A-\>A-\>Type>,<d:A-\>Type>)==(((term_of(trans_) <A>) <r>) <d>)
+
+
+* ML trans_Intro
+
+      set_d_tactic_args 0 [] [] [] ;;
+      define_patterned_DIntro 
+        `trans_Intro_pattern`
+        (make_def_recognizer `trans` 3)
+      ;;
+
+
+# THM trans_Intro_pattern
+
+      >> trans("A","r","d")
+
+
+* ML trans_Elim
+
+      set_d_tactic_args 1 ['"x"'; '"y"'; '"z"'] [] [] ;;
+      define_patterned_DElim
+        `trans_Elim_pattern`
+        (make_def_recognizer `trans` 3)
+      ;;
+
+
+# THM trans_Elim_pattern
+
+      >> trans("A","r","d") -> void
+
+
+* THM chain_in_
+
+      >> A:Type -> r:(A->A->Type) -> d:(A->Type) -> P:(A->Type) -> Type
+
+      Extraction:
+      ˆ A r d. ˆP. x:A. P(x) & d(x) & y:A. P(y) => x:A. P(x) & r(x,y)
+
+
+* DEF chain_in
+
+      <P:A-\>Type> chain in (<A:A:Type>,<r:A-\>A-\>Type>,<d:A-\>Type>)==
+      ((((term_of(chain_in_) <A>) <r>) <d>) <P>)
+
+
+* ML chain_in_Intro
+
+      set_d_tactic_args 0 [] [] [] ;;
+      define_patterned_DIntro 
+        `chain_in_Intro_pattern`
+        (make_def_recognizer `chain_in` 4)
+      ;;
+
+
+# THM chain_in_Intro_pattern
+
+      >> "P" chain in ("A","r","d")
+
+
+* ML chain_in_Elim
+
+      set_d_tactic_args 1 [] [] [] ;;
+      define_patterned_DElim
+        `chain_in_Elim_pattern`
+        (make_def_recognizer `chain_in` 4)
+      ;;
+
+
+# THM chain_in_Elim_pattern
+
+      >>  "P" chain in ("A","r","d") -> void
+
+
+* THM wf_
+
+      >> A:Type -> r:(A->A->Type) -> d:(A->Type) -> Type
+
+      Extraction:
+      ˆ A r d. P:A->Type. P chain in (A,r,d) => assumed_type
+
+
+* DEF wf
+
+      wf(<A:A:Type>,<r:A-\>A-\>Type>,<d:A-\>Type>)==(((term_of(wf_) <A>) <r>) <d>)
+
+
+* ML wf_Intro
+
+      set_d_tactic_args 0 [] [] [] ;;
+      define_patterned_DIntro 
+        `wf_Intro_pattern`
+        (make_def_recognizer `wf` 3)
+      ;;
+
+
+# THM wf_Intro_pattern
+
+      >> wf("A","r","d")
+
+
+* ML wf_Elim
+
+      set_d_tactic_args 1 ['"P"'] [] [] ;;
+      define_patterned_DElim
+        `wf_Elim_pattern`
+        (make_def_recognizer `wf` 3)
+      ;;
+
+
+# THM wf_Elim_pattern
+
+      >> wf("A","r","d") -> void
+
+
+* THM Uless_
+
+      >> U -> U -> Type
+
+      Extraction:
+      ˆ u v. A:Type. r:A->A->Type. d:A->Type. 
+      B:Type. s:B->B->Type. e:B->Type. 
+         ui(A, r, d)  U & vi(B, s, e)  U & (A,r,d) < (B,s,e)
+
+
+* DEF Uless
+
+      Uless==term_of(Uless_)
+
+
+* ML Uless_Intro
+
+      set_d_tactic_args 0 ['"A"';'"r"';'"d"';'"B"';'"s"';'"e"'] [] [] ;;
+      define_patterned_DIntro 
+        `Uless_Intro_pattern`
+        (make_def_recognizer `Uless` 2)
+      ;;
+
+
+# THM Uless_Intro_pattern
+
+      >> Uless("u","v")
+
+
+* ML Uless_Elim
+
+      set_d_tactic_args 1 [] [] [] ;;
+      define_patterned_DElim
+        `Uless_Elim_pattern`
+        (make_def_recognizer `Uless` 2)
+      ;;
+
+
+# THM Uless_Elim_pattern
+
+      >> Uless("u","v") -> void
+
+
+* THM dU_
+
+      >> U -> Type
+
+      Extraction:
+      ˆu. A:Type. r:A->A->Type. d:A->Type. 
+          ui(A, r, d)  U & trans(A,r,d) & wf(A,r,d)
+
+
+* DEF dU
+
+      dU==term_of(dU_)
+
+
+* ML dU_Intro
+
+      set_d_tactic_args 0 ['"A"';'"r"';'"d"'] [] [] ;;
+      define_patterned_DIntro 
+        `dU_Intro_pattern`
+        (make_def_recognizer `dU` 1)
+      ;;
+
+
+# THM dU_Intro_pattern
+
+      >> dU("u")
+
+
+* ML dU_Elim
+
+      set_d_tactic_args 1 [] [] [] ;;
+      define_patterned_DElim
+        `dU_Elim_pattern`
+        (make_def_recognizer `dU` 1)
+      ;;
+
+
+# THM dU_Elim_pattern
+
+      >> dU("u") -> void
+
+
+* THM eq_sym
+
+      >> A:Type. a,b:A. ab  A => ba  A
+
+
+* THM eq_lemma
+
+      >> A:Type. x,y,z:A. yx  A => yz  A => xz  A
+
+
+* THM embedding_lemma
+
+      >> A1:Type. r1:A1->A1->Type. d1:A1->Type. 
+      A2:Type. r2:A2->A2->Type. d2:A2->Type. 
+      A3:Type. r3:A3->A3->Type. d3:A3->Type. 
+      f2:A2->A3. b2:A3. 
+         (A1,r1,d1) < (A2,r2,d2) => (f2,b2) embeds (A2,r2,d2) in (A3,r3,d3) => 
+         f3:A1->A3. b3:A3. r3(b3,b2) & (f3,b3) embeds (A1,r1,d1) in (A3,r3,d3)
+
+
+* THM dU_implies_trans
+
+      >> A1:Type. r1:A1->A1->Type. d1:A1->Type. 
+        dU(i(A1, r1, d1)) => trans(A1,r1,d1)
+
+
+* THM dU_implies_wf
+
+      >> A1:Type. r1:A1->A1->Type. d1:A1->Type. 
+        dU(i(A1, r1, d1)) => wf(A1,r1,d1)
+
+
+* THM Uord_trans
+
+      >> trans(U,Uless,dU)
+
+
+* THM Uord_wf
+
+      >> wf(U,Uless,dU)
+
+
+* THM Uord_in_dU
+
+      >> dU(i(U, Uless, dU))
+
+
+* THM Rb_in_dU
+
+      >> B:Type. s:B->B->Type. e:B->Type. b:B. 
+      dU(i(B, s, e)) => e(b) => dU(i(B, s, ˆx. e(x) & s(x,b)))
+
+
+* THM Uord_max
+
+      >> Z:Type. q:Z->Z->Type. c:Z->Type. 
+         dU(i(Z, q, c)) => (Z,q,c) < (U,Uless,dU)
+
+
+* THM contradiction
+
+      >> assumed_type
+
+
+* ML U_chain
+
+      let U_chain = 'ˆu. ui(U, Uless, dU)  U';;
+
+
+* ML bag_types
+
+      letrec bag_types t = 
+        if is_function_term t then '"<type>"'
+        else map_on_subterms bag_types t;;
+
+
+* ML is_free_in
+
+      let is_free_in x t = 
+        letrec aux t =
+            (let y = destruct_var t in x=y => true | false)
+          ? (let y,b = destruct_lambda t in x=y => false | aux b)
+          ? (let a,b = destruct_apply t in aux a or aux b)
+          ? (let y,A,B = destruct_function t in 
+             y=x => aux A | (aux A or aux B))
+          ? false
+        in
+        aux t
+      ;; 
+
+
+* ML make_tuple
+
+      let make_ap =
+        iterate_fun make_apply_term 
+      ;;
+       
+      let make_tuple =
+        reverse_iterate_fun 
+        (\x y. make_lambdas (ids `C_ f_`) (make_ap ['f_'; x; y])) 
+      ;;
+
+
+* ML add_pairing
+
+      %let add_pairing t =
+        substitute_using_bindings 
+          '<a,b>'
+          (match 'ˆC. ˆf. f(a)(b)' t [`a`;`b`])
+      ;;
+      %
+      let add_pairing t =
+        let C,t = destruct_lambda t in
+        let f,t = destruct_lambda t in
+        let [t;a;b] = decompose_application t in
+        if destruct_var t = f & not is_free_in C a & not is_free_in C b
+        then make_pair_term a b else fail
+      ;;
+
+
+* ML add_projections
+
+      % Bags type arguments. %
+      
+      %let add_projections t =
+         substitute_using_bindings 
+           '1(p)'
+           (match 'p(C)(\x.\y.x)' t [`p`;`C`])
+         ?
+         substitute_using_bindings 
+           '2(p)'
+           (match 'p(C)(\x.\y.y)' t [`p`;`C`])
+      
+      ;;
+      
+      %
+      
+      let add_projections t =
+        let [p;C;t] = decompose_application t in
+      %  if is_apply_term t then fail ;%
+        let x,t = destruct_lambda t in
+        let y,t = destruct_lambda t in
+        let v = destruct_var t in
+        if v=x then make_apply_term '1' p
+        if v=y then make_apply_term '2' p
+        else fail
+      ;; 
+
+
+* ML apply_additions
+
+      letrec apply_one funs arg =
+        hd funs arg ? apply_one (tl funs) arg
+      ;;
+      
+      letrec apply_additions adders t =
+        let tt = 
+          map_on_subterms (apply_additions adders) t  in
+        apply_one adders tt
+        ? tt
+      ;;
+
+
+* ML fixup
+
+      let fixup t = 
+        apply_additions [add_projections; add_pairing] (bag_types t)
+      ;;
+
+
+* ML expand_pairing
+
+      let expand_pairing t =
+        let a,b = destruct_pair t in
+        make_lambdas (ids `_C_ _f_`) (make_ap ['_f_'; a; b;])
+      ;;
+      
+      
+        
+
+
+* ML expand_projections
+
+      let expand_projections t =
+       let a,b = destruct_apply t in
+       if a = '1' then make_ap [b; '_'; 'ˆx y. x']
+       if a = '2' then make_ap [b; '_'; 'ˆx y. y']
+       else fail
+      ;;
+
+
+* ML restore
+
+      let restore t = 
+        apply_additions [expand_pairing; expand_projections] t
+      ;;
+
+
+* ML expand
+
+      % Does not expand extractions arising from expansions. %
+      let expand names t =
+        letrec aux t =
+          if is_term_of_theorem_term t 
+             & member (destruct_term_of_theorem t) names
+          then extracted_term_of_theorem (destruct_term_of_theorem t)
+          else map_on_subterms aux t in
+        aux t
+      ;;
+
+
+* ML expand_leftmost
+
+      % Not quite what the name indicates, since the 
+         order of mapping in map_on_subterms depends on 
+         the prl term representation. %
+      let expand_leftmost name t =
+        letref expansion_happened = false in
+        letrec aux t =
+          if expansion_happened then t
+          if is_term_of_theorem_term t 
+             & name = destruct_term_of_theorem t
+            then (expansion_happened := true;
+                  extracted_term_of_theorem 
+                    (destruct_term_of_theorem t))
+          else map_on_subterms aux t  in
+        aux t
+      ;; 
+       
+
+
+* ML lambda_compute
+
+      % four_lambda_compute (currently) lives in the file
+        mrbig:>howe>cur>computation.lisp
+      %
+      
+      let lambda_compute = four_curry four_lambda_compute ;;
+
+
+* ML pp_thm
+
+      let pp_thm name =
+      ( pretty_print_term_to_file 
+           (fixup (lambda_compute
+                      (extracted_term_of_theorem name) 
+                      true false [])
+           ,(`mb:>howe>cur>text>`^name^`.text`)
+           )
+        ;()
+      ) ? ()
+      ;;
+
+
+* ML partially_normalize
+
+      let thms_to_expand =
+        words `and_Intro_lemma and_Elim_lemma_1 and_Elim_lemma_2 eq_sym eq_lemma assumed_type_ assumed_function_ eq_ i`
+      ;; 
+      
+      
+      let partially_normalize t = 
+        lambda_compute t true false thms_to_expand
+      ;;  
+
+
+* ML next_YF
+
+      let next_YF YF =
+        let t = partially_normalize (lambda_compute YF false true []) in
+        let a,b = destruct_apply t in
+        if not destruct_token a = `F` then fail
+        else b
+      ;;
+
+
+* ML beat_until
+
+      letrec expand_head t =
+        ( let a,b = destruct_apply t in 
+          make_apply_term (expand_head a) b
+        )
+        ? (extracted_term_of_theorem o destruct_term_of_theorem)
+          t
+      ;;
+      
+      
+      % Term and beatings must be headed by a term_of %
+      letrec beat_until name t =
+        if destruct_term_of_theorem (head_of_application t) = name
+           ? false
+        then t
+        else beat_until name
+               (partially_normalize (expand_head t))
+      ;;
+
+
+* ML pptext2
+
+      let pptext2 t name =
+        pretty_print_term_to_file
+        ( fixup t,
+          (`>howe>cur>text2>`^name^`.text`)
+        )
+      ;;
+          
+
+
+* ML size
+
+      letrec size t =
+        1 + accumulate (\x y. x+y) 0 (map size (subterms t))
+      ;; 
+
+
+* ML make_let
+
+      let make_let2 x y t tt =
+        make_ap [t; '_'; make_lambdas [x;y] tt]
+      ;;
+      
+        
+
+
+* ML d
+
+      let d0 = make_tuple
+      ['_'; '_'; '_'; '_';
+       'term_of(Uord_trans)';
+       'term_of(Uord_wf)'
+      ]
+      ;;
+      
+      let dn = make_tuple
+      ['_'; '_'; '_'; '_';
+       'term_of(Uord_trans)';
+       make_lambdas (ids `P p`)
+       ( make_ap
+         ['term_of(Uord_wf)'
+         ;'P'
+         ;make_let2 `a` `g` 'p'
+            (make_let2 `x` `b` 'a'
+              (make_let2 `y` `z` 'b'
+                (make_tuple [make_tuple ['x';'y';'z(_)(\x.\y.x)']
+                            ;'g'])))
+         ]
+       ) 
+      ]
+      ;;
+
+
+* ML s
+
+      let s0 = 
+      make_tuple
+      (
+      replicate '_' 6
+      @
+      ['ˆ P x. x'; 
+       'ˆ P x. x';
+       'ˆx. x'; '_'; 'term_of(Uord_in_dU)'; 
+       make_lambdas (ids `x p`) 'p(_)(ˆx y. x)';
+       'ˆ x y. ˆ p1 p2 p3. p3';
+       'ˆ x p. p(_)(ˆx y. y)'
+      ]
+      )
+      ;;
+      
+      let sn = 
+      make_tuple
+      (
+      replicate '_' 6
+      @
+      ['ˆP x. x';'ˆP x. x';'ˆx. x'; '_'; 
+       make_tuple ['_'; 'snm1']; 
+       make_lambdas (ids `x p`) (make_tuple ['p(_)(ˆx y. x)'; '_']);
+       'ˆ x y. ˆ p1 p2 p3. p3';
+       'ˆ x p. p(_)(ˆx y. y)'
+      ]
+      )
+      ;;
+
+
+* ML p
+
+      let pk0 = make_tuple
+      ['_'; '_'; '_'; 'ˆx. x'; 'pkm1np1'; 'term_of(Uord_in_dU)';
+       'ˆ x p. p(_)(ˆx y. x)';
+       'ˆ x y. ˆ p1 p2 p3. p3';
+       'ˆ x p. p(_)(ˆx y. y)'
+      ]
+      ;;
+      
+      let pkn = make_tuple
+      ['_'; '_'; '_'; 'ˆx. x'; 'pkm1np1'; 'd';
+       'ˆ x p. p(_)(ˆx y. x)';
+       'ˆ x y. ˆ p1 p2 p3. p3';
+       'ˆ x p. p(_)(ˆx y. y)'
+      ]
+      ;;
+      
+      let p1n =
+      make_tuple ['_';'_';'_';'_'; 'ˆP. ˆx. x'; '_';'_';'opn';'bpfn']
+      ;;
+
+
+* ML almost_normalize
+
+      let almost_normalize t =
+        lambda_compute t true true [`Uord_in_dU`]
+      ;;
+
+
+* ML replace_instances
+
+      % Metavariables are those free vars which begin with `_`. %
+      let replace_instances pattern replacement t =
+        let pattern_metas = 
+          filter (\v. `_` = (hd o explode) v) (map destruct_var (free_vars pattern))  in  
+        let replacement_metas = 
+          filter (\v. `_` = (hd o explode) v) (map destruct_var (free_vars replacement))  in  
+        letrec aux t =
+          map_on_subterms aux
+            ( (let match_result = match pattern t pattern_metas in
+               substitute replacement (map (\x. mvt x, lookup match_result x) replacement_metas) 
+              ) ? t
+            )  in
+        aux t
+      ;;
+
+
+* ML destruct_tuple
+
+      % Tuples are formed from right associated pairing. %
+      letrec destruct_real_tuple t = 
+        if is_pair_term t then
+          (let a,b = destruct_pair t in a . (destruct_real_tuple b))
+        else [t]
+      ;;
+      
+      letrec destruct_tuple t =
+        (let a,b = destruct_pair (add_pairing t) in
+         a . (destruct_tuple b)
+        ) 
+        ? [t]
+      ;; 
+
+
+* ML normalize
+
+      let normalize t = lambda_compute t true true [] ;;
+
+
+* ML modify_wf
+
+      letrec modify_wf t = 
+        (let a,b = destruct_apply t in 
+         if a='"F"' then 
+           ( make_apply_term a o make_apply_term 'v24' 
+             o make_ap ) 
+           ('"X"' . free_vars b)
+         else fail
+        )
+        ? map_on_subterms modify_wf t
+      ;;
+
+

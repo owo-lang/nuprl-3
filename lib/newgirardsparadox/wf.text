@@ -1,0 +1,845 @@
+(LAMBDA
+  (P v0)
+  (v0
+    <type>
+    (LAMBDA (v3 v4)
+      v3)
+    A
+    (LAMBDA
+      (x v9)
+      (v9
+	(dU_ x)
+	(LAMBDA (v3 v4)
+	  v4)
+	A
+	(LAMBDA
+	  (A0 v18)
+	  (v18
+	    A
+	    (LAMBDA
+	      (r0 v21)
+	      (v21
+		A
+		(LAMBDA
+		  (d0 v24)
+		  (F
+		    (v24
+		      (and_ (trans_ A0 r0 d0) (wf_ A0 r0 d0))
+		      (LAMBDA (v3 v4)
+			v4)
+		      (wf_ A0 r0 d0)
+		      (LAMBDA (v3 v4)
+			v4)
+		      (LAMBDA (a)
+			<type>)
+		      (LAMBDA
+			(C v2)
+			(v2
+			  (v0
+			    <type>
+			    (LAMBDA (v3 v4)
+			      v4)
+			    (i_ A0 r0 d0)
+			    (v24 <type>
+				 (LAMBDA (v3 v4)
+				   v3)
+				 P
+				 (v9 (P x)
+				     (LAMBDA (v3 v4)
+				       v3)))
+			    <type>
+			    (LAMBDA
+			      (u v50)
+			      (v50
+				(Uless_ u (i_ A0 r0 d0))
+				(LAMBDA (v3 v4)
+				  v4)
+				<type>
+				(LAMBDA
+				  (A1 v59)
+				  (v59
+				    <type>
+				    (LAMBDA
+				      (r1 v62)
+				      (v62
+					<type>
+					(LAMBDA
+					  (d1 v65)
+					  (v65
+					    <type>
+					    (LAMBDA
+					      (A2 v68)
+					      (v68
+						<type>
+						(LAMBDA
+						  (r2 v71)
+						  (v71
+						    <type>
+						    (LAMBDA
+						      (d2 v74)
+						      (v74
+							(and_ <type> (emb_ A1 r1 d1 A2 r2 d2))
+							(LAMBDA (v3 v4)
+							  v4)
+							<type>
+							(LAMBDA (v3 v4)
+							  v3)
+							(LAMBDA (x)
+							  <type>)
+							(LAMBDA (P v4)
+							  v4)
+							(LAMBDA (u)
+							  (u (LAMBDA (A r d)
+							       (emb_ A1 r1 d1 A r d))))
+							(v74 (and_ <type> (emb_ A1 r1 d1 A2 r2 d2))
+							     (LAMBDA (v3 v4)
+							       v4)
+							     (emb_ A1 r1 d1 A2 r2 d2)
+							     (LAMBDA (v3 v4)
+							       v4))
+							<type>
+							(LAMBDA
+							  (f v96)
+							  (v96
+							    <type>
+							    (LAMBDA
+							      (b v99 C v100)
+							      (v100
+								b
+								(LAMBDA
+								  (C v2)
+								  (v2
+								    (LAMBDA
+								      (C v106)
+								      (v106
+									A1
+									(LAMBDA
+									  (C v109)
+									  (v109
+									    r1
+									    (LAMBDA
+									      (C v112)
+									      (v112
+										d1
+										(LAMBDA (C v115)
+										  (v115 f
+											(LAMBDA (C v2)
+											  (v2 (v74 <type>
+     (LAMBDA (v3 v4)
+       v3)
+     P
+     (v50 (P u)
+	  (LAMBDA (v3 
+		   v4)
+	    v3)))
+											      v99))))))))))
+								    (v99 (d0 b)
+									 (LAMBDA (v3 v4)
+									   v3)))))))))))))))))))))))
+			  (LAMBDA
+			    (y v133)
+			    (v133
+			      <type>
+			      (LAMBDA
+				(A1 v136)
+				(v136
+				  <type>
+				  (LAMBDA
+				    (r1 v139)
+				    (v139
+				      <type>
+				      (LAMBDA
+					(d1 v142)
+					(v142
+					  <type>
+					  (LAMBDA
+					    (f1 v145)
+					    (v0
+					      <type>
+					      (LAMBDA (v3 v4)
+						v4)
+					      (i_ A1 r1 d1)
+					      (v145 (P (i_ A1 r1 d1))
+						    (LAMBDA (v3 v4)
+						      v3))
+					      <type>
+					      (LAMBDA
+						(u v157)
+						(v157
+						  (Uless_ u (i_ A1 r1 d1))
+						  (LAMBDA (v3 v4)
+						    v4)
+						  <type>
+						  (LAMBDA
+						    (A3 v166)
+						    (v166
+						      <type>
+						      (LAMBDA
+							(r3 v169)
+							(v169
+							  <type>
+							  (LAMBDA
+							    (d3 v172)
+							    (v172
+							      <type>
+							      (LAMBDA
+								(A2 v175)
+								(v175
+								  <type>
+								  (LAMBDA
+								    (r2 v178)
+								    (v178
+								      <type>
+								      (LAMBDA
+									(d2 v181)
+									(embedding_lemma
+									  A3
+									  r3
+									  d3
+									  A1
+									  r1
+									  d1
+									  A0
+									  r0
+									  d0
+									  f1
+									  y
+									  (v181 (and_ <type> (emb_ A3 r3 d3 A2 r2 d2))
+										(LAMBDA (v3 v4)
+										  v4)
+										<type>
+										(LAMBDA (v3 v4)
+										  v3)
+										(LAMBDA (x)
+										  <type>)
+										(LAMBDA (P v4)
+										  v4)
+										(LAMBDA (u)
+										  (u (LAMBDA (A r d)
+										       (emb_ A3 r3 d3 A r d))))
+										(v181 (and_ <type>
+											    (emb_ A3 r3 d3 A2 r2 d2))
+										      (LAMBDA (v3 v4)
+											v4)
+										      (emb_ A3 r3 d3 A2 r2 d2)
+										      (LAMBDA (v3 v4)
+											v4)))
+									  (v145 (embeds_ A1 r1 d1 A0 r0 d0 f1 y)
+										(LAMBDA (v3 v4)
+										  v4))
+									  <type>
+									  (LAMBDA
+									    (f3 v217)
+									    (v217
+									      <type>
+									      (LAMBDA
+										(a v220 C v227)
+										(v227
+										  a
+										  (LAMBDA
+										    (C v2)
+										    (v2
+										      (LAMBDA
+											(C v233)
+											(v233
+											  A3
+											  (LAMBDA
+											    (C v236)
+											    (v236
+											      r3
+											      (LAMBDA
+  (C v239)
+  (v239
+    d3
+    (LAMBDA
+      (C v242)
+      (v242
+	f3
+	(LAMBDA
+	  (C v2)
+	  (v2
+	    (v181
+	      <type>
+	      (LAMBDA (v3 v4)
+		v3)
+	      P
+	      (v157 (P u)
+		    (LAMBDA (v3 v4)
+		      v3)))
+	    (v220 (embeds_ A3
+			   r3
+			   d3
+			   A0
+			   r0
+			   d0
+			   f3
+			   a)
+		  (LAMBDA (v3 v4)
+		    v4))))))))))))
+										      (v220 (r0 a y)
+											    (LAMBDA (v3 v4)
+											      v3)))))))))))))))))))))))))))))))))))))))))))))
+
+(LAMBDA
+ (P v0)
+ (v0
+  <type>
+  (LAMBDA (v3 v4)
+      v3)
+  A
+  (LAMBDA
+   (x v9)
+   (v9
+    (dU_ x)
+    (LAMBDA (v3 v4)
+        v4)
+    A
+    (LAMBDA
+     (A0 v18)
+     (v18
+      A
+      (LAMBDA
+       (r0 v21)
+       (v21
+        A
+        (LAMBDA
+         (d0 v24)
+         (F
+          (v24
+           (and_ (trans_ A0 r0 d0) (wf_ A0 r0 d0))
+           (LAMBDA (v3 v4)
+               v4)
+           (wf_ A0 r0 d0)
+           (LAMBDA (v3 v4)
+               v4)
+           (LAMBDA (a)
+               <type>)
+           (LAMBDA
+            (C v2)
+            (v2
+             (v0
+              <type>
+              (LAMBDA (v3 v4)
+                  v4)
+              (i_ A0 r0 d0)
+              (v24 <type>
+                     (LAMBDA (v3 v4)
+                         v3)
+                     P
+                     (v9 (P x)
+                           (LAMBDA (v3 v4)
+                               v3)))
+              <type>
+              (LAMBDA
+               (u v50)
+               (v50
+                (Uless_ u (i_ A0 r0 d0))
+                (LAMBDA (v3 v4)
+                    v4)
+                <type>
+                (LAMBDA
+                 (A1 v59)
+                 (v59
+                  <type>
+                  (LAMBDA
+                   (r1 v62)
+                   (v62
+                    <type>
+                    (LAMBDA
+                     (d1 v65)
+                     (v65
+                      <type>
+                      (LAMBDA
+                       (A2 v68)
+                       (v68
+                        <type>
+                        (LAMBDA
+                         (r2 v71)
+                         (v71
+                          <type>
+                          (LAMBDA
+                           (d2 v74)
+                           (v74
+                            (and_ <type> (emb_ A1 r1 d1 A2 r2 d2))
+                            (LAMBDA (v3 v4)
+                                v4)
+                            <type>
+                            (LAMBDA (v3 v4)
+                                v3)
+                            (LAMBDA (x)
+                                <type>)
+                            (LAMBDA (P v4)
+                                v4)
+                            (LAMBDA (u)
+                                (u (LAMBDA (A r d)
+                                         (emb_ A1 r1 d1 A r d))))
+                            (v74 (and_ <type> (emb_ A1 r1 d1 A2 r2 d2))
+                                   (LAMBDA (v3 v4)
+                                       v4)
+                                   (emb_ A1 r1 d1 A2 r2 d2)
+                                   (LAMBDA (v3 v4)
+                                       v4))
+                            <type>
+                            (LAMBDA
+                             (f v96)
+                             (v96
+                              <type>
+                              (LAMBDA
+                               (b v99 C v100)
+                               (v100
+                                b
+                                (LAMBDA
+                                 (C v2)
+                                 (v2
+                                  (LAMBDA
+                                   (C v106)
+                                   (v106
+                                    A1
+                                    (LAMBDA
+                                     (C v109)
+                                     (v109
+                                      r1
+                                      (LAMBDA
+                                       (C v112)
+                                       (v112
+                                        d1
+                                        (LAMBDA (C v115)
+                                            (v115 f
+                                                    (LAMBDA (C v2)
+                                                        (v2 (v74 <type>
+                                                                     (LAMBDA (v3 v4)
+                                                                         v3)
+                                                                     P
+                                                                     (v50 (P u)
+                                                                            (LAMBDA (v3 
+                                                                                     v4)
+                                                                                v3)))
+                                                              v99))))))))))
+                                  (v99 (d0 b)
+                                         (LAMBDA (v3 v4)
+                                             v3)))))))))))))))))))))))
+             (LAMBDA
+              (y v133)
+              (v133
+               <type>
+               (LAMBDA
+                (A1 v136)
+                (v136
+                 <type>
+                 (LAMBDA
+                  (r1 v139)
+                  (v139
+                   <type>
+                   (LAMBDA
+                    (d1 v142)
+                    (v142
+                     <type>
+                     (LAMBDA
+                      (f1 v145)
+                      (v0
+                       <type>
+                       (LAMBDA (v3 v4)
+                           v4)
+                       (i_ A1 r1 d1)
+                       (v145 (P (i_ A1 r1 d1))
+                               (LAMBDA (v3 v4)
+                                   v3))
+                       <type>
+                       (LAMBDA
+                        (u v157)
+                        (v157
+                         (Uless_ u (i_ A1 r1 d1))
+                         (LAMBDA (v3 v4)
+                             v4)
+                         <type>
+                         (LAMBDA
+                          (A3 v166)
+                          (v166
+                           <type>
+                           (LAMBDA
+                            (r3 v169)
+                            (v169
+                             <type>
+                             (LAMBDA
+                              (d3 v172)
+                              (v172
+                               <type>
+                               (LAMBDA
+                                (A2 v175)
+                                (v175
+                                 <type>
+                                 (LAMBDA
+                                  (r2 v178)
+                                  (v178
+                                   <type>
+                                   (LAMBDA
+                                    (d2 v181)
+                                    (embedding_lemma
+                                     A3
+                                     r3
+                                     d3
+                                     A1
+                                     r1
+                                     d1
+                                     A0
+                                     r0
+                                     d0
+                                     f1
+                                     y
+                                     (v181 (and_ <type> (emb_ A3 r3 d3 A2 r2 d2))
+                                             (LAMBDA (v3 v4)
+                                                 v4)
+                                             <type>
+                                             (LAMBDA (v3 v4)
+                                                 v3)
+                                             (LAMBDA (x)
+                                                 <type>)
+                                             (LAMBDA (P v4)
+                                                 v4)
+                                             (LAMBDA (u)
+                                                 (u (LAMBDA (A r d)
+                                                          (emb_ A3 r3 d3 A r d))))
+                                             (v181 (and_ <type>
+                                                             (emb_ A3 r3 d3 A2 r2 d2))
+                                                     (LAMBDA (v3 v4)
+                                                         v4)
+                                                     (emb_ A3 r3 d3 A2 r2 d2)
+                                                     (LAMBDA (v3 v4)
+                                                         v4)))
+                                     (v145 (embeds_ A1 r1 d1 A0 r0 d0 f1 y)
+                                             (LAMBDA (v3 v4)
+                                                 v4))
+                                     <type>
+                                     (LAMBDA
+                                      (f3 v217)
+                                      (v217
+                                       <type>
+                                       (LAMBDA
+                                        (a v220 C v227)
+                                        (v227
+                                         a
+                                         (LAMBDA
+                                          (C v2)
+                                          (v2
+                                           (LAMBDA
+                                            (C v233)
+                                            (v233
+                                             A3
+                                             (LAMBDA
+                                              (C v236)
+                                              (v236
+                                               r3
+                                               (LAMBDA
+                                                (C v239)
+                                                (v239
+                                                 d3
+                                                 (LAMBDA
+                                                  (C v242)
+                                                  (v242
+                                                   f3
+                                                   (LAMBDA
+                                                    (C v2)
+                                                    (v2
+                                                     (v181
+                                                      <type>
+                                                      (LAMBDA (v3 v4)
+                                                          v3)
+                                                      P
+                                                      (v157 (P u)
+                                                              (LAMBDA (v3 v4)
+                                                                  v3)))
+                                                     (v220 (embeds_ A3
+                                                                        r3
+                                                                        d3
+                                                                        A0
+                                                                        r0
+                                                                        d0
+                                                                        f3
+                                                                        a)
+                                                             (LAMBDA (v3 v4)
+                                                                 v4))))))))))))
+                                           (v220 (r0 a y)
+                                                   (LAMBDA (v3 v4)
+                                                       v3)))))))))))))))))))))))))))))))))))))))))))))
+
+(LAMBDA
+ (P |v0|)
+ (|v0|
+  |<type>|
+  (LAMBDA (|v3| |v4|)
+      |v3|)
+  A
+  (LAMBDA
+   (|x| |v9|)
+   (|v9|
+    (|dU_| |x|)
+    (LAMBDA (|v3| |v4|)
+        |v4|)
+    A
+    (LAMBDA
+     (A0 |v18|)
+     (|v18|
+      A
+      (LAMBDA
+       (|r0| |v21|)
+       (|v21|
+        A
+        (LAMBDA
+         (|d0| |v24|)
+         (F
+          (|v24|
+           (|and_| (|trans_| A0 |r0| |d0|) (|wf_| A0 |r0| |d0|))
+           (LAMBDA (|v3| |v4|)
+               |v4|)
+           (|wf_| A0 |r0| |d0|)
+           (LAMBDA (|v3| |v4|)
+               |v4|)
+           (LAMBDA (|a|)
+               |<type>|)
+           (LAMBDA
+            (C |v2|)
+            (|v2|
+             (|v0|
+              |<type>|
+              (LAMBDA (|v3| |v4|)
+                  |v4|)
+              (|i_| A0 |r0| |d0|)
+              (|v24| |<type>|
+                     (LAMBDA (|v3| |v4|)
+                         |v3|)
+                     P
+                     (|v9| (P |x|)
+                           (LAMBDA (|v3| |v4|)
+                               |v3|)))
+              |<type>|
+              (LAMBDA
+               (|u| |v50|)
+               (|v50|
+                (|Uless_| |u| (|i_| A0 |r0| |d0|))
+                (LAMBDA (|v3| |v4|)
+                    |v4|)
+                |<type>|
+                (LAMBDA
+                 (A1 |v59|)
+                 (|v59|
+                  |<type>|
+                  (LAMBDA
+                   (|r1| |v62|)
+                   (|v62|
+                    |<type>|
+                    (LAMBDA
+                     (|d1| |v65|)
+                     (|v65|
+                      |<type>|
+                      (LAMBDA
+                       (A2 |v68|)
+                       (|v68|
+                        |<type>|
+                        (LAMBDA
+                         (|r2| |v71|)
+                         (|v71|
+                          |<type>|
+                          (LAMBDA
+                           (|d2| |v74|)
+                           (|v74|
+                            (|and_| |<type>| (|emb_| A1 |r1| |d1| A2 |r2| |d2|))
+                            (LAMBDA (|v3| |v4|)
+                                |v4|)
+                            |<type>|
+                            (LAMBDA (|v3| |v4|)
+                                |v3|)
+                            (LAMBDA (|x|)
+                                |<type>|)
+                            (LAMBDA (P |v4|)
+                                |v4|)
+                            (LAMBDA (|u|)
+                                (|u| (LAMBDA (A |r| |d|)
+                                         (|emb_| A1 |r1| |d1| A |r| |d|))))
+                            (|v74| (|and_| |<type>| (|emb_| A1 |r1| |d1| A2 |r2| |d2|))
+                                   (LAMBDA (|v3| |v4|)
+                                       |v4|)
+                                   (|emb_| A1 |r1| |d1| A2 |r2| |d2|)
+                                   (LAMBDA (|v3| |v4|)
+                                       |v4|))
+                            |<type>|
+                            (LAMBDA
+                             (|f| |v96|)
+                             (|v96|
+                              |<type>|
+                              (LAMBDA
+                               (|b| |v99| C |v100|)
+                               (|v100|
+                                |b|
+                                (LAMBDA
+                                 (C |v2|)
+                                 (|v2|
+                                  (LAMBDA
+                                   (C |v106|)
+                                   (|v106|
+                                    A1
+                                    (LAMBDA
+                                     (C |v109|)
+                                     (|v109|
+                                      |r1|
+                                      (LAMBDA
+                                       (C |v112|)
+                                       (|v112|
+                                        |d1|
+                                        (LAMBDA (C |v115|)
+                                            (|v115| |f|
+                                                    (LAMBDA (C |v2|)
+                                                        (|v2| (|v74| |<type>|
+                                                                     (LAMBDA (|v3| |v4|)
+                                                                         |v3|)
+                                                                     P
+                                                                     (|v50| (P |u|)
+                                                                            (LAMBDA (|v3| 
+                                                                                     |v4|)
+                                                                                |v3|)))
+                                                              |v99|))))))))))
+                                  (|v99| (|d0| |b|)
+                                         (LAMBDA (|v3| |v4|)
+                                             |v3|)))))))))))))))))))))))
+             (LAMBDA
+              (|y| |v133|)
+              (|v133|
+               |<type>|
+               (LAMBDA
+                (A1 |v136|)
+                (|v136|
+                 |<type>|
+                 (LAMBDA
+                  (|r1| |v139|)
+                  (|v139|
+                   |<type>|
+                   (LAMBDA
+                    (|d1| |v142|)
+                    (|v142|
+                     |<type>|
+                     (LAMBDA
+                      (|f1| |v145|)
+                      (|v0|
+                       |<type>|
+                       (LAMBDA (|v3| |v4|)
+                           |v4|)
+                       (|i_| A1 |r1| |d1|)
+                       (|v145| (P (|i_| A1 |r1| |d1|))
+                               (LAMBDA (|v3| |v4|)
+                                   |v3|))
+                       |<type>|
+                       (LAMBDA
+                        (|u| |v157|)
+                        (|v157|
+                         (|Uless_| |u| (|i_| A1 |r1| |d1|))
+                         (LAMBDA (|v3| |v4|)
+                             |v4|)
+                         |<type>|
+                         (LAMBDA
+                          (A3 |v166|)
+                          (|v166|
+                           |<type>|
+                           (LAMBDA
+                            (|r3| |v169|)
+                            (|v169|
+                             |<type>|
+                             (LAMBDA
+                              (|d3| |v172|)
+                              (|v172|
+                               |<type>|
+                               (LAMBDA
+                                (A2 |v175|)
+                                (|v175|
+                                 |<type>|
+                                 (LAMBDA
+                                  (|r2| |v178|)
+                                  (|v178|
+                                   |<type>|
+                                   (LAMBDA
+                                    (|d2| |v181|)
+                                    (|embedding_lemma|
+                                     A3
+                                     |r3|
+                                     |d3|
+                                     A1
+                                     |r1|
+                                     |d1|
+                                     A0
+                                     |r0|
+                                     |d0|
+                                     |f1|
+                                     |y|
+                                     (|v181| (|and_| |<type>| (|emb_| A3 |r3| |d3| A2 |r2| |d2|))
+                                             (LAMBDA (|v3| |v4|)
+                                                 |v4|)
+                                             |<type>|
+                                             (LAMBDA (|v3| |v4|)
+                                                 |v3|)
+                                             (LAMBDA (|x|)
+                                                 |<type>|)
+                                             (LAMBDA (P |v4|)
+                                                 |v4|)
+                                             (LAMBDA (|u|)
+                                                 (|u| (LAMBDA (A |r| |d|)
+                                                          (|emb_| A3 |r3| |d3| A |r| |d|))))
+                                             (|v181| (|and_| |<type>|
+                                                             (|emb_| A3 |r3| |d3| A2 |r2| |d2|))
+                                                     (LAMBDA (|v3| |v4|)
+                                                         |v4|)
+                                                     (|emb_| A3 |r3| |d3| A2 |r2| |d2|)
+                                                     (LAMBDA (|v3| |v4|)
+                                                         |v4|)))
+                                     (|v145| (|embeds_| A1 |r1| |d1| A0 |r0| |d0| |f1| |y|)
+                                             (LAMBDA (|v3| |v4|)
+                                                 |v4|))
+                                     |<type>|
+                                     (LAMBDA
+                                      (|f3| |v217|)
+                                      (|v217|
+                                       |<type>|
+                                       (LAMBDA
+                                        (|a| |v220| C |v227|)
+                                        (|v227|
+                                         |a|
+                                         (LAMBDA
+                                          (C |v2|)
+                                          (|v2|
+                                           (LAMBDA
+                                            (C |v233|)
+                                            (|v233|
+                                             A3
+                                             (LAMBDA
+                                              (C |v236|)
+                                              (|v236|
+                                               |r3|
+                                               (LAMBDA
+                                                (C |v239|)
+                                                (|v239|
+                                                 |d3|
+                                                 (LAMBDA
+                                                  (C |v242|)
+                                                  (|v242|
+                                                   |f3|
+                                                   (LAMBDA
+                                                    (C |v2|)
+                                                    (|v2|
+                                                     (|v181|
+                                                      |<type>|
+                                                      (LAMBDA (|v3| |v4|)
+                                                          |v3|)
+                                                      P
+                                                      (|v157| (P |u|)
+                                                              (LAMBDA (|v3| |v4|)
+                                                                  |v3|)))
+                                                     (|v220| (|embeds_| A3
+                                                                        |r3|
+                                                                        |d3|
+                                                                        A0
+                                                                        |r0|
+                                                                        |d0|
+                                                                        |f3|
+                                                                        |a|)
+                                                             (LAMBDA (|v3| |v4|)
+                                                                 |v4|))))))))))))
+                                           (|v220| (|r0| |a| |y|)
+                                                   (LAMBDA (|v3| |v4|)
+                                                       |v3|)))))))))))))))))))))))))))))))))))))))))))))

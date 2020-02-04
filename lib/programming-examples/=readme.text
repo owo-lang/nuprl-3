@@ -1,0 +1,28 @@
+
+This directory contains four interesting programming examples, contained in the
+files "max", "lambo", "quicksort" (another version of this library is
+"quicksort-2"), and "while".  To load any of these, first make sure Nuprl is
+using the "old" set rules.  Then load the tactic collection via the "load-all"
+file.  (This collection is the same as the default collection from Nuprl Release
+1.0.)  Load the library "basic-defs" (which contains definitions for logic and
+other basic objects), then load the desired library.  These libraries were all
+constructed by Christine Mohring, during the fall of 1986.  A brief description
+of the contents of each library is given below.
+                                                                             
+quicksort -- A development of the "quicksort" sorting algorithm for lists of
+integers.  *Note*: because of a change to a function dealing with display
+forms, this library will no longer correctly expand.  However, quicksort-2 is
+still fine.
+
+max -- The "maximum segment sum" problem is to compute, given an array A of
+integers, the largest n which is the sum of the elements of a consecutive
+subsequence of A.  This library develops a program which solves a version of the
+problem that is generalized with respect to the function which computes segment
+sums.
+
+lambo -- A version of the "lambo" function is extracted from a proof that for
+any non-decreasing function f:N->N whose range is unbounded, and for any natural
+number n, there is a smallest m such that f(m)>n.
+
+while -- Two implementations of type-theoretic analogues of conventional while
+schemes.

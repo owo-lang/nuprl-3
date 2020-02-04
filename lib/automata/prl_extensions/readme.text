@@ -1,0 +1,82 @@
+
+*  ---------------------------------------------------------------------------------------   *
+|                                                                                            |
+|        PRL_extensions                                                                      |
+|                                                                                            |
+|        Library Files containing PRL-definitions and important theorems to extend           |
+|        the predefined PRL type and rule system                                             |
+|                                                                                            |
+|        The corresponding ML-tactics which contain extensions to the rule system for        |
+|        these types are in the directory Nuprl:Libraries;automata;ML_files;                 |
+|        They will be called automatically                                                   |
+|                                                                                            |
+|        Look into Nuprl:Libraries;automata;ML_files_descriptions                            |
+|        for details concerning these rules                                                  |
+|                                                                                            |
+*  ---------------------------------------------------------------------------------------   *
+
+
+
+   Loading the new type:
+   ---------------------
+
+      To load one of the libraries, you must load the corresponding ML
+      file first (it will be name appropriately; e.g., for the library
+      lib_words, first load the ML file loadwords).
+
+      READ THE DESCRIPTION BEFORE DOING THAT !!
+
+
+   Contents:                                                         (tactic-filename)
+   ---------
+
+      general     :  ML-helpfunctions which aren't tactics           (supply.ml)
+                     and a collection of general purpose tactics     (tactics.ml)
+
+      logic       :  Logic notation and rules                        (logic.ml)
+                     includes "general"
+
+      tupling     :  multiple pairs, functions                       (tupling.ml)
+                     includes "logic"
+
+      sets        :  An attempt to deal with sets in general.        (sets.ml)
+                     Currently dealing only with sets with a carrier in U1.
+                     includes "tupling"
+                     Needs further work               
+   
+      finset      :  Natural numbers, sets {1..n} etc.               (finset.ml)
+                     Lots of theorems (two versions of the pigeonhole principle)
+                     includes "tupling"
+                     tactics and rules very incomplete at the current time
+
+   
+      words       :  Everything you have to do with strings (lists etc.). Realized on
+                     the basis of using "integer" as the type of string symbols. 
+                     Could be easily extended to any other type with decidable equality.
+                     (Actually only the rules concerning the type "SYMBOLS" have to be
+                      changed. Anything else should be o.k. then)
+                                                                  (words_term.ml)
+                                                                  (words_rules_1.ml)
+                                                                  (words_rules_computation.ml)
+                                                                  (words_tactics.ml)
+                     +
+                     An extension dealing with recursive definitions of string-functions
+                                                                  (words_recursion.ml)
+                     includes "tupling"
+
+      dfa         :  Basic automata theory (deterministic only)
+                     A proof the pumping lemma
+                     Could easily be extended to nondeterministic automata, epsilon-moves etc.
+                     includes everything before
+
+   -------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+      *-----------------------------------*
+      |  Christoph Kreitz  February 1986  |
+      *-----------------------------------*

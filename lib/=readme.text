@@ -1,0 +1,85 @@
+
+
+
+	This directory contains some of the Nuprl libraries constructed at
+Cornell.  Each library has a collection of tactics associated with it (some
+of these collections have not been thoroughly tested).  Most of these
+collections are (functionally) subsets of the basic collection that is
+automatically loaded as part of Nuprl and that is documented in the file
+nuprl:doc;tactics.text (doc/tactics.text, if you are using a Sun).
+
+	Many of the subdirectories of this directory are presented in the
+format described below.  Ones that don't follow this scheme should be self-
+documenting. 
+                                                                                
+	Each subdirectory contains a single library or a small number of
+related libraries.  The subdirectory contains the ML tactic files needed for
+the library, and a file called "load-all.ml" which, when loaded into Nuprl,
+will cause the needed ML files to be loaded.  The "load-all" file refers to
+other files in such a way that no modification is needed to make it work for
+your local setup (as long as nuprl's directory structure has been preserved).
+The libraries are usually contained in a file called "lib.lisp".  For
+example, to load a proof of the fundamental theorem of arithmetic, do the
+following:
+
+M> loadt `nuprl:lib;fta;load-all`;; 
+P> load top from nuprl:lib;fta;lib
+
+The subdirectory should contain additional documentation in a file called
+"=readme.text".  Other interesting files are those with "text" extensions
+(which will contain, e.g., snapshots of proofs), and those with "mm"
+extensions, which will contain output from the "media masher" function, which
+prints a concise summary of a proof.  (This function is described in the
+"changes" file mentioned below.)
+
+If you just want to view the top level of the library (i.e. you do not want
+to view any of the proofs) then you do not need to load any ML files.
+
+Most of the "load-all" files make use of the ML function
+"complete_nuprl_path" which allows the loading of files in a host-independent
+way.  If you are using Nuprl on a Unix host, then in order for this function
+to work, the working directory of Lisp must be the main nuprl directory (of
+which the "lib" directory is a member).
+
+Sometimes when expanding a library or loading an EVAL object on a Symbolics
+machine, the stack will overflow.  If this happens, go to the Lisp Listener
+from which Nuprl was invoked and hit the Resume key.
+
+-----------------------------------------------------------------------------
+
+*IMPORTANT NOTE*:  Some rule changes have invalidated some of the older
+libraries.  Some of the rules for set-types are now different from what is
+documented in the book.  Some of the older libraries use the original
+versions of the rules; for such libraries, there will be an appropriate
+comment in the associated README file.  Also, the direct computation rules
+have been strengthened: there are no longer any "tagging restrictions".
+Somewhat surprisingly, some libraries actually depend on the weakened form of
+the rules.  As with the set rules, libraries that require the old version of
+the rules will be explicitly indicated.
+
+The following ML functions can be used to toggle the rule versions used and
+to find out which version is in effect.  These functions should not be
+considered to be an "official" part of the system; they are provided only so
+that old libraries can be viewed.
+
+make_all_tags_legal(yes:bool): bool.  Make the direct computation rules
+ignore the tagging restrictions iff yes is true.  
+
+all_tags_legal(foo:void): bool.  True iff the tags are ignored.
+
+use_old_set_rules(yes:bool): bool.  Use the old set rules iff yes is
+true.
+
+old_set_rules_in_use(foo:void): bool.
+
+reset_rules(foo:void): void.  Reset the rules to their initial state
+(new set rules, all tags legal).
+
+For example, to put the old set rules into effect, enter:
+
+ML> use_old_set_rules true;;
+
+and to put the old direct computations rules into effect enter
+
+ML> make_all_tags_legal false;;
+

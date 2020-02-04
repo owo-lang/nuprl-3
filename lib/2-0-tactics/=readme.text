@@ -1,0 +1,8 @@
+
+This directory contains the tactic collection from Nuprl 2.0.  The 3.0
+tactic collection is the same but for a few bug fixes.  The file
+nuprl:doc;tactics.text describes the 2.0 collection and the fixes.  The
+2.0 collection can be loaded (compiled) using the file load.ml
+(compile.ml).  It should be loaded (compiled) on top of the 3.0
+collection (which is loaded with the system by default).
+

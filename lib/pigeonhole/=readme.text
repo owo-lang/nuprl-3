@@ -1,0 +1,10 @@
+
+        The library in this directory contains a proof of a variant of the
+pigeon hole principle.  The main result of the library is:
+
+>> All n:N. All f:{1..(n+1)}->{1..n}. 
+     Some i,j:{1..(n+1)} where i<j & f(i)=f(j)
+
+
+
+- Doug Howe

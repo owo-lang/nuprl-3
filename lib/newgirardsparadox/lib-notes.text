@@ -1,0 +1,26 @@
+Here are a few notes about the Girard's paradox library.   
+
+The library contains 134 objects.  The entire formal argument takes place in
+the last 11 objects (starting with the theorem named "eq_sym").  A few
+objects at the beginning of the library are common to most Nuprl libraries.
+Almost all the remaining objects are related to definitions.
+
+Most definitions have 5 or 6 objects related to them.  Definitions themselves
+are made with 1 or 2 objects (2 if the object is defined as an extraction
+from a theorem that gives the defined object's type).  A definition also
+usually has two associated "pattern" theorems, one for introduction and one
+for elimination.  These pattern theorems are partially proved and specify
+derived rules of inference in which tokens (strings enclosed in quotes) are
+used as syntactic variables (I know, this is a hack).  Each pattern theorem
+has an ML object preceding it which specifies what arguments are used in
+pattern proof and how the pattern is to be used by the tactics DElim and
+DIntro which are used to apply "higher-level" intro and elim steps.  The use
+of these patterns wasn't really necessary, and they made the library much
+longer. However, they were easy to construct (each pattern theorem has only a
+few simple steps) and they made the final argument considerably prettier.
+
+The basic assumptions (U1 in U1, F in T->T) were made by stating them as
+theorems and "proving" them using the unsound (and undocumented!)  rule
+called "because".  At some point we'll have library mechanisms for reasoning
+under assumptions, but for now this hack is the best we can do.
+

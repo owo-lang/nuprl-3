@@ -1,0 +1,75 @@
+EDIT THM test_norm_Q_term_wrt_plus
+
+* top                                                                                 
+>> w,x,y,z:|Q|. x+(y+(w+z)) = ((y+z)+y)+z in Q  => (y+(0+y))+(z+z) = 0 in Q          
+                 => 0+0 = (z+x)+(w+y) in Q                                            
+                                                                                      
+BY (Id ...)                                                                           
+                                                                                      
+1* 1. w: |Q|                                                                          
+   2. x: |Q|                                                                          
+   3. y: |Q|                                                                          
+   4. z: |Q|                                                                          
+   5. x+(y+(w+z)) = ((y+z)+y)+z in Q                                                  
+   6. (y+(0+y))+(z+z) = 0 in Q                                                        
+   >> 0+0 = (z+x)+(w+y) in Q                                                          
+                                                                                      
+                                                                                      
+                                                                                      
+                                                                                      
+
+* top 1                                                                               
+1. w: |Q|                                                                             
+2. x: |Q|                                                                             
+3. y: |Q|                                                                             
+4. z: |Q|                                                                             
+5. x+(y+(w+z)) = ((y+z)+y)+z in Q                                                     
+6. (y+(0+y))+(z+z) = 0 in Q                                                           
+>> 0+0 = (z+x)+(w+y) in Q                                                             
+                                                                                      
+BY (LiftUsing ['_Q'] ...)                                                            
+                                                                                      
+1* 5. alpha: Env                                                                      
+   6. (...)                                                                           
+   7. val(,y+0+y+z+z=0 in Q)                                                         
+   8. val(,x+y+w+z=y+z+y+z in Q)                                                     
+   >> (val(,0+0=z+x+w+y in Q))                                                      
+                                                                                      
+                                                                                      
+                                                                                      
+                                                                                      
+                                                                                      
+* top 1 1                                                                             
+1. w: |Q|                                                                             
+2. x: |Q|                                                                             
+3. y: |Q|                                                                             
+4. z: |Q|                                                                             
+5. alpha: Env                                                                         
+6. (...)                                                                              
+7. val(,y+0+y+z+z=0 in Q)                                                            
+8. val(,x+y+w+z=y+z+y+z in Q)                                                        
+>> (val(,0+0=z+x+w+y in Q))                                                         
+                                                                                      
+BY (Rewrite 'norm_wrt_Q_plus()' ...)                                                 
+                                                                                      
+1* 6. val(,y+y+z+z=0 in Q)                                                           
+   7. val(,x+y+w+z=y+y+z+z in Q)                                                     
+   8. (...)                                                                           
+   >> (val(,0=x+y+w+z in Q))                                                        
+                                                                                      
+                                                                                      
+                                                                                      
+                                                                                      
+                                                                                      
+* top 1 1 1                                                                           
+1. w: |Q|                                                                             
+2. x: |Q|                                                                             
+3. y: |Q|                                                                             
+4. z: |Q|                                                                             
+5. alpha: Env                                                                         
+6. val(,y+y+z+z=0 in Q)                                                              
+7. val(,x+y+w+z=y+y+z+z in Q)                                                        
+8. (...)                                                                              
+>> (val(,0=x+y+w+z in Q))                                                           
+                                                                                      
+BY (ApplyCompleteTac 'equality()' ...)                                               

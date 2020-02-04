@@ -1,0 +1,8 @@
+
+This library contains a formalization of a simple first-order matching
+algorithm.  This formalization is described in the paper "Implementing
+Metamathematics as an Approach to Automatic Theorem Proving" by
+Constable and Howe.  The paper appears in "A Sourcebook on Formal
+Techniques in Artificial Intelligence", Elsevier Science Publishers,
+1989.
+

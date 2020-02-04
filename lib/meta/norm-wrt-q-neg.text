@@ -1,0 +1,69 @@
+-*- Default-character-style: (:FIX :ROMAN :NORMAL) -*-
+
+
+
+
+
+* top 
+>> w,x,y,z:|Q|. -(w+x+y*z+z) = -w+-x+-y*z+-z in Q
+
+BY (Id ...)
+   
+1* 1. w: |Q|
+   2. x: |Q|
+   3. y: |Q|
+   4. z: |Q|
+   >> -(w+x+y*z+z) = -w+-x+-y*z+-z in Q   
+
+
+
+
+* top 1
+1. w: |Q|
+2. x: |Q|
+3. y: |Q|
+4. z: |Q|
+>> -(w+x+y*z+z) = -w+-x+-y*z+-z in Q
+
+BY (LiftUsing ['_Q'] ...)
+   
+1* 5. : Env
+   6. (...)
+   >> (val(,-(w+x+y*z+z)=-(w)+-(x)+-(y*z)+-(z) in Q))   
+
+
+
+
+>> Repeat( TopDown(rewrite{[x;y]}(-(x+y) -> -(x)+-(y))) )  
+   in Rewrite(_Q)   
+
+
+
+
+* top 1 1
+1. w: |Q|
+2. x: |Q|
+3. y: |Q|
+4. z: |Q|
+5. : Env
+6. (...)
+>> (val(,-(w+x+y*z+z)=-(w)+-(x)+-(y*z)+-(z) in Q))
+
+BY (RewriteConcl 'norm_wrt_Q_neg' ...)
+   
+1* 6. (...)
+   >> (val(,-(w)+-(x)+-(y*z)+-(z)=-(w)+-(x)+-(y*z)+-(z) in Q))   
+
+
+
+
+* top 1 1 1
+1. w: |Q|
+2. x: |Q|
+3. y: |Q|
+4. z: |Q|
+5. : Env
+6. (...)
+>> (val(,-(w)+-(x)+-(y*z)+-(z)=-(w)+-(x)+-(y*z)+-(z) in Q))
+
+BY (ApplyCompleteTac 'equality()' ...)   

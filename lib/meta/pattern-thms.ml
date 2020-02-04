@@ -1,0 +1,4 @@
+let pattern_thms = ``Term0Induction Term0_induction_pattern Term0SubsetUnroll Term0_subset_unroll Term0SubsetInduction 
+Term0_subset_induction_pattern Term0EqI Term0_EqI_pattern Term0SubsetEqI
+ Term0_subset_EqI_pattern PBoolE PBoolE_pattern Term0Unroll Term0_unroll_pattern`` 
+;; 

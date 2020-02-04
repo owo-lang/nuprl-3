@@ -1,0 +1,270 @@
+
+\documentstyle{article}
+\makeatletter 
+\newcommand{\singlespacing}{\let\CS=
+\@currsize\renewcommand{\baselinestretch}{1}\small\CS}
+\makeatother
+{\obeyspaces\global\let =\ }
+\newcommand{\N}{\rule{0pt}{0pt}}
+\oddsidemargin 0in
+\evensidemargin 0in
+\topmargin -.5in
+\headheight 0in
+\headsep 0in
+\textwidth 6.5in
+\textheight 9.5in 
+\begin{document}
+\singlespacing \tt \obeyspaces
+
+\N{}\\{}
+\N{}* DEF title \\{}
+\N{}      ****** Development of Eight Queen Problem in nuPrl ****** == \\{}
+\N{}       \\{}
+\N{}      A well-know problem of placing eight queens on a chess board \\{}
+\N{}      so that no queen is facing to the others. \\{}
+\N{} \\{}
+\N{}* DEF author \\{}
+\N{}      Tatsuya Hagino, LFCS, Dept. of Computer Science, Univ. of Edinburgh== \\{}
+\N{}      Currently developping an interactive proof editor which may not \\{}
+\N{}      be as great as nuPrl is theoretically, but we are trying to make \\{}
+\N{}      it easy to use. \\{}
+\N{} \\{}
+\N{}* DEF date \\{}
+\N{}      July 1st 1987== \\{}
+\N{}       \\{}
+\N{}      During a short visit in Cornel after '87 LICS conference \\{}
+\N{} \\{}
+\N{}* DEF comment1 \\{}
+\N{}      **** Some Basic Definitions for First Order Predicate Calculus ****== \\{}
+\N{} \\{}
+\N{}* DEF prop \\{}
+\N{}      prop == U1 \\{}
+\N{} \\{}
+\N{}* DEF true \\{}
+\N{}      true==(0 in int) \\{}
+\N{} \\{}
+\N{}* DEF false \\{}
+\N{}      false==void \\{}
+\N{} \\{}
+\N{}* DEF not \\{}
+\N{}      \(\sim{}\)<p:prop>==((<p>)->void) \\{}
+\N{} \\{}
+\N{}* DEF and \\{}
+\N{}      <p:prop> \& <q:prop>==((<p>)\#(<q>)) \\{}
+\N{} \\{}
+\N{}* DEF imp \\{}
+\N{}      <p:prop> \(\supset{}\) <q:prop>==((<p>)->(<q>)) \\{}
+\N{} \\{}
+\N{}* DEF equiv \\{}
+\N{}      <p:prop> \(\equiv{}\) <q:prop>==(((<p>)->(<q>)) \& ((<q>)->(<p>))) \\{}
+\N{} \\{}
+\N{}* DEF all \\{}
+\N{}      \(\forall{}\)<x:var>:<t:type>.<p:prop>==(<x>:(<t>)->(<p>)) \\{}
+\N{} \\{}
+\N{}* DEF some \\{}
+\N{}      \(\exists{}\)<x:var>:<t:type>.<p:prop>==(<x>:(<t>)\#(<p>)) \\{}
+\N{} \\{}
+\N{}* DEF all2 \\{}
+\N{}      \(\forall{}\)<x:var>,<y:var>:<t:type>.<p:prop>==\(\forall{}\)<x>:<t>.\(\forall{}\)<y>:<t>.<p> \\{}
+\N{} \\{}
+\N{}* ML intros \\{}
+\N{}      let intros = REPEAT (refine\_using\_prl\_rule `intro`);; \\{}
+\N{} \\{}
+\N{}* DEF ge \\{}
+\N{}      <x:int>>=<y:int>==((<x><<y>) -> void) \\{}
+\N{} \\{}
+\N{}* DEF le \\{}
+\N{}      <x:int>\(\backslash{}\)<=<y:int>==((<y><<x>)->void) \\{}
+\N{} \\{}
+\N{}* DEF nat \\{}
+\N{}      nat==\{n:int|0<=n\} \\{}
+\N{} \\{}
+\N{}* DEF all3 \\{}
+\N{}      \(\forall{}\)<x:var>,<y:var>,<z:var>:<t:type>.<p:prop>==\(\forall{}\)<x>:<t>.\(\forall{}\)<y>:<t>.\(\forall{}\)<z>:<t>.<p> \\{}
+\N{} \\{}
+\N{}* DEF comment2 \\{}
+\N{}      **** \(\forall{}\)a\(\epsilon{}\)l.P(a) means that P(a) holds for any element of l ****== \\{}
+\N{} \\{}
+\N{}* DEF member \\{}
+\N{}      \(\forall{}\)<x:var>\(\epsilon{}\)<l:list>.<p:prop>==list\_ind(<l>;true;\_m0,\_m1,\_m2.(\(\backslash{}\) <x>.<p>)(\_m0) \& \_m2) \\{}
+\N{} \\{}
+\N{}* THM member\_nil \\{}
+\N{}      >> \(\forall{}\)A:U1.\(\forall{}\)P:(A->U1).\(\forall{}\)a\(\epsilon{}\)nil.P(a) \\{}
+\N{} \\{}
+\N{}* THM member\_cons \\{}
+\N{}      >> \(\forall{}\)A:U1.\(\forall{}\)P:(A->U1).\(\forall{}\)a:A.\(\forall{}\)x:A list.(P(a) \& \(\forall{}\)b\(\epsilon{}\)x.P(b) \(\supset{}\) \(\forall{}\)c\(\epsilon{}\)(a.x).P(c)) \\{}
+\N{} \\{}
+\N{}* DEF comment3 \\{}
+\N{}      **** n\(\epsilon{}\)l means that n is in integer list l ****== \\{}
+\N{} \\{}
+\N{}* THM i\_belong\_ \\{}
+\N{}      >> int -> int list -> U1 \\{}
+\N{}      Extraction: \\{}
+\N{}      \(\backslash{}\)n.\(\backslash{}\)l.list\_ind(l;false;u,v,w.(n=u in int)|w) \\{}
+\N{} \\{}
+\N{}* DEF i\_belong \\{}
+\N{}      <n:number>\(\epsilon{}\)<l:list>==term\_of(i\_belong\_)(<n>)(<l>) \\{}
+\N{} \\{}
+\N{}* THM i\_belong\_nil \\{}
+\N{}      >> \(\forall{}\)n:int.\(\sim{}\)n\(\epsilon{}\)nil \\{}
+\N{} \\{}
+\N{}* THM i\_belong\_cons \\{}
+\N{}      >> \(\forall{}\)n,m:int.\(\forall{}\)x:int list.(n\(\epsilon{}\)(m.x) \(\equiv{}\) (n=m in int)|n\(\epsilon{}\)x) \\{}
+\N{} \\{}
+\N{}* THM i\_belong\_decide \\{}
+\N{}      >> \(\forall{}\)n:int.\(\forall{}\)x:int list.(n\(\epsilon{}\)x|\(\sim{}\)n\(\epsilon{}\)x) \\{}
+\N{} \\{}
+\N{}* DEF comment4 \\{}
+\N{}      **** \(\sim{}\)dup(l) means that there is no duplication in l ****== \\{}
+\N{}       \\{}
+\N{}      For example \(\sim{}\)dup(1.5.3.nil) is true but \(\sim{}\)dup(1.5.1.nil) is not. \\{}
+
+\N{} \\{}
+\N{}* THM no\_dup\_ \\{}
+\N{}      >> int list -> U1 \\{}
+\N{}      Extraction: \\{}
+\N{}      \(\backslash{}\)x.list\_ind(x;true;u,v,w.\(\sim{}\)u\(\epsilon{}\)v \& w) \\{}
+\N{} \\{}
+\N{}* DEF no\_dup \\{}
+\N{}      \(\sim{}\)dup(<l:list>)==term\_of(no\_dup\_)(<l>) \\{}
+\N{} \\{}
+\N{}* THM no\_dup\_nil \\{}
+\N{}      >> \(\sim{}\)dup(nil) \\{}
+\N{} \\{}
+\N{}* THM no\_dup\_test \\{}
+\N{}      >> \(\sim{}\)dup(1.6.nil) \\{}
+\N{} \\{}
+\N{}* THM no\_dup\_cons \\{}
+\N{}      >> \(\forall{}\)n:int.\(\forall{}\)x:int list.(\(\sim{}\)dup(x) \& \(\sim{}\)n\(\epsilon{}\)x \(\supset{}\) \(\sim{}\)dup(n.x)) \\{}
+\N{} \\{}
+\N{}* DEF comment5 \\{}
+\N{}      **** length function for list ****== \\{}
+\N{} \\{}
+\N{}* DEF length \\{}
+\N{}      length(<l:list>)==list\_ind(<l>;0;\_l0,\_l1,\_l2.\_l2+1) \\{}
+\N{} \\{}
+\N{}* THM length\_nil \\{}
+\N{}      >> length(nil)=0 in int \\{}
+\N{} \\{}
+\N{}* THM length\_cons \\{}
+\N{}      >> \(\forall{}\)A:U1.\(\forall{}\)a:A.\(\forall{}\)x:A list.(length(a.x)=length(x)+1 in int) \\{}
+\N{} \\{}
+\N{}* DEF comment6 \\{}
+\N{}      **** check\_row(n,l) means that l consists of integers from 1 to n ****== \\{}
+\N{} \\{}
+\N{}* DEF check\_row \\{}
+\N{}      check\_row(<n:number>,<l:list>)==list\_ind(<l>;true;\_c0,\_c1,\_c2.0<\_c0 \& \_c0<=<n> \& \_c2) \\{}
+\N{} \\{}
+\N{}* THM check\_row\_test \\{}
+\N{}      >> check\_row(8,3.2.4.nil) \\{}
+\N{} \\{}
+\N{}* THM check\_row\_nil \\{}
+\N{}      >> \(\forall{}\)n:int.check\_row(n,nil) \\{}
+\N{} \\{}
+\N{}* THM check\_row\_cons \\{}
+\N{}      >> \(\forall{}\)n,m:int.\(\forall{}\)x:int list.(check\_row(n,x) \& 0<m \& m<=n \(\supset{}\) check\_row(n,m.x)) \\{}
+\N{} \\{}
+\N{}* DEF comment7 \\{}
+\N{}      **** diagonal\_1(l) returns a list which is the 45 degree rotation of l ****== \\{}
+\N{}       \\{}
+\N{}      Here, the solution is going to be given by a list of columns, and \\{}
+\N{}      we have to check whether queens are facing diagonally or not. \\{}
+\N{}      diagonal\_1(l) rotates a column list 45 dgree so that we can use \\{}
+\N{}      \(\sim{}\)dup(diagonal\_1(l)) to check. \\{}
+\N{} \\{}
+\N{}* DEF diagonal\_1 \\{}
+\N{}      diagonal\_1(<l:list>)==list\_ind(<l>;nil;\_di0,\_di1,\_di2.((\_di0+length(\_di1)).\_di2)) \\{}
+\N{} \\{}
+\N{}* DEF diagonal\_2 \\{}
+\N{}      diagonal\_2(<l:list>)==list\_ind(<l>;nil;\_di3,\_di4,\_di5.((\_di3-length(\_di4)).\_di5)) \\{}
+\N{} \\{}
+\N{}* THM diagonal\_test \\{}
+\N{}      >> \(\exists{}\)x:int list.diagonal\_1(3.1.5.nil)=x in int list \\{}
+\N{} \\{}
+\N{}* THM diagonal\_int \\{}
+\N{}      >> \(\forall{}\)x:int list.(diagonal\_1(x) in int list) \\{}
+\N{} \\{}
+\N{}* THM diagonal\_length \\{}
+\N{}      >> \(\forall{}\)x:int list.(length(diagonal\_1(x))=length(x) in int) \\{}
+\N{} \\{}
+\N{}* THM diagonal\_1\_nil \\{}
+\N{}      >> diagonal\_1(nil)=nil in int list \\{}
+\N{} \\{}
+\N{}* THM diagonal\_1\_cons \\{}
+\N{}      >> \(\forall{}\)n:int.\(\forall{}\)x:int list.(\(\sim{}\)dup(diagonal\_1(x)) \& \(\sim{}\)n+length(x)\(\epsilon{}\)diagonal\_1(x) \(\supset{}\) \(\sim{}\)dup(diagonal\_1(n.x))) \\{}
+\N{} \\{}
+\N{}* THM diagonal\_2\_nil \\{}
+\N{}      >> diagonal\_2(nil)=nil in int list \\{}
+\N{} \\{}
+\N{}* THM diagonal\_2\_cons \\{}
+\N{}      >> \(\forall{}\)n:int.\(\forall{}\)x:int list.(\(\sim{}\)dup(diagonal\_2(x)) \& \(\sim{}\)n-length(x)\(\epsilon{}\)diagonal\_2(x) \(\supset{}\) \(\sim{}\)dup(diagonal\_2(n.x))) \\{}
+\N{} \\{}
+\N{}* DEF comment8 \\{}
+\N{}      **** pqueen(n,m,x) means x is a solution of n x m queen problem ****== \\{}
+\N{}       \\{}
+\N{}      where the n x m queen problem is a modification of n queen problem \\{}
+\N{}      by changing the board from n x n square to n x m rectangle. \\{}
+\N{} \\{}
+\N{}* DEF pqueen \\{}
+\N{}      pqueen(<n:number>,<m:number>,<l:list>)==\(\sim{}\)dup(<l>) \& check\_row(<n>,<l>) \& \(\sim{}\)dup(diagonal\_1(<l>)) \& \(\sim{}\)dup(diagonal\_2(<l>)) \& (length(<l>)=<m> in int) \\{}
+\N{} \\{}
+\N{}* THM pqueen\_U1 \\{}
+\N{}      >> \(\forall{}\)n:nat.\(\forall{}\)m:int.\(\forall{}\)x:int list.(pqueen(n,m,x) in U1) \\{}
+\N{} \\{}
+\N{}* DEF comment9 \\{}
+\N{}      **** The solution to n x 0 queen problem is the null list ****== \\{}
+\N{} \\{}
+\N{}* THM pqueen\_nil \\{}
+\N{}      >> \(\forall{}\)n:nat.pqueen(n,0,nil) \\{}
+\N{} \\{}
+\N{}* THM pqueen\_cons \\{}
+\N{}      >> \(\forall{}\)n:nat.\(\forall{}\)m,i:int.\(\forall{}\)x:int list.(pqueen(n,m,x) \& 0<i \& i<=n \& \(\sim{}\)i\(\epsilon{}\)x \& \(\sim{}\)i+length(x)\(\epsilon{}\)diagonal\_1(x) \& \(\sim{}\)i-length(x)\(\epsilon{}\)diagonal\_2(x) \& m<n \(\supset{}\) pqueen(n,m+1,i.x)) \\{}
+\N{} \\{}
+
+\N{}* DEF comment10 \\{}
+\N{}      **** The following lemma is the inductive step for the next theorem ****== \\{}
+\N{}       \\{}
+\N{}      Given a list of solutions of n x m queen problem, it creates \\{}
+\N{}      a list of solutions of n x (m+1) queen problem. \\{}
+\N{} \\{}
+\N{}* THM pqueens\_lemma \\{}
+\N{}      >> \(\forall{}\)n:nat.\(\forall{}\)m:int.(0<=m \& m<n \(\supset{}\) \(\forall{}\)li:int list list.(\(\forall{}\)x\(\epsilon{}\)li.pqueen(n,m,x) \(\supset{}\) \(\exists{}\)lo:int list list.\(\forall{}\)x\(\epsilon{}\)lo.pqueen(n,m+1,x))) \\{}
+\N{} \\{}
+\N{}* DEF comment11 \\{}
+\N{}      **** The main theorem for solving n x m queen problem ****== \\{}
+\N{}       \\{}
+\N{}      Proved by induction on m \\{}
+\N{} \\{}
+\N{}* THM pqueens \\{}
+\N{}      >> \(\forall{}\)n:nat.\(\forall{}\)m:int.(0<=m \& m<=n \(\supset{}\) \(\exists{}\)l:int list list.\(\forall{}\)x\(\epsilon{}\)l.pqueen(n,m,x)) \\{}
+\N{} \\{}
+\N{}* DEF comment12 \\{}
+\N{}      **** Queen(n,x) means x is a solution of n queen problem ****== \\{}
+\N{} \\{}
+\N{}* DEF Queen \\{}
+\N{}      Queen(<n:number>,<l:list>)==pqueen(<n>,<n>,<l>) \\{}
+\N{} \\{}
+\N{}* DEF comment13 \\{}
+\N{}      **** The following theorem gives me a list of solutions ****== \\{}
+\N{} \\{}
+\N{}* THM Queens \\{}
+\N{}      >> \(\forall{}\)n:nat.\(\exists{}\)l:int list list.\(\forall{}\)x\(\epsilon{}\)l.Queen(n,x) \\{}
+\N{} \\{}
+\N{}* DEF comment14 \\{}
+\N{}      **** We extract the program out of the previous theorem ****== \\{}
+\N{} \\{}
+\N{}* EVAL queen \\{}
+\N{}      let queen = \(\backslash{}\)n. spread(term\_of(Queens)(n);u,v.u);; \\{}
+\N{} \\{}
+\N{}* DEF end \\{}
+\N{}      **** final comment ****== \\{}
+\N{}       \\{}
+\N{}      What I did not prove is that the solution we get by queen is \\{}
+\N{}      the all the solution.  I could have done so, but just I did not \\{}
+\N{}      hve much time to do so.  The theorem one should prove is the \\{}
+\N{}      folloing: \\{}
+\N{}       \\{}
+\N{}          \(\forall{}\)n:nat.\(\exists{}\)l:int list list.\(\forall{}\)x:int list.(x\(\epsilon{}\)l \(\equiv{}\) Queen(n,x)) \\{}
+\N{} \\{}
+\N{}
+\end{document}

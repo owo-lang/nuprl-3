@@ -1,0 +1,57 @@
+
+This directory pertains to my paper "The Computational Behaviour of
+Girard's Paradox".  The library contains a proof of Girard's Paradox,
+i.e., a proof that (roughly) adding the axiom type:type to a lambda
+calculus with dependent types gives an inconsistent system.  Roughly,
+the library proceeds as follows.  First, an assumption is made (by
+stating a theorem and "proving" it using "because") that there is a type
+of all types.  Then the concept of well-founded orderings is formalized,
+and it is shown that the assumption allows one to define the collection
+of all well-founded orderings, and to show that this collection is
+itself well-founded with respect to the embedding ordering.  This leads
+to a contradiction (i.e.  a proof of "void").  Worked into this proof is
+a hypothesized function (see the theorems named assumed_function and
+assumed_type).  Roughly, the domain type of this function takes the
+place of void, and the function is inserted at a particular point in the
+proof that the collection of orderings is well-founded.
+
+It was intended that the Nuprl proof should yield in a fairly direct
+manner a proof in the lambda-calculus of Meyer and Reinhold called
+lambda-tau-tau.  Care was taken to use only the parts of the Nuprl
+logic that were related to functions.  This means, for example, that
+basic notions of logic had to be defined in terms of the
+function type.
+
+There are two files containing the same library; "lib" has extractions
+from theorems stored with it, and "extractionless-lib" doesn't.  The
+extractions are quite large, and take a very long time to reparse upon
+loading; "lib" takes almost half an hour to just load in.
+"extractionless-lib" takes only a couple of minutes to load.  Expanding
+the whole library takes around an hour.
+
+There are also two transcripts that were generated with the "ML-dribble"
+feature.  The first one, in the file term-analysis-transcript.text,
+contains a transcript of the session in which a set of computations were
+done.  These computations form part of a proof that the term extracted
+from the final theorem of the library (named contradiction) is the
+application of a certain kind of combinator to the assumed function.
+Calling this term YF, and calling the hypothesized function F, we prove
+that there are terms YF(0)YF, YF(1), YF(2), ... such that for all n0
+YF(n)=F(YF(n+1)).  We also prove that YF does not yield a fixed-point
+combinator, i.e., that YFF(YF).  The second transcript file, contained
+in the file proof-analysis-transcript.text, records a session in which
+certain ML-assisted examinations of the library were done as part of an
+effort to show that the Nuprl proof can be translated into a proof in a
+certain formal system.  Both the transcript files have further
+documentation.
+
+The typechecking that is required by the proofs in this library requires alot
+of time (8 hours).  Since this would make it burdensome to view the proofs,
+the autotactic used by this library makes use of the "because rule" to
+assumed proved most of the trivial typechecking subgoals.  (These subgoals
+have all been checked at least once).  This makes it possible to expand all
+the proofs in the library in a reasonable amount of time.
+
+This library uses the old set rules.
+
+- Doug Howe

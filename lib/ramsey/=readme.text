@@ -1,0 +1,24 @@
+
+June, 1988
+
+This directory contains a library that contains a proof of the
+Ramsey's theorem (sometime referred to as Ramsey's finite theorem of
+exponent two) which may be stated as :
+	for all l1,l2 there exists an n, such that any graph with at
+	least n vertices either contains an l1-clique, or an l2
+	vertex independent set.
+
+To load the library, first enter the ML environment and loadt "load-all".
+Then in the command window, load the file "lib".  A full load,
+which expands all the theorems, takes about 6 hours.
+
+Ramsey's theorem has very interesting computational content.  Some eval
+functions are defined in the eval object "demo".  Here, functions are defined
+which convert adjacency lists to graph data types, and print
+computationally interesting results from running the proof extraction
+on graphs.
+
+The library and its development are detailed in Cornell Tech Report
+TR 88-932 "Building Theories in Nuprl".
+
+	-David Basin

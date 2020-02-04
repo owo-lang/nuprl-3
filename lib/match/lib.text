@@ -1,0 +1,847 @@
+* ML init
+  set_display_maintenance_mode false;;
+
+* DEF c
+  %<c:comment>%==
+
+* DEF parens
+  (<a:anything>)==(<a>)
+
+* DEF t
+  (<T:tactic>...)==(\p.((<T>) THEN Auto THEN MaybeRedef) p)
+
+* DEF ts
+  (<T:tactic>...!)==
+  (\p.((<T>) THEN Repeat (Auto ORELSE MemberI) THEN MaybeRedef) p)
+
+* DEF tc
+  (<T:tactic>...*)==(\p. ((<T>) THEN (FastAp o Try) (CompleteAutotactic) THEN MaybeRedef) p)
+
+* DEF tm
+  (<T:tactic>...)==(\p.((<T>) THEN IfThen is_membership_goal Auto THEN MaybeRedef) p)
+
+* DEF tw
+  (<T:tactic>...wf)==(\p.((<T>) THEN IfThen is_wf_goal Auto THEN MaybeRedef) p)
+
+* DEF tn
+  (<T:tactic>...)==(\p.((<T>) THENO Auto THEN MaybeRedef) p)
+
+* DEF tsimp
+  (<T:tactic>...+s)==
+  (\p.((<T>) THEN Auto THEN (Simp THEN Auto) THEN MaybeRedef) p)
+
+* DEF fsimp
+  (<T:tactic>...s)==
+  (\p.(((<T>) THENM Simp) THEN Auto THEN MaybeRedef) p)
+
+* DEF fsimpc
+  (<T:tactic>...sc)==
+  (\p.(((<T>) THENM Simp1 0) THEN Auto THEN MaybeRedef) p)
+
+* DEF nothing
+  <a:anything>==
+
+* DEF e
+  <x:def>==term_of(<x>_)
+
+* DEF to
+  <x:thm name>==term_of(<x>)
+
+* DEF squash
+  (<T:type>)=={(0 in int)|(<T>)}
+
+* DEF spread
+  let <x:var>,<y:var>=<t:term> in <tt:term>
+  ==spread(<t>;<x>,<y>.<tt>)
+
+* DEF dblspread
+  let <w:var>,<x:var>,<y:var>,<z:var>=
+  <t1:term>,<t2:term> in <t3:term>==
+  let <w>,<x>=<t1> in let <y>,<z>=<t2> in <t3>
+
+* DEF tok
+  <f:id>==("<f>")
+
+* DEF U
+  U==U16
+
+* DEF and
+  <P:prop> & <Q:prop>==((<P>)#(<Q>))
+
+* DEF or
+  <P:prop>  <Q:prop>==((<P>)|(<Q>))
+
+* DEF imp
+  <P:prop> => <Q:prop>==((<P>)->(<Q>))
+
+* DEF not
+  (<P:prop>)==<P> => void
+
+* DEF neq
+  <t:term>  <tt:term> in <T:type>==((<t>)=(<tt>) in (<T>))
+
+* DEF iff
+  <P:prop> \<=> <Q:prop>==<P> => <Q> & <Q> => <P>
+
+* DEF all
+  <x:var>:<T:type>. <P:prop>==(<x>:(<T>)->(<P>))
+
+* DEF all2
+  <x:var>,<y:var>:<T:type>. <P:prop>
+  ==<x>:<T>. <y>:<T>. <P>
+
+* DEF all3
+  <x:var>,<y:var>,<z:var>:<T:type>. <P:prop>
+  ==<x>:<T>. <y>,<z>:<T>. <P>
+
+* DEF all4
+  <w:var>,<x:var>,<y:var>,<z:var>:<T:type>. <P:prop>
+  ==<w>:<T>. <x>,<y>,<z>:<T>. <P>
+
+* DEF set
+  {<x:var>:<T:type>|<P:prop>}==({<x>:(<T>)|(<P>)})
+
+* DEF all_where
+  <x:var>:<T:type> where <P:prop>. <PP:prop>==
+  <x>:<T>. (<P>) => <PP>
+
+* DEF all2_where
+  <x:var>,<y:var>:<T:type> where <P:prop>. <PP:prop>
+  ==<x>:<T>. <y>:<T> where <P>. <PP>
+
+* DEF all3_where
+  <x:var>,<y:var>,<z:var>:<T:type> where <P:prop>.<PP:prop>
+  ==<x>:<T>. <y>,<z>:<T> where <P>. <PP>
+
+* DEF some
+  <x:var>:<T:type>. <P:prop>==(<x>:(<T>)#(<P>))
+
+* DEF some2
+  <x:var>,<y:var>:<T:type>. <P:prop>
+  ==<x>:<T>. <y>:<T>. <P>
+
+* DEF some3
+  <x:var>,<y:var>,<z:var>:<T:type>.<P:prop>
+  ==<x>:<T>. <y>,<z>:<T>. <P>
+
+* DEF some_where
+  <x:var>:<T:type> where <P:prop>=={<x>:(<T>)|(<P>)}
+
+* DEF some2_where
+  <x:var>,<y:var>:<T:type> where <P:prop>==
+  <x>:<T>. <y>:<T> where <P>
+
+* DEF True
+  True==(0 in int)
+
+* DEF False
+  False==void
+
+* DEF l
+  ˆ<x:var>. <t:term>==(\ <x>.(<t>))
+
+* DEF l2
+  ˆ <x:var> <y:var>. <t:term>==ˆ<x>. ˆ<y>. <t>
+
+* DEF l3
+  ˆ <x:var> <y:var> <z:var>. <t:term>==ˆ<x>. ˆ<y>. ˆ<z>. <t>
+
+* DEF dl
+  ˆ <x:var>,<y:var>. <t:term>==ˆp. let <x>,<y> = p in <t>
+
+* DEF bv
+  <x:var> -> <t:term>==(\ <x>.(<t>))
+
+* DEF bv2
+  <x:var>,<y:var> -> <t:term>==<x> -> <y> -> <t>
+
+* DEF bv3
+  <x:var>,<y:var>,<z:var> -> <t:term>==<x> -> <y>,<z> -> <t>
+
+* THM and_fnl
+  >> P1,P2,Q1,Q2:U2. 
+    (P1 <=> P2) => (Q1 <=> Q2) => (P1 & Q1 <=> P2 & Q2)
+
+* THM or_fnl
+  >> P1,P2,Q1,Q2:U2. 
+    (P1 <=> P2) => (Q1 <=> Q2) => (P1  Q1 <=> P2  Q2)
+
+* THM implies_fnl
+  >> P1,P2,Q1,Q2:U2. 
+   (P1 <=> P2) => (Q1 <=> Q2) => ((P1 => Q1) <=> (P2 => Q2))
+
+* THM not_fnl
+  >> P,Q:U2. (P <=> Q) => ((P) <=> (Q))
+
+* THM all_fnl
+  >> A:U1. P,Q:A->U1. 
+    (x@@:A. P(x@@) <=> Q(x@@)) => (x:A. P(x) <=> x:A. Q(x))
+
+* THM some_fnl
+  >> A:U1. P,Q:A->U1. 
+    (x@@:A. P(x@@) <=> Q(x@@)) => (x:A. P(x) <=> x:A. Q(x))
+
+* THM iff_transitive
+  >> P,Q,R:U2. (P <=> Q) => (Q <=> R) => (P <=> R)
+
+* DEF begin_logic_simps
+  ==
+
+* THM and_simp_1
+  >> P:U2. P & False <=> False
+
+* THM and_simp_2
+  >> P:U2. False & P <=> False
+
+* THM and_simp_3
+  >> P:U2. P & True <=> P
+
+* THM and_simp_4
+  >> P:U2. True & P <=> P
+
+* THM or_simp_1
+  >> P:U2. False  P <=> P
+
+* THM or_simp_2
+  >> P:U2. P  False <=> P
+
+* THM or_simp_3
+  >> P:U2. P  True <=> True
+
+* THM or_simp_4
+  >> P:U2. True  P <=> True
+
+* THM implies_simp_1
+  >> P:U2. (False => P) <=> True
+
+* THM implies_simp_2
+  >> P:U2. (True => P) <=> P
+
+* THM implies_simp_3
+  >> P:U2. (P => True) <=> True
+
+* THM some_simp_1
+  >> A:U2. x:A. False <=> False
+
+* THM all_simp_1
+  >> A:U2. (x:A. True) <=> True
+
+* THM not_simp_2
+  >> P:U. P => ((P) <=> False)
+
+* THM eq_reflexive
+  >> A:U2. a:A. a=a in A <=> True
+
+* DEF end_logic_simps
+  ==
+
+* ML add_logic_simps
+  map add_lemma_simp
+  (library_open_interval `begin_logic_simps`
+    `end_logic_simps`)
+  ;;
+  
+  add_matching_def_adder
+    `iff` 'P <=> Q' ``P Q`` ˆx. true
+  ;;
+  add_def_adder `and` 
+    (\t. if is_and_term t & not is_iff_term t then
+           (let a,b = destruct_and t in `and`, [a;b])
+         else fail)
+  ;;
+  add_matching_def_adder
+    `or` 'P  Q' ``P Q`` ˆx. true
+  ;;
+  add_matching_def_adder
+    `not` '(P)' ``P`` ˆx. true
+  ;;
+  add_def_adder `imp`
+    (\t. let x,A,B = destruct_function t in 
+         if is_no_id x & not B = 'void' then 
+           `imp`, [A; B]
+         else fail)
+  ;;
+  add_def_adder `all` 
+    (\t. let x,A,B = destruct_function t in 
+         if is_no_id x then fail;
+         `all`, [mvt x; A; B])
+  ;;
+  add_def_adder `some` 
+    (\t. let x,A,B = destruct_product t in 
+         if is_no_id x then fail;
+         `some`, [mvt x; A; B])
+  ;;
+
+* DEF ax
+  ax==axiom
+
+* DEF p1
+  <x:tuple>.1==spread(<x>;u,v.u)
+
+* DEF p2
+  <x:tuple>.2==spread(<x>;u,v.v)
+
+* DEF p3
+  <x:tuple>.3==<x>.2.2
+
+* DEF tup
+  \<<a:term>,<b:term>\>==<(<a>),(<b>)>
+
+* DEF tup3
+  \<<a:term>,<b:term>,<c:term>\>==<(<a>),<<b>,<c>>>
+
+* DEF tup4
+  \<<a:term>,<b:term>,<c:term>,<d:term>\>==<(<a>),<<b>,<c>,<d>>>
+
+* DEF let
+  let <x:var> = <t:term> in <tt:term>==((\ <x>.(<tt>))(<t>))
+
+* DEF let2
+  let <x:var>,<y:var> = <p:pair> in <t:term>==
+  let <x> = <p>.1 in let <y> = <p>.2 in <t>
+
+* DEF let3
+  let <x:var>,<y:var>,<z:var> = <p:triple> in <t:term>==
+  let <x> = <p>.1 in let <y> = <p>.2.1 in let <z> = <p>.2.2 in <t>
+
+* DEF let4
+  let <x:var>,<y:var>,<z:var>,<a:var> = <p:quad> in <t:term>==
+  let <x> = <p>.1 in let <y> = <p>.2.1 in let <z> = <p>.2.2.1 in let <a> = .2.2.2 in <t>
+
+* DEF if_eq
+  if <x:int>=<y:int> then <s:term> else <t:term>==int_eq(<x>;<y>;<s>;<t>)
+
+* DEF if_aeq
+  if <x:Atom>=<y:Atom> then <s:term> else <t:term>==atom_eq(<x>;<y>;<s>;<t>)
+
+* DEF if_l
+  if <x:int>\<<y:int> then <s:term> else <t:term>==less(<x>;<y>;<s>;<t>)
+
+* DEF dec
+  d(<a:term>;<u:var>.<t:term>;<v:var>.<tt:term>)==
+  decide(<a>;<u>.<t>;<v>.<tt>)
+
+* DEF isl
+  isl(<x:A|B>)==d(<x>;u.True;u.False)
+
+* DEF isr
+  isr(<x:A|B>)==d(<x>;u.False;u.True)
+
+* DEF outl
+  outl(<x:A|B>)==d(<x>;u.u;u."uu")
+
+* DEF prim_rec
+  [ 0  <b:base case> ; <n:int var>, <y:var>  <t:term> ; @ <a:int>]==
+  ind( <a>; _,__.<b>; <b>; <n>,<y>. <t> )
+
+* DEF list
+  <A:Type> list==((<A>) list)
+
+* DEF list_rec
+  [ nil  <b:term>; <h:var>.<t:var>,<v:var>  <tt:term>; @ <a:list>]==
+  list_ind( <a>; <b>; <h>,<t>,<v>. <tt> )
+
+* DEF cons
+  <h:A>.<t:A list>==((<h>).(<t>))
+
+* DEF ap
+  <f:term>(<x:term>)==((<f>)(<x>))
+
+* DEF bin_ap
+  <r:term>(<a:term>,<b:term>)==<r>(<a>)(<b>)
+
+* DEF tri_ap
+  <r:term>(<a:term>,<b:term>,<c:term>)==<r>(<a>)(<b>)(<c>)
+
+* DEF ap4
+  <r:term>(<a:term>,<b:term>,<c:term>,<d:term>)==<r>(<a>)(<b>)(<c>)(<d>)
+
+* DEF bin_tap
+  <r:fun>(<t:arg1>,<tt:arg2>)==<r>(<(<t>),(<tt>)>)
+
+* DEF type_ap
+  <f:term><x:term>==((<f>)(<x>))
+
+* DEF le
+  <x:Int><y:Int>==( (<y>)<(<x>))
+
+* DEF lele
+  <x:Int><y:Int><z:Int>==<x><y> & <y><z>
+
+* DEF lle
+  <x:Int>\<<y:Int><z:Int>==(<x>)<(<y>) & <y><z>
+
+* DEF lel
+  <x:Int><y:Int>\<<z:Int>==<x><y> & (<y>)<(<z>)
+
+* DEF ll
+  <x:Int>\<<y:Int>\<<z:Int>==(<x>)<(<y>) & (<y>)<(<z>)
+
+* THM Int_abs_
+  >> Int -> Int
+  Extraction:
+  ˆ n.  less(n;0;-n;n)
+
+* DEF Int_abs
+  |<n:Int>|==term_of(Int_abs_)(<n>)
+
+* DEF eq
+  <m:Int> = <n:Int>==((<m>)=(<n>) in Int)
+
+* DEF aeq
+  <m:Atom>=<n:Atom>==((<m>)=(<n>) in Atom)
+
+* THM N_
+  >> U1
+  Extraction:
+  {n:Int|0n}
+
+* DEF N
+  N==term_of(N_)
+
+* THM Int_eq_if_N_eq
+  >> x,y:N. x=y in N => x=y in Int
+
+* THM N_max_
+  >> N -> N -> N
+  Extraction:
+  ˆ m n. if m<n then n else m
+
+* DEF N_max
+  max(<m:N>,<n:N>)==N_max(<m>)(<n>)
+
+* THM Int_tail_
+  >> Int -> U1
+  Extraction:
+  ˆm.  {n:int|mn}
+
+* DEF Int_tail
+  {<n:Int>..}==term_of(Int_tail_)(<n>)
+
+* THM Int_seg_
+  >> Int -> Int -> U1
+  Extraction:
+  ˆ  m  n .  {i:Int|min}
+
+* DEF Int_seg
+  {<m:Int>..<n:Int>}==term_of(Int_seg_)( <m>)( <n>)
+
+* THM N_plus_
+  >> U1
+  Extraction:
+  {n:Int|0<n}
+
+* DEF N_plus
+  N+==term_of(N_plus_)
+
+* DEF lind
+  lind(<l:list>;<b:base>;<h:head>,<t:tail>,<v:rec-val>.<i:ind>)==list_ind(<l>;<b>;<h>,<t>,<v>.<i>)
+
+* DEF list1
+  [<x:*>]==((<x>).nil)
+
+* DEF list2
+  [<x:*>;<y:*>]==((<x>).(<y>).nil)
+
+* DEF list3
+  [<x:*>;<y:*>;<z:*>]==((<x>).(<y>).(<z>).nil)
+
+* DEF args0
+  ==nil
+
+* DEF args1
+  <x:*>==((<x>).nil)
+
+* DEF args2
+  <x:*>,<y:*>==((<x>).(<y>).nil)
+
+* DEF args3
+  <x:*>,<y:*>,<z:*>==((<x>).(<y>).(<z>).nil)
+
+* DEF rind
+  rind(<l:val>;<h:recvalfun>,<z:val>.<i:ind>)==rec_ind(<l>;<h>,<z>.<i>)
+
+* THM lall_
+  >> Object
+  Extraction:
+  ˆ l P. lind(l; True; h,t,v. P(h) & v)
+
+* DEF lall
+  <x:var>:<l:list>. <P:prop>==lall(<l>,ˆ<x>. <P>)
+
+* THM lall__
+  >> A:U1. l:A list. P:A->U1. lall(l,P) in U1
+
+* THM lsome_
+  >> Object
+  Extraction:
+  ˆ l P. lind(l; False; h,t,v. P(h)  v)
+
+* DEF lsome
+  <x:var>:<l:list>. <P:prop>==lsome(<l>,ˆ<x>. <P>)
+
+* THM lsome__
+  >> A:U1. l:A list. P:A->U1. lsome(l,P) in U1
+
+* THM map_
+  >> Object
+  Extraction:
+  ˆ f l. lind(l;nil;h,t,v. f(h).v)
+
+* DEF map
+  map(<f:A-\>B>,<l:A list>)==map(<f>,<l>)
+
+* THM map__
+  >> A,B:U2. f:A->B. l:A list. map(f,l) in B list
+
+* DEF begin_basic_simps
+  ==
+
+* THM cons_neq_nil
+  >> A:U2. h:A. l:A list. h.l=nil in A list <=> False
+
+* THM destruct_cons_eq
+  >> A:U. h1,h2:A. l1,l2:A list. 
+    h1.l1=h2.l2 in A list <=> h1=h2 in A & l1=l2 in A list
+
+* THM atom_eq_dec
+  >> x,y:Atom. x=y  (x=y) <=> True
+
+* DEF end_basic_simps
+  ==
+
+* ML add_basic_simps
+  map add_lemma_simp 
+      (library_open_interval `begin_basic_simps` `end_basic_simps`)
+  ;;
+  
+  add_simple_dcsimp `map_unfold_cons` 'map(f,h.l)' 'f(h).map(f,l)' [] ;;
+  add_simple_dcsimp `map_unfold_nil` 'map(f,nil)' 'nil' [] ;;
+  
+  add_simple_dcsimp `lsome_unfold` 'lsome(h.l,P)' 
+      'P(h)  lsome(l,P)' [] ;;
+  add_simple_dcsimp `lall_unfold` 'lall(h.l,P)' 
+      'P(h) & lall(l,P)' [] ;;
+  
+  add_simple_dcsimp `lall_nil` 'lall(nil,P)' 'True' [] ;;
+  add_simple_dcsimp `lsome_nil` 'lsome(nil,P)' 'False' [] ;;
+  
+  add_to_Decidable `atom` (EqSimp1 0) ;; 
+  
+  add_to_member_i `lall(nil) hack` 
+  (\p. let k,[[],l;()] = abs_destruct_term (goal_member p) in
+       if k=`lall` & l='nil' then ComputeEquands p
+       else fail)
+  ;;
+  
+  add_to_member_i `lsome(nil) hack` 
+  (\p. let k,[[],l;()] = abs_destruct_term (goal_member p) in
+       if k=`lsome` & l='nil' then ComputeEquands p
+       else fail)
+  ;;
+  
+  add_def_adder `lambda`
+    (\t.  let x,b = destruct_lambda t in
+          `l`, [mvt x;b])
+  ;;
+  add_def_adder `lall`
+    (\t. if not abs_term_kind t = `lall` then fail;
+         let [l;P] = abs_subterms t in
+         let x,b = destruct_lambda P in
+         `lall`, [mvt x; l; b])
+  ;;
+  add_def_adder `lsome`
+    (\t. if not abs_term_kind t = `lsome` then fail;
+         let [l;P] = abs_subterms t in
+         let x,b = destruct_lambda P in
+         `lsome`, [mvt x; l; b])
+  ;;
+  add_def_adder `projs`
+    (\t. let a,b = destruct_spread t in
+         let [x;y],t = destruct_bound_id b in
+         if t=mvt x then `p1`, [a] 
+         if t=mvt y then `p2`, [a]
+         else fail)
+  ;;
+  add_matching_def_adder `aeq` 'x=y' ``x y`` ˆx. true ;;
+
+* DEF Var
+  Var==Atom
+
+* DEF Fun
+  Fun==Atom
+
+* THM Term_
+  >> U1
+  Extraction:
+  rec(T. Var | Fun # T list)
+
+* DEF Term
+  Term==Term
+
+* DEF Term_eq
+  <t1:Term>=<t2:Term>==((<t1>)=(<t2>) in Term)
+
+* DEF Term_list_eq
+  <t1:Term list>=<t2:Term list>==((<t1>)=(<t2>) in Term list)
+
+* THM ivar_
+  >> Var -> Term
+  Extraction:
+  ˆx. inl(x)
+
+* DEF ivar
+  <x:Var>==ivar(<x>)
+
+* THM iap_
+  >> Fun -> Term list -> Term
+  Extraction:
+  ˆ f l. inr(<f,l>)
+
+* DEF iap
+  <f:Fun>(<l:Term list>)==iap(<f>,<l>)
+
+* THM Term_ind
+  >> P:Term->U1. (x:Var. P(x))
+               => (l:Term list. f:Fun. (t:l. P(t)) => P(f(l)))
+               => t:Term. P(t)
+
+* THM Term_unroll
+  >> P:Term->U1. x:Var. P(x)
+               => l:Term list. f:Fun. P(f(l))
+               => t:Term. P(t)
+
+* THM Term_case_
+  >> Object
+  Extraction:
+  ˆ t f g. d(t; x.f(x); ap. let f,l=ap in g(f,l))
+
+* DEF Term_case
+  case <t:Term>: <x:var><a:*>; <f:var>,<l:var><b:*>==Term_case(<t>,ˆ<x>. <a>,ˆ <f> <l>. <b>)
+
+* THM Term_case__
+  >> A:U. t:Term. f:Var->A. g:Fun->Term list->A. Term_case(t,f,g) in A
+  % This is a poor type.  Unfold if Autotactic ineffective. %
+
+* ML autotactic_updates
+  add_to_autotactic `poly-member fix` 
+   (\p. let [t],T = destruct_equal (concl p) in
+        assert almost_poly_defined_term t ;
+        (Lemma o append_underscore o destruct_term_of_theorem 
+           o hd o decompose_ap) 
+        t p)
+  ;;
+
+* THM occurs_
+  >> Var -> Term -> U1
+  Extraction:
+  ˆ x t. rind(t; P,z. case z: y  y=x; f,l  u:l. P(u))
+
+* DEF occurs
+  <x:Var><t:Term>==occurs(<x>,<t>)
+
+* THM loccurs_
+  >> Var -> Term list -> U1
+  Extraction:
+  ˆ x l. t:l. xt
+
+* DEF loccurs
+  <x:Var><l:Term list>==loccurs(<x>,<l>)
+
+* DEF Sub
+  Sub==Var#Term list
+
+* THM vap_sub_
+  >> Sub -> Var -> Term
+  Extraction:
+  ˆ s x. lind(s; x; h,ll,v. if h.1=x then h.2 else v)
+
+* DEF vap_sub
+  <s:Sub>(<x:Var>)==vap_sub(<s>,<x>)
+
+* THM ap_sub_
+  >> Sub -> Term -> Term
+  Extraction:
+  ˆ s t. rind(t; h,z. case z: xs(x); f,lf(map(h,l)))
+
+* DEF ap_sub
+  <s:Sub>(<t:Term>)==ap_sub(<s>,<t>)
+
+* THM lap_sub_
+  >> Sub -> Term list -> Term list
+  Extraction:
+  ˆ s l. map(ˆt. s(t), l)
+
+* DEF lap_sub
+  <s:Sub>(<t:Term list>)==lap_sub(<s>,<t>)
+
+* THM in_dom_
+  >> Var -> Sub -> U1
+  Extraction:
+  ˆ x s. p:s. p.1=x
+
+* DEF in_dom
+  <x:Var>dom(<s:Sub>)==in_dom(<x>,<s>)
+
+* THM sub_sub_
+  >> Sub -> Sub -> U1
+  Extraction:
+  ˆ s1 s2. x:Var. xdom(s1) => xdom(s2) & s1(x)=s2(x)
+
+* DEF sub_sub
+  <s1:Sub><s2:Sub>==sub_sub(<s1>,<s2>)
+
+* THM min_sub_
+  >> Sub -> U1
+  Extraction:
+  ˆs. lind(s; True; h,l,v. (h.1dom(l)) & v)
+
+* DEF min_sub
+  min(<s:Sub>)==min_sub(<s>)
+
+* THM matchp_
+  >> Term -> U1
+  Extraction:
+  ˆt1. t2:Term. s:Sub. s(t1)=t2 & min(s) & x:Var. xdom(s) <=> xt1
+                   s:Sub. (s(t1)=t2)
+
+* DEF matchp
+  match?(<t:Term>)==matchp(<t>)
+
+* THM ncst_
+  >> Sub -> Sub -> U1
+  Extraction:
+  ˆ s1 s2. x:Var. xdom(s1) & xdom(s2) & (s1(x)=s2(x) in Term)
+
+* DEF ncst
+  ncst(<s1:Sub>,<s2:Sub>)==ncst(<s1>,<s2>)
+
+* THM lmatchp_
+  >> Term list -> U1
+  Extraction:
+  ˆl1. l2:Term list. 
+         s:Sub. s(l1)=l2 & min(s)
+                 & x:Var. xdom(s) <=> xl1
+          s:Sub. (s(l1)=l2)
+
+* DEF lmatchp
+  match?(<l:Term list>)==lmatchp(<l>)
+
+* DEF begin_simps
+  ==
+
+* THM vap_sub_eq
+  >> x,y:Var. s:Sub. t:Term. x=y => (<x,t>.s)(y) = t
+
+* THM vap_sub_neq
+  >> x,y:Var. s:Sub. t:Term. (x=y) => (<x,t>.s)(y) = s(y)
+
+* THM in_dom_eq
+  >> x,y:Var. s:Sub. t:Term. x=y => xdom((<y,t>).s) <=> True
+
+* THM in_dom_neq
+  >> x,y:Var. s:Sub. t:Term. (x=y) => xdom((<y,t>).s) <=> xdom(s)
+
+* THM destruct_var_eq
+  >> x,y:Var. x=y <=> x=y
+
+* THM destruct_ap_eq
+  >> f1,f2:Fun. l1,l2:Term list. f1(l1)=f2(l2) <=> f1=f2 & l1=l2
+
+* THM var_neq_ap
+  >> x:Var. f:Fun. l:Term list. x=f(l) <=> False
+
+* DEF end_simps
+  ==
+
+* ML add_simps
+  map add_lemma_simp 
+      (library_open_interval `begin_simps` `end_simps`)
+  ;;
+  
+  add_simple_dcsimp `Term_case_unfold_ivar` 'Term_case(x,f,g)' 'f(x)' [] ;;
+  add_simple_dcsimp `Term_case_unfold_iap` 'Term_case(h(l),f,g)' 'g(h,l)' [] ;;
+  
+  add_simple_dcsimp `occurs_unfold_var` 'xy' 'y=x' ``Term_case lsome`` ;;
+  add_simple_dcsimp `occurs_unfold_ap` 'xf(l)' 'xl' ``Term_case`` ;;
+  
+  add_matching_def_adder 
+    `Term_eq` 'x=y' ``x y`` ˆx. true ;;
+  add_matching_def_adder 
+    `Term_list_eq` 'x=y' ``x y`` ˆx. true ;;
+  add_matching_def_adder
+    `Sub` 'Sub' ```` ˆx. true ;;
+
+* ML add_simps_2
+  add_simple_dcsimp `Term_case_unfold_ivar` 'Term_case(x,f,g)' 'f(x)' [] ;;
+  
+  add_simple_dcsimp `loccurs_unfold_nil` 'xnil' 'False' ``lsome`` ;;
+  add_patterned_dcsimp `loccurs_unfold_cons` 'xt.l' 'xt  xl'
+    ``loccurs lsome`` ;;
+  
+  add_patterned_dcsimp `ap_sub_unfold_var` 's(x)' 's(x)' 
+    ``Term_case ap_sub ivar`` ;;
+  add_simple_dcsimp `ap_sub_unfold_ap` 's(f(l))' 'f(s(l))' ``Term_case`` ;;
+  
+  add_simple_dcsimp `lap_sub_unfold_nil` 's(nil)' 'nil' ``map`` ;;
+  add_simple_dcsimp `lap_sub_unfold_cons` 's(h.l)' 's(h).s(l)' ``map`` ;;
+  
+  add_simple_dcsimp `in_dom_unfold_nil` 'xdom(nil)' 'False' ``lsome`` ;;
+  add_simple_dcsimp `in_dom_unfold_cons` 'xdom(h.l)'
+    'h.1=x  xdom(l)' ``lsome`` ;;
+  
+  add_simple_dcsimp `min_sub_nil` 'min(nil)' 'True' [] ;;
+  add_simple_dcsimp `min_sub_cons` 'min((<x,t>).s)' 
+    '(xdom(s)) & min(s)' [] ;;
+
+* THM Term_eq_dec
+  >> t1,t2:Term. t1=t2  (t1=t2)
+
+* THM eq_sub_aps
+  >> s1,s2:Sub. t:Term. 
+      s1(t)=s2(t)
+      <=> x:Var. xt => s1(x)=s2(x)
+
+* THM eq_sub_laps
+  >> l:Term list. s1,s2:Sub. 
+        s1(l)=s2(l) <=> (x:Var. xl => s1(x)=s2(x))
+
+* THM sub_lookup
+  >> x:Var. s:Sub. (xdom(s))  t:Term. xdom(s) & s(x)=t
+
+* THM sub_extension_1
+  >> s1,s2:Sub. x:Var. t:Term. s1s2 => 
+      <x,t>.s1  <x,t>.s2 <=> True
+
+* THM sub_extension_2
+  >> s1,s2:Sub. x:Var. t:Term. s1s2 => (xdom(s1)) => 
+     (s1  <x,t>.s2 <=> True)
+
+* THM sub_extension_3
+  >> s1,s2:Sub. x:Var. t:Term. 
+     s1s2 => xdom(s2) => s2(x)=t => (<x,t>.s1  s2 <=> True)
+
+* ML add_sub_simps
+  map add_lemma_simp 
+  ``sub_extension_1 sub_extension_2 sub_extension_3`` ;;
+  
+  add_to_Decidable `Term_eq_dec` (Lemma `Term_eq_dec`) ;;
+
+* THM sub_union
+  >> s1,s2:Sub. min(s1) & min(s2) => ncst(s1,s2)  
+    s:Sub. min(s) & s1s & s2s
+            & x:Var. xdom(s) => xdom(s1)  xdom(s2)
+
+* THM lmatch_thm
+  >> l:Term list. (t:l. match?(t)) => match?(l)
+
+* THM match_thm
+  >> t:Term. match?(t)
+
+* EVAL eval_defs
+  let match = ˆ t1 t2. d(match_thm(t1,t2); u.u.1;u."no match");;
+  
+  let t1 = f( g(c(),x), h(x,y) ) ;;
+  let t2 = f( g(c(),d()), h(d(),z) ) ;;
+  let t3 = f( g(c(),d()), h(e(),z) ) ;;
+

@@ -1,0 +1,48 @@
+Jan 23, 1988.
+
+To load this library, load the ml file "load-all".  This will load the
+relevant tactics and will load in the files which form the library.  
+
+NOTE:  This library is not valid in Nuprl 3.0 because of the changes to the
+"direct computation" rules.  However, the old versions of these rules can be
+restored: see the file "nuprl:lib;=readme.text".
+
+The library cannot always be checked piecemeal.  There are various ML objects
+in the library which modify parameters to the tactic collection.  Some of
+these objects change tactics in such a way that some previous theorems will
+no longer expand properly.  A fairly safe way to expand a particular theorem
+is to first check all ML objects in the library from the beginning up to the
+theorem.  However, "check first-last" will not successfully expand all the
+theorems.  The only way to expand the whole library that is guaranteed to
+work is to load each library segment using "load fully" instead of "load".
+Loading the ML file "load-and-expand-all" will have this effect.  With
+"display maintenance" turned off (using set_display_maintenance_mode), it
+takes about twelve hours to completely expand the library on a Symbolics lisp
+machine.  If display maintenance is left on, the expansion will take much
+longer.  (The computations involved in attempting to maintain the best
+possible display form for Nuprl terms drastically slows down some of the
+tactics, especially ones which do alot of symbolic computation.)
+
+This library is described in my PhD thesis "Automating Reasoning in an
+Implementation of Constructive Type Theory", which is available as a Cornell
+Technical Report.  There is also a technical report "Computational Metatheory
+in Nuprl", which contains a less-detailed account of the library.  This
+latter report is to be published as part of "The Proceedings of the Ninth
+International Conference on Automated Deduction", Springer-Verlag LNCS.
+Following is the abstract from the paper.
+
+"This paper describes an implementation within Nuprl of mechanisms that
+support the use of Nuprl's type theory as a language for constructing
+theorem-proving procedures.  The main component of the implementation is a
+large library of definitions, theorems and proofs.  This library may be
+regarded as the beginning of a book of formal mathematics; it contains the
+formal development and explanation of a useful subset of Nuprl's metatheory,
+and of a mechanism for translating results established about this embedded
+metatheory to the object level.  Nuprl's rich type theory, besides permitting
+the internal development of this partial reflection mechanism, allows us to
+make abstractions that drastically reduce the burden of establishing the
+correctness of new theorem-proving procedures.  Our library includes a
+formally verified term-rewriting system."
+
+
+- Doug Howe

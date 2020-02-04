@@ -1,0 +1,118 @@
+-*- Tab-Width: 3; Mode: Fundamental -*-
+
+The tactic collection for this library no longer loads properly, and so the
+proofs of the library can no longer be viewed.  However, the definitions and
+statements of the theorems can be read, and the computational content of the
+theorems can be executed.
+
+- March 1988
+
+
+
+
+
+
+*********************************************************************************************
+
+
+
+
+
+
+
+*  ---------------------------------------------------------------------------------------   *
+|                                                                                            |
+|        automata                                                                            |
+|                                                                                            |
+|        Files containing PRL-definitions, important theorems and ML-tactics                 |
+|        ("Rules") for the implementation of automata theory in PRL                          |
+|                                                                                            |
+|        The pumping_lemma might be the most interesting part of it                          |
+|                                                                                            |
+|        The main part of this implementation deals with necessary PRL-extensions            |
+|                                                                                            |
+|        Sometimes the tactics described in the .description file are not completed          |
+|        yet. This might be done by somebody else. See the description files for details.    |
+|                                                                                            |
+|        The library uses the old set rules.                                                 |
+|                                                                                            |
+*  ---------------------------------------------------------------------------------------   *
+
+
+   Organization of the files:
+   --------------------------
+
+      lib.lisp           : contains all the PRL-Object definitions and theorems and 
+                           load-call for the rules and tactics dealing with newly     
+                           introduced types 
+      
+      prepare_eval.lisp  : contains just one object preparing the evaluation of the
+                           pumping_lemma. It takes 50 minutes execution time. I took
+                           it out of the main library therefore.
+
+      load-all.ml        : calls all the ML-files necessary 
+                           They contain constructors, destructors and predicates,
+                           formation-, introduction-, elimination- and computation rules
+                           for the objects defined in the library. These rules are programmed
+                           using only already existing PRL-rules so I did not have to prove
+                           any properties of them. They are correct (,consistent etc.)
+                           if PRL is.
+                           Some helpful tactics are added at the end.
+
+      lib.description    : contains a snapshot of the library
+
+
+
+   Loading :
+   --------
+
+      As usual.  (Load in the load-all ML file, then lib (from this directory)
+      -- see nuprl:lib;README.text for more details.)
+
+   
+
+   Contents of the ML-files: (contained in the ML_files directory)
+   -------------------------
+
+      supply            :  ML-helpfunctions which aren't tactics
+      tactics           :  A collection of general purpose tactics   
+                     
+      logic             :  Logic definitions and rules               
+
+      tupling           :  multiple pairs, functions  
+
+      finset            :  Natural numbers, sets {1..n} etc.
+         (totally unfinished)
+
+      sets              :  An attempt to deal with sets in general. So far dealing only with
+                           sets with a carrier in U1.             
+      
+      words_term        :  Everything you have to do with strings (lists etc.). Realized on
+      words_rules_1        the basis of using "integer" as the type of string symbols. 
+      words_rules_compute  Could be easily extended to any other type with decidable equality.
+      words_tactics        (Actually only the rules concerning the type "SYMBOLS" have to be
+                           changed. Anything else should be o.k. then)
+      
+      words_recursion   :  A further extension dealing with recursive definitions of 
+                           string-functions (including tail-recursion). See the description 
+                           file for details
+   
+      dfa               :  Basic automata theory (deterministic only)
+                           Could easily be extended to nondeterministic automata, 
+                           epsilon-moves etc.
+
+
+
+   More detailed descriptions of these files can be found in text files in the directory
+   ML_files_descriptions.
+   -------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+      *-----------------------------------*
+      |  Christoph Kreitz  February 1986  |
+      *-----------------------------------*

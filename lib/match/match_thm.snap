@@ -1,0 +1,206 @@
+-*- Default-character-style: (:FIX :ROMAN :VERY-LARGE) -*-
+
+
+
+
+* top 
+>> t:Term. match?(t)   
+
+BY (On `t` Induction ...)     
+
+1* 1. x: Var
+   >> match?(x)   
+
+2* 1. l: Term list
+   2. f: Fun
+   3. t:l. match?(t)   
+   >> match?(f(l))
+
+
+
+
+* top 1  
+1. x: Var
+>> match?(x)   
+   
+BY (Expand ``matchp`` ...+s)     
+   
+1* 1. x: Var   
+   2. t2: Term 
+   >> s:Sub. s(x)=t2 & min(s) 
+              & x1:Var. x1dom(s) <=> x=x1
+       s:Sub. (s(x)=t2)  
+   
+   
+
+
+* top 1 1
+1. x: Var
+2. t2: Term    
+>> s:Sub. s(x)=t2 & min(s) 
+           & x1:Var. x1dom(s) <=> x=x1 
+    s:Sub. (s(x)=t2)     
+   
+BY (ILeft THENM ITerm '[<x,t2>]' ...+s)
+   
+   
+   
+
+* top 2  
+1. l: Term list
+2. f: Fun
+3. t:l. match?(t)   
+>> match?(f(l))
+   
+BY (FLemma `lmatch_thm` [3] ...) THEN Thin 3 
+   
+1* 3. match?(l)
+   >> match?(f(l))   
+   
+   
+   
+
+* top 2 1
+1. l: Term list
+2. f: Fun
+3. match?(l)   
+>> match?(f(l))
+   
+BY (Expand ``matchp`` ...+s)     
+   
+1* 3. t2: Term 
+   4. match?(l)
+   >> s:Sub. f(s(l))=t2 & min(s) 
+              & x:Var. xdom(s) <=> xl 
+       s:Sub. (f(s(l))=t2) 
+   
+   
+   
+
+* top 2 1 1
+3. t2: Term
+4. match?(l)     
+>> s:Sub. f(s(l))=t2 & min(s) & x:Var. xdom(s) <=> xl 
+    s:Sub. (f(s(l))=t2)   
+     
+BY (On `t2` Unroll ...)
+     
+1* 4. x: Var     
+   >> s:Sub. f(s(l))=x & min(s) & x:Var. xdom(s) <=> xl
+       s:Sub. (f(s(l))=x)    
+     
+2* 4. l2: Term list   
+   5. f2: Fun   
+   >> s:Sub. f(s(l))=f2(l2) & min(s) 
+              & x:Var. xdom(s) <=> xl 
+       s:Sub. (f(s(l))=f2(l2))  
+     
+     
+     
+
+* top 2 1 1 1    
+4. x: Var  
+>> s:Sub. f(s(l))=x & min(s) & x:Var. xdom(s) <=> xl 
+    s:Sub. (f(s(l))=x)     
+     
+BY (IRight ...+s)
+     
+     
+     
+
+* top 2 1 1 2    
+4. l2: Term list
+5. f2: Fun
+>> s:Sub. f(s(l))=f2(l2) & min(s) 
+           & x:Var. xdom(s) <=> xl 
+    s:Sub. (f(s(l))=f2(l2))     
+     
+BY (Decide 'f=f2' ...)
+     
+1* 6. f=f2
+   >> s:Sub. f(s(l))=f2(l2) & min(s) 
+              & x:Var. xdom(s) <=> xl 
+       s:Sub. (f(s(l))=f2(l2))  
+     
+2* 6. (f=f2)   
+   >> s:Sub. f(s(l))=f2(l2) & min(s) 
+              & x:Var. xdom(s) <=> xl 
+       s:Sub. (f(s(l))=f2(l2))  
+     
+     
+     
+
+* top 2 1 1 2 1  
+3. match?(l)     
+6. f=f2   
+>> s:Sub. f(s(l))=f2(l2) & min(s) 
+           & x:Var. xdom(s) <=> xl 
+    s:Sub. (f(s(l))=f2(l2))     
+     
+BY (Expand ``lmatchp`` THEN HypCases ['l2'] 3 ...)  
+     
+1* 6. s:Sub. s(l)=l2 & min(s) & x:Var. x
+      dom(s) <=> xl  
+   >> s:Sub. f(s(l))=f2(l2) & min(s) 
+              & x:Var. xdom(s) <=> xl 
+       s:Sub. (f(s(l))=f2(l2))  
+     
+2* 6. s:Sub. (s(l)=l2) 
+   >> s:Sub. f(s(l))=f2(l2) & min(s) 
+              & x:Var. xdom(s) <=> xl 
+       s:Sub. (f(s(l))=f2(l2))  
+     
+     
+     
+
+* top 2 1 1 2 1 1
+5. f=f2   
+6. s:Sub. s(l)=l2 & min(s) & x:Var. xdom(s) <=> xl    
+>> s:Sub. f(s(l))=f2(l2) & min(s) 
+           & x:Var. xdom(s) <=> xl 
+    s:Sub. (f(s(l))=f2(l2))     
+     
+BY ((OnLast (SomeE ``s``) THEN ILeft THENM ITerm 's' ...) ...sc)   
+     
+     
+
+
+* top 2 1 1 2 1 2
+5. f=f2   
+6. s:Sub. (s(l)=l2)    
+>> s:Sub. f(s(l))=f2(l2) & min(s) & x:Var. xdom(s) <=> xl 
+    s:Sub. (f(s(l))=f2(l2))     
+     
+BY (IRight ...+s)
+     
+1* 5. s: Sub  
+   6. s(l)=l2   
+   7. s1:Sub. (s1(l)=l2)     
+   >> void 
+     
+     
+     
+
+* top 2 1 1 2 1 2 1    
+5. s: Sub     
+6. s(l)=l2
+7. s1:Sub. (s1(l)=l2)  
+8. f=f2   
+>> void    
+     
+BY (EOn 's' 7 ...) THEN (Contradiction ...)    
+     
+     
+     
+* top 2 1 1 2 2  
+3. match?(l)     
+4. l2: Term list
+5. f2: Fun
+6. (f=f2)
+>> s:Sub. f(s(l))=f2(l2) & min(s) 
+           & x:Var. xdom(s) <=> xl 
+    s:Sub. (f(s(l))=f2(l2))     
+     
+BY (IRight ...+s)     
+
+

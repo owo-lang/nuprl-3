@@ -1,0 +1,151 @@
+* top    
+>> l:Term list. (t:l. match?(t)) => match?(l)  
+    
+BY (On `l` Induction ...+s)  
+    
+1* >> match?(nil)  
+    
+2* 1. l: Term list 
+   2. t: Term
+   3. t:l. match?(t) => match?(l)
+   4. match?(t)   
+   5. t:l. match?(t)   
+   >> match?(t.l) 
+
+
+
+
+
+* top 2 1 1   
+1. l: Term list    
+2. t: Term   
+3. match?(t) 
+4. match?(l)  
+5. l2: Term list   
+>> s:Sub. s(t).s(l)=l2 & min(s) & x:Var. xdom(s) <=> xt  xl  s:Sub. (s(t).s(l)=l2)
+    
+BY (On `l2` Unroll ...sc)    
+    
+1* 1. l: Term list 
+   2. t: Term
+   3. match?(t)   
+   4. match?(l)    
+   5. l2: Term list
+   6. t2: Term
+   >> s:Sub. s(t)=t2 & s(l)=l2 & min(s) & x:Var. xdom(s) <=> xt  xl  s:Sub. (s(t)=t2 & s(l)=l2)  
+    
+    
+    
+    
+    
+    
+* top 2 1 1 1    
+1. l: Term list  
+2. t: Term 
+3. match?(t)    
+4. match?(l)
+5. l2: Term list 
+6. t2: Term 
+>> s:Sub. s(t)=t2 & s(l)=l2 & min(s) & x:Var. xdom(s) <=> xt  xl  s:Sub. (s(t)=t2 & s(l)=l2) 
+  
+BY (Expand ``matchp lmatchp`` THEN HypCases ['t2'] 3 ...)
+  
+1* 1. l: Term list    
+   2. t: Term   
+   3. l2:Term list. s:Sub. s(l)=l2 & min(s) & x:Var. xdom
+      (s) <=> xl  s:Sub. (s(l)=l2)    
+   4. l2: Term list   
+   5. t2: Term   
+   6. s:Sub. s(t)=t2 & min(s) & x:Var. xdom(s) <=> xt   
+   >> s:Sub. s(t)=t2 & s(l)=l2 & min(s) & x:Var. xdom(s) <=> xt  xl  s:Sub. (s(t)=t2 & s(l)=l2)
+  
+2* 1. l: Term list    
+   2. t: Term   
+   3. l2:Term list. s:Sub. s(l)=l2 & min(s) & x:Var. xdom(s) <=> xl  s:Sub. (s(l)=l2)    
+   4. l2: Term list   
+   5. t2: Term   
+   6. s:Sub. (s(t)=t2)  
+   >> s:Sub. s(t)=t2 & s(l)=l2 & min(s) & x:Var. xdom(s) <=> xt  xl  s:Sub. (s(t)=t2 & s(l)=l2)
+  
+  
+  
+  
+
+
+* top 2 1 1 1 1  
+1. l: Term list  
+2. t: Term 
+3. l2:Term list. s:Sub. s(l)=l2 & min(s) & x:Var. xdom(s) <=> xl  s:Sub. (s(l)=l2)
+4. l2: Term list 
+5. t2: Term 
+6. s:Sub. s(t)=t2 & min(s) & x:Var. xdom(s) <=> xt 
+>> s:Sub. s(t)=t2 & s(l)=l2 & min(s) & x:Var. xdom(s) <=> xt  xl  s:Sub. (s(t)=t2 & s(l)=l2) 
+  
+BY (HypCases ['l2'] 3 ...) 
+  
+1* 1. l: Term list    
+   2. t: Term   
+   3. l2: Term list   
+   4. t2: Term   
+   5. s:Sub. s(t)=t2 & min(s) & x:Var. xdom(s) <=> xt   
+   6. s:Sub. s(l)=l2 & min(s) & x:Var. xdom(s) <=> xl    
+   >> s:Sub. s(t)=t2 & s(l)=l2 & min(s) & x:Var. xdom(s) <=> xt  xl  s:Sub. (s(t)=t2 & s(l)=l2)
+  
+2* 1. l: Term list    
+   2. t: Term   
+   3. l2: Term list   
+   4. t2: Term   
+   5. s:Sub. s(t)=t2 & min(s) & x:Var. xdom(s) <=> xt   
+   6. s:Sub. (s(l)=l2)   
+   >> s:Sub. s(t)=t2 & s(l)=l2 & min(s) & x:Var. xdom(s) <=> xt  xl  s:Sub. (s(t)=t2 & s(l)=l2)
+  
+  
+  
+  
+  
+  
+  
+* top 2 1 1 1 1 1
+1. l: Term list  
+2. t: Term 
+3. l2: Term list 
+4. t2: Term 
+5. s:Sub. s(t)=t2 & min(s) & x:Var. xdom(s) <=> xt 
+6. s:Sub. s(l)=l2 & min(s) & x:Var. xdom(s) <=> xl  
+>> s:Sub. s(t)=t2 & s(l)=l2 & min(s) & x:Var. xdom(s) <=> xt  xl  s:Sub. (s(t)=t2 & s(l)=l2) 
+  
+BY (SomeE ``s2`` 6 THEN SomeE ``s1`` 5 THEN    
+    CaseLemma `sub_union` ['s1';'s2']...) 
+  
+1* 1. l: Term list    
+   2. t: Term   
+   3. l2: Term list   
+   4. t2: Term   
+   5. s2: Sub    
+   6. s2(l)=l2   
+   7. min(s2)    
+   8. x:Var. xdom(s2) <=> xl
+   9. s1: Sub    
+   10. s1(t)=t2 
+   11. min(s1)   
+   12. x:Var. xdom(s1) <=> xt    
+   13. ncst(s1,s2)    
+   >> s:Sub. s(t)=t2 & s(l)=l2 & min(s) & x:Var. xdom(s) <=> xt  xl  s:Sub. (s(t)=t2 & s(l)=l2)
+  
+2* 1. l: Term list    
+   2. t: Term   
+   3. l2: Term list   
+   4. t2: Term   
+   5. s2: Sub    
+   6. s2(l)=l2   
+   7. min(s2)    
+   8. x:Var. xdom(s2) <=> xl
+   9. s1: Sub    
+   10. s1(t)=t2 
+   11. min(s1)   
+   12. x:Var. xdom(s1) <=> xt    
+   13. s:Sub. min(s) & s1s & s2s & x:Var. xdom(s) => xdom(s1)  xdom(s2)   
+   >> s:Sub. s(t)=t2 & s(l)=l2 & min(s) & x:Var. xdom(s) 
+
+
+

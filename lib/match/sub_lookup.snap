@@ -1,0 +1,68 @@
+-*- Default-character-style: (:FIX :ROMAN :VERY-LARGE) -*-
+* top                                                           
+>> x:Var. s:Sub. (xdom(s))  t:Term. xdom(s) & s(x)=t     
+                                                                
+BY (On `s` Induction ...+s)                                     
+                                                                
+1* 1. x: Var                                                    
+   2. s: Sub                                                    
+   3. p: Var#Term                                           
+   4. (xdom(s))  t:Term. xdom(s) & s(x)=t                  
+   >> (p.1=x  xdom(s)) 
+       t:Term. (p.1=x  xdom(s)) & (p.s)(x)=t                                                       
+
+
+* top 1                                                         
+3. p: Var#Term                                              
+4. (xdom(s))  t:Term. xdom(s) & s(x)=t                     
+>> (p.1=x  xdom(s)) 
+    t:Term. p.1=x  xdom(s) & p.s(x)=t
+                                                                
+BY (AndThin E 3 THEN Reduce ...)                                
+                                                                
+1* 4. x1: Var                                                  
+   5. t1: Term                                                  
+   >> (x1=x  xdom(s)) 
+       t:Term.  (x1=x  xdom(s)) & (<x1,t1>.s)(x)=t
+                                                                
+
+* top 1 1                                                       
+3. (xdom(s))  t:Term. xdom(s) & s(x)=t                     
+4. x1: Var                                                     
+5. t1: Term                                                     
+>> (x1=x  xdom(s)) 
+    t:Term.  (x1=x  xdom(s)) & (<x1,t1>.s)(x)=t
+                                                                
+BY (Decide 'x1=x' ...+s)                                        
+                                                                
+1* 5. x1=x                                                      
+   6. (xdom(s))  t:Term. xdom(s) & s(x)=t                  
+   >> t:Term. t1=t                                             
+                                                                
+
+* top 1 1 1                                                     
+5. x1=x                                                         
+6. (xdom(s))  t:Term. xdom(s) & s(x)=t                     
+>> t:Term. t1=t                                                
+                                                                
+BY (ITerm 't1' ...)                                             
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                

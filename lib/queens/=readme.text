@@ -1,0 +1,15 @@
+****** Development of Eight Queens Problem in Nuprl ****** 
+      
+      A well-know problem of placing eight queens on a chess board
+so that no queen is facing to the others.  The library uses the old 
+set rules. The all_tags_legal flag must be set to false as described
+in readme of directory nuprl:lib.
+
+Author: Tatsuya Hagino, LFCS, Dept. of Computer Science, Univ. of
+Edinburgh.  (Currently developing an interactive proof editor which
+may not be as great as nuPrl is theoretically, but we are trying to make
+it easy to use.)
+
+Date: July 1st 1987.  (During a short visit in Cornell after '87 LICS
+conference.)
+

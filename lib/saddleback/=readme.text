@@ -1,0 +1,30 @@
+The library in this directory contains a development of the "saddleback
+search" algorithm.  It is a solution to a generalization of the following
+problem (where it is not assumed that the element x occurs in the given
+array), which was given in Gries' book "The Science of Programming":
+
+"It is known that a fixed integer x occurs in fixed, two-dimensional array
+B[0:m-1,0:n-1].  Further , it is known that each row and each column of B
+is ordered (by <=).  Write a program to find the position of x in B; i.e.,
+using variables i and j , the program should establish x=B[i,j].  If x occurs
+in several places in B, it does not matter which place is found.  Try to
+minimize the number of comparisons in the worst case.  This kind of
+problem arises in multplying sparse polynomials, each given by an ordered
+list of coefficient-exponent pairs."
+
+This problem was randomly selected from Gries' book and was given as a
+task in program development and verification to four of the leading
+verification projects in the United States [*].  The Nuprl effort took about
+one afternoon's work, and the result is an algorithm which is essentially the
+same as the one given in Gries.
+
+The file "lib" contains the original development of the solution, and
+requires the tactic collection that the "load-all" file loads.  The file
+"new-lib" is a slightly modified version that uses only the tactics that
+are in the default collection of Nuprl; i.e., it can be loaded directly
+into Nuprl without loading the "load-all" file.
+
+* "Verification Assessment Study Final Report", Vol. I, 
+R. Kemmerer.
+
+- Doug Howe

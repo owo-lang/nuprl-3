@@ -1,0 +1,247 @@
+* DEF title
+      ****** Development of Eight Queen Problem in nuPrl ****** ==
+      
+      A well-know problem of placing eight queens on a chess board
+      so that no queen is facing to the others.
+
+* DEF author
+      Tatsuya Hagino, LFCS, Dept. of Computer Science, Univ. of Edinburgh==
+      Currently developping an interactive proof editor which may not
+      be as great as nuPrl is theoretically, but we are trying to make
+      it easy to use.
+
+* DEF date
+      July 1st 1987==
+      
+      During a short visit in Cornel after '87 LICS conference
+
+* DEF comment1
+      **** Some Basic Definitions for First Order Predicate Calculus ****==
+
+* DEF prop
+      prop == U1
+
+* DEF true
+      true==(0 in int)
+
+* DEF false
+      false==void
+
+* DEF not
+      ~<p:prop>==((<p>)->void)
+
+* DEF and
+      <p:prop> & <q:prop>==((<p>)#(<q>))
+
+* DEF imp
+      <p:prop>  <q:prop>==((<p>)->(<q>))
+
+* DEF equiv
+      <p:prop>  <q:prop>==(((<p>)->(<q>)) & ((<q>)->(<p>)))
+
+* DEF all
+      <x:var>:<t:type>.<p:prop>==(<x>:(<t>)->(<p>))
+
+* DEF some
+      <x:var>:<t:type>.<p:prop>==(<x>:(<t>)#(<p>))
+
+* DEF all2
+      <x:var>,<y:var>:<t:type>.<p:prop>==<x>:<t>.<y>:<t>.<p>
+
+* ML intros
+      let intros = REPEAT (refine_using_prl_rule `intro`);;
+
+* DEF ge
+      <x:int>>=<y:int>==((<x><<y>) -> void)
+
+* DEF le
+      <x:int>\<=<y:int>==((<y><<x>)->void)
+
+* DEF nat
+      nat=={n:int|0<=n}
+
+* DEF all3
+      <x:var>,<y:var>,<z:var>:<t:type>.<p:prop>==<x>:<t>.<y>:<t>.<z>:<t>.<p>
+
+* DEF comment2
+      **** al.P(a) means that P(a) holds for any element of l ****==
+
+* DEF member
+      <x:var><l:list>.<p:prop>==list_ind(<l>;true;_m0,_m1,_m2.(\ <x>.<p>)(_m0) & _m2)
+
+* THM member_nil
+      >> A:U1.P:(A->U1).anil.P(a)
+
+* THM member_cons
+      >> A:U1.P:(A->U1).a:A.x:A list.(P(a) & bx.P(b)  c(a.x).P(c))
+
+* DEF comment3
+      **** nl means that n is in integer list l ****==
+
+* THM i_belong_
+      >> int -> int list -> U1
+      Extraction:
+      \n.\l.list_ind(l;false;u,v,w.(n=u in int)|w)
+
+* DEF i_belong
+      <n:number><l:list>==term_of(i_belong_)(<n>)(<l>)
+
+* THM i_belong_nil
+      >> n:int.~nnil
+
+* THM i_belong_cons
+      >> n,m:int.x:int list.(n(m.x)  (n=m in int)|nx)
+
+* THM i_belong_decide
+      >> n:int.x:int list.(nx|~nx)
+
+* DEF comment4
+      **** ~dup(l) means that there is no duplication in l ****==
+      
+      For example ~dup(1.5.3.nil) is true but ~dup(1.5.1.nil) is not.
+
+* THM no_dup_
+      >> int list -> U1
+      Extraction:
+      \x.list_ind(x;true;u,v,w.~uv & w)
+
+* DEF no_dup
+      ~dup(<l:list>)==term_of(no_dup_)(<l>)
+
+* THM no_dup_nil
+      >> ~dup(nil)
+
+* THM no_dup_test
+      >> ~dup(1.6.nil)
+
+* THM no_dup_cons
+      >> n:int.x:int list.(~dup(x) & ~nx  ~dup(n.x))
+
+* DEF comment5
+      **** length function for list ****==
+
+* DEF length
+      length(<l:list>)==list_ind(<l>;0;_l0,_l1,_l2._l2+1)
+
+* THM length_nil
+      >> length(nil)=0 in int
+
+* THM length_cons
+      >> A:U1.a:A.x:A list.(length(a.x)=length(x)+1 in int)
+
+* DEF comment6
+      **** check_row(n,l) means that l consists of integers from 1 to n ****==
+
+* DEF check_row
+      check_row(<n:number>,<l:list>)==list_ind(<l>;true;_c0,_c1,_c2.0<_c0 & _c0<=<n> & _c2)
+
+* THM check_row_test
+      >> check_row(8,3.2.4.nil)
+
+* THM check_row_nil
+      >> n:int.check_row(n,nil)
+
+* THM check_row_cons
+      >> n,m:int.x:int list.(check_row(n,x) & 0<m & m<=n  check_row(n,m.x))
+
+* DEF comment7
+      **** diagonal_1(l) returns a list which is the 45 degree rotation of l ****==
+      
+      Here, the solution is going to be given by a list of columns, and
+      we have to check whether queens are facing diagonally or not.
+      diagonal_1(l) rotates a column list 45 dgree so that we can use
+      ~dup(diagonal_1(l)) to check.
+
+* DEF diagonal_1
+      diagonal_1(<l:list>)==list_ind(<l>;nil;_di0,_di1,_di2.((_di0+length(_di1))._di2))
+
+* DEF diagonal_2
+      diagonal_2(<l:list>)==list_ind(<l>;nil;_di3,_di4,_di5.((_di3-length(_di4))._di5))
+
+* THM diagonal_test
+      >> x:int list.diagonal_1(3.1.5.nil)=x in int list
+
+* THM diagonal_int
+      >> x:int list.(diagonal_1(x) in int list)
+
+* THM diagonal_length
+      >> x:int list.(length(diagonal_1(x))=length(x) in int)
+
+* THM diagonal_1_nil
+      >> diagonal_1(nil)=nil in int list
+
+* THM diagonal_1_cons
+      >> n:int.x:int list.(~dup(diagonal_1(x)) & ~n+length(x)diagonal_1(x)  ~dup(diagonal_1(n.x)))
+
+* THM diagonal_2_nil
+      >> diagonal_2(nil)=nil in int list
+
+* THM diagonal_2_cons
+      >> n:int.x:int list.(~dup(diagonal_2(x)) & ~n-length(x)diagonal_2(x)  ~dup(diagonal_2(n.x)))
+
+* DEF comment8
+      **** pqueen(n,m,x) means x is a solution of n x m queen problem ****==
+      
+      where the n x m queen problem is a modification of n queen problem
+      by changing the board from n x n square to n x m rectangle.
+
+* DEF pqueen
+      pqueen(<n:number>,<m:number>,<l:list>)==~dup(<l>) & check_row(<n>,<l>) & ~dup(diagonal_1(<l>)) & ~dup(diagonal_2(<l>)) & (length(<l>)=<m> in int)
+
+* THM pqueen_U1
+      >> n:nat.m:int.x:int list.(pqueen(n,m,x) in U1)
+
+* DEF comment9
+      **** The solution to n x 0 queen problem is the null list ****==
+
+* THM pqueen_nil
+      >> n:nat.pqueen(n,0,nil)
+
+* THM pqueen_cons
+      >> n:nat.m,i:int.x:int list.(pqueen(n,m,x) & 0<i & i<=n & ~ix & ~i+length(x)diagonal_1(x) & ~i-length(x)diagonal_2(x) & m<n  pqueen(n,m+1,i.x))
+
+* DEF comment10
+      **** The following lemma is the inductive step for the next theorem ****==
+      
+      Given a list of solutions of n x m queen problem, it creates
+      a list of solutions of n x (m+1) queen problem.
+
+* THM pqueens_lemma
+      >> n:nat.m:int.(0<=m & m<n  li:int list list.(xli.pqueen(n,m,x)  lo:int list list.xlo.pqueen(n,m+1,x)))
+
+* DEF comment11
+      **** The main theorem for solving n x m queen problem ****==
+      
+      Proved by induction on m
+
+* THM pqueens
+      >> n:nat.m:int.(0<=m & m<=n  l:int list list.xl.pqueen(n,m,x))
+
+* DEF comment12
+      **** Queen(n,x) means x is a solution of n queen problem ****==
+
+* DEF Queen
+      Queen(<n:number>,<l:list>)==pqueen(<n>,<n>,<l>)
+
+* DEF comment13
+      **** The following theorem gives me a list of solutions ****==
+
+* THM Queens
+      >> n:nat.l:int list list.xl.Queen(n,x)
+
+* DEF comment14
+      **** We extract the program out of the previous theorem ****==
+
+* EVAL queen
+      let queen = \n. spread(term_of(Queens)(n);u,v.u);;
+
+* DEF end
+      **** final comment ****==
+      
+      What I did not prove is that the solution we get by queen is
+      the all the solution.  I could have done so, but just I did not
+      hve much time to do so.  The theorem one should prove is the
+      folloing:
+      
+          n:nat.l:int list list.x:int list.(xl  Queen(n,x))
+

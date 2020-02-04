@@ -1,0 +1,9 @@
+Jan 18, 1988.
+
+
+The file "lib.lisp" contains some basic definitions, including
+definitions for the logical connectives.  The library also has some of
+the example theorems from the first part of the Nuprl book.  All the
+proofs use the default tactic collection (the one that is loaded
+automatically with the system).
+

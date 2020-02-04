@@ -1,0 +1,16 @@
+Versions of Nuprl's font set:
+-----------------------------
+
+bdf - uncompiled.  See the document installation.text for instructions
+      on creating your own font directory.
+
+decstation - compiled font directory for Decstations (with Dec's X-server).
+
+sun-mit - for Suns with the MIT server (from the X distribution).
+
+sun-openwindows - for the Sun Open Windows server.
+
+ncd - For NCD X-terminals.  At Cornell this is just a link to a
+      directory containing the sun-mit fonts in a place accessible to
+      the X-terminals --- the target of the link should be used when
+      setting font paths.

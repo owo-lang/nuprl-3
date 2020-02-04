@@ -1,0 +1,5541 @@
+* DEF BEGIN_Init
+  ==
+
+* ML kill_tactic_additions
+  reinitialize_lists () ;; 
+
+* DEF END_Init
+  ==
+
+* DEF BEGIN_Basic
+  ==
+
+* DEF DEFS
+  *************************************
+  General purpose DEFs
+  *************************************==
+
+* DEF c
+  %<c:comment>%==
+
+* DEF parens
+  (<a:anything>)==(<a>)
+
+* DEF F
+  <T:tactic>==(FastAp (\p. (<T>) p))
+
+* DEF t
+  (<T:tactic>...)==(\p.((<T>) THEN Autotactic) p)
+
+* DEF w
+  (<T:tactic>...)==(\p.((<T>) THEN WeakAutotactic) p)
+
+* DEF tf
+  (<T:tactic>...)==(FastAp (\p.((<T>) THEN Autotactic) p))
+
+* DEF wf
+  (<T:tactic>...)==(FastAp (\p. let c = concl p in ((<T>) THEN WeakAutotactic) p))
+
+* DEF ts
+  (<T:tactic>...!)==
+  (\p.((<T>) THEN Repeat (Autotactic ORELSE MemberI)) p)
+
+* DEF tc
+  (<T:tactic>...*)==(\p. ((<T>) THEN (FastAp o Try) (CompleteAutotactic)) p)
+
+* DEF wc
+  (<T:tactic>...*)==(\p. ((<T>) THEN (FastAp o Try) (CompleteWeakAutotactic)) p)
+
+* DEF tp
+  (<T:tactic>...when (<P:bool (free p)>))==(\p.((<T>) THEN IfThen (\p.not(<P>) ? true) Autotactic) p)
+
+* DEF wp
+  (<T:tactic>...when (<P:bool (free p)>))==(\p.((<T>) THEN IfThen (\p.not(<P>) ? true) WeakAutotactic) p)
+
+* DEF tm
+  (<T:tactic>...)==(\p.((<T>) THEN IfThen is_membership_goal Autotactic) p)
+
+* DEF wm
+  (<T:tactic>...)==(\p.((<T>) THEN IfThen is_membership_goal WeakAutotactic) p)
+
+* DEF tw
+  (<T:tactic>...wf)==(\p.((<T>) THEN IfThen is_wf_goal Autotactic) p)
+
+* DEF ww
+  (<T:tactic>...wf)==(\p.((<T>) THEN IfThen is_wf_goal WeakAutotactic) p)
+
+* DEF tn
+  (<T:tactic>...)==(\p.((<T>) THENO Autotactic) p)
+
+* DEF wn
+  (<T:tactic>...)==(\p.((<T>) THENO WeakAutotactic) p)
+
+* DEF nothing
+  <a:anything>==
+
+* DEF e
+  <x:def>==term_of(<x>_)
+
+* DEF to
+  <x:thm name>==term_of(<x>)
+
+* DEF g
+  â==gamma
+
+* DEF d
+  ç==delta
+
+* DEF a
+  ==alpha
+
+* DEF squash
+  (<T:type>)=={(0 in int)|(<T>)}
+
+* ML add_squash
+  add_matching_def_adder `squash`
+  '{(0 in int)|T}' ``T`` (\l.true)
+  ;; 
+
+* DEF spread
+  let <x:var>,<y:var>=<t:term> in <tt:term>
+  ==spread(<t>;<x>,<y>.<tt>)
+
+* DEF dblspread
+  let <w:var>,<x:var>,<y:var>,<z:var>=
+  <t1:term>,<t2:term> in <t3:term>==
+  let <w>,<x>=<t1> in let <y>,<z>=<t2> in <t3>
+
+* DEF and
+  <P:prop> & <Q:prop>==((<P>)#(<Q>))
+
+* DEF or
+  <P:prop>  <Q:prop>==((<P>)|(<Q>))
+
+* DEF imp
+  <P:prop> => <Q:prop>==((<P>)->(<Q>))
+
+* DEF not
+  (<P:prop>)==<P> => void
+
+* ML add_not
+  add_matching_def_adder `not`
+  'x -> void' ``x`` (\l. true)
+  ;;
+
+* DEF neq
+  <t:term>  <tt:term> in <T:type>==((<t>)=(<tt>) in (<T>))
+
+* DEF iff
+  <P:prop> \<=> <Q:prop>==<P> => <Q> & <Q> => <P>
+
+* ML add_iff
+  add_matching_def_adder `iff` 'P <=> Q' ``P Q`` (\x.true) ;; 
+
+* DEF all
+  <x:var>:<T:type>. <P:prop>==(<x>:(<T>)->(<P>))
+
+* DEF all2
+  <x:var>,<y:var>:<T:type>. <P:prop>
+  ==<x>:<T>. <y>:<T>. <P>
+
+* DEF all3
+  <x:var>,<y:var>,<z:var>:<T:type>. <P:prop>
+  ==<x>:<T>. <y>,<z>:<T>. <P>
+
+* DEF all4
+  <w:var>,<x:var>,<y:var>,<z:var>:<T:type>. <P:prop>
+  ==<w>:<T>. <x>,<y>,<z>:<T>. <P>
+
+* DEF set
+  {<x:var>:<T:type>|<P:prop>}==({<x>:(<T>)|(<P>)})
+
+* DEF all_where
+  <x:var>:<T:type> where <P:prop>. <PP:prop>==
+  <x>:<T>. (<P>) => <PP>
+
+* DEF all2_where
+  <x:var>,<y:var>:<T:type> where <P:prop>. <PP:prop>
+  ==<x>:<T>. <y>:<T> where <P>. <PP>
+
+* DEF all3_where
+  <x:var>,<y:var>,<z:var>:<T:type> where <P:prop>.<PP:prop>
+  ==<x>:<T>. <y>,<z>:<T> where <P>. <PP>
+
+* DEF some
+  <x:var>:<T:type>. <P:prop>==(<x>:(<T>)#(<P>))
+
+* DEF some2
+  <x:var>,<y:var>:<T:type>. <P:prop>
+  ==<x>:<T>. <y>:<T>. <P>
+
+* DEF some3
+  <x:var>,<y:var>,<z:var>:<T:type>.<P:prop>
+  ==<x>:<T>. <y>,<z>:<T>. <P>
+
+* DEF some_where
+  <x:var>:<T:type> where <P:prop>=={<x>:(<T>)|(<P>)}
+
+* DEF some2_where
+  <x:var>,<y:var>:<T:type> where <P:prop>==
+  <x>:<T>. <y>:<T> where <P>
+
+* DEF true
+  True==(0 in int)
+
+* DEF True
+  True==(0 in int)
+
+* DEF false
+  False==void
+
+* DEF False
+  False==void
+
+* DEF ax
+  ax==axiom
+
+* DEF p1
+  <x:tuple>.1==spread(<x>;u,v.u)
+
+* DEF p2
+  <x:tuple>.2==spread(<x>;u,v.v)
+
+* DEF p3
+  <x:tuple>.3==<x>.2.2
+
+* ML add_projs
+  add_matching_def_adder `p1`
+  'spread(p;u,v.u)' ``p`` (\l.true)
+  ;;
+  
+  add_matching_def_adder `p2`
+  'spread(p;u,v.v)' ``p`` (\l.true)
+  ;;
+
+* DEF tup
+  \<<a:term>,<b:term>\>==<(<a>),(<b>)>
+
+* DEF tup3
+  \<<a:term>,<b:term>,<c:term>\>==<(<a>),<<b>,<c>>>
+
+* DEF tup4
+  \<<a:term>,<b:term>,<c:term>,<d:term>\>==<(<a>),<<b>,<c>,<d>>>
+
+* DEF let
+  let <x:var> = <t:term> in <tt:term>==((\ <x>.(<tt>))(<t>))
+
+* DEF let2
+  let <x:var>,<y:var> = <p:pair> in <t:term>==
+  let <x> = <p>.1 in let <y> = <p>.2 in <t>
+
+* DEF let3
+  let <x:var>,<y:var>,<z:var> = <p:triple> in <t:term>==
+  let <x> = <p>.1 in let <y> = <p>.2.1 in let <z> = <p>.2.2 in <t>
+
+* DEF let4
+  let <x:var>,<y:var>,<z:var>,<a:var> = <p:quad> in <t:term>==
+  let <x> = <p>.1 in let <y> = <p>.2.1 in let <z> = <p>.2.2.1 in let <a> = .2.2.2 in <t>
+
+* DEF if_eq
+  if <x:int>=<y:int> then <s:term> else <t:term>==int_eq(<x>;<y>;<s>;<t>)
+
+* DEF if_aeq
+  if <x:Atom>=<y:Atom> then <s:term> else <t:term>==atom_eq(<x>;<y>;<s>;<t>)
+
+* DEF if_l
+  if <x:int>\<<y:int> then <s:term> else <t:term>==less(<x>;<y>;<s>;<t>)
+
+* DEF dec
+  d(<a:term>;<u:var>.<t:term>;<v:var>.<tt:term>)==
+  decide(<a>;<u>.<t>;<v>.<tt>)
+
+* DEF isl
+  isl(<x:A|B>)==d(<x>;u.True;u.False)
+
+* DEF isr
+  isr(<x:A|B>)==d(<x>;u.False;u.True)
+
+* DEF outl
+  outl(<x:A|B>)==d(<x>;u.u;u."uu")
+
+* DEF l
+  à<x:var>. <t:term>==(\ <x>.(<t>))
+
+* DEF l2
+  à <x:var> <y:var>. <t:term>==à<x>. à<y>. <t>
+
+* DEF l3
+  à <x:var> <y:var> <z:var>. <t:term>==à<x>. à<y>. à<z>. <t>
+
+* DEF dl
+  à <x:var>,<y:var>. <t:term>==àp. let <x>,<y> = p in <t>
+
+* DEF bv
+  <x:var> -> <t:term>==(\ <x>.(<t>))
+
+* DEF bv2
+  <x:var>,<y:var> -> <t:term>==<x> -> <y> -> <t>
+
+* DEF bv3
+  <x:var>,<y:var>,<z:var> -> <t:term>==<x> -> <y>,<z> -> <t>
+
+* DEF prim_rec
+  [ 0  <b:base case> ; <n:int var>, <y:var>  <t:term> ; @ <a:int>]==
+  ind( <a>; _,__.<b>; <b>; <n>,<y>. <t> )
+
+* DEF list
+  <A:Type> list==((<A>) list)
+
+* DEF list_rec
+  [ nil  <b:term>; <h:var>.<t:var>,<v:var>  <tt:term>; @ <a:list>]==
+  list_ind( <a>; <b>; <h>,<t>,<v>. <tt> )
+
+* DEF cons
+  <h:A>.<t:A list>==((<h>).(<t>))
+
+* DEF ap
+  <f:term>(<x:term>)==((<f>)(<x>))
+
+* DEF bin_ap
+  <r:term>(<a:term>,<b:term>)==<r>(<a>)(<b>)
+
+* DEF tri_ap
+  <r:term>(<a:term>,<b:term>,<c:term>)==<r>(<a>)(<b>)(<c>)
+
+* DEF ap4
+  <r:term>(<a:term>,<b:term>,<c:term>,<d:term>)==<r>(<a>)(<b>)(<c>)(<d>)
+
+* DEF bin_tap
+  <r:fun>(<t:arg1>,<tt:arg2>)==<r>(<(<t>),(<tt>)>)
+
+* DEF type_ap
+  <f:term><x:term>==((<f>)(<x>))
+
+* DEF le
+  <x:Int><y:Int>==( (<y>)<(<x>))
+
+* DEF lele
+  <x:Int><y:Int><z:Int>==<x><y> & <y><z>
+
+* DEF lle
+  <x:Int>\<<y:Int><z:Int>==(<x>)<(<y>) & <y><z>
+
+* DEF lel
+  <x:Int><y:Int>\<<z:Int>==<x><y> & (<y>)<(<z>)
+
+* DEF ll
+  <x:Int>\<<y:Int>\<<z:Int>==(<x>)<(<y>) & (<y>)<(<z>)
+
+* THM Int_abs_
+  >> Int -> Int
+  Extraction:
+  à n.  less(n;0;-n;n)
+
+* DEF Int_abs
+  |<n:Int>|==term_of(Int_abs_)(<n>)
+
+* DEF eq
+  <m:Int> = <n:Int>==((<m>)=(<n>) in Int)
+
+* THM N_
+  >> U1
+  Extraction:
+  {n:Int|0n}
+
+* DEF N
+  N==term_of(N_)
+
+* THM Int_eq_if_N_eq
+  >> x,y:N. x=y in N => x=y in Int
+
+* THM N_max_
+  >> N -> N -> N
+  Extraction:
+  à m n. if m<n then n else m
+
+* DEF N_max
+  max(<m:N>,<n:N>)==N_max(<m>)(<n>)
+
+* THM Int_tail_
+  >> Int -> U1
+  Extraction:
+  àm.  {n:int|mn}
+
+* DEF Int_tail
+  {<n:Int>..}==term_of(Int_tail_)(<n>)
+
+* THM Int_seg_
+  >> Int -> Int -> U1
+  Extraction:
+  à  m  n .  {i:Int|min}
+
+* DEF Int_seg
+  {<m:Int>..<n:Int>}==term_of(Int_seg_)( <m>)( <n>)
+
+* THM N_plus_
+  >> U1
+  Extraction:
+  {n:Int|0<n}
+
+* DEF N_plus
+  N+==term_of(N_plus_)
+
+* DEF Type
+  Type==U13
+
+* THM isl_char
+  >> A:Type. x:A  (A). isl(x) <=> A
+
+* DEF infinity
+  (-1)==12
+
+* THM omega_
+  >> U1
+  Extraction:
+  {1..(-1)}
+
+* DEF omega
+  ==term_of(omega_)
+
+* THM some_omega_members
+  >> 1 in  & 8 in  & 2 in  & 3 in  & 4 in  & 5 in  & 6 in  & 7 in  & 9 in  & 10 in  & 11 in  & 12 in 
+
+* ML add_some_omega_members
+  add_to_member_i `some_omega_members`
+  (IfOnConcl (\c. let [t],T = destruct_equal c in is_integer_term t & T='')
+    (Refine (lemma `NIL` `some_omega_members`) THEN OnLastHyp FastRepeatAndE THEN Trivial) Fail
+  )
+  ;; 
+
+* THM U_list_
+  >> Object
+  Extraction:
+  <1,U1>.<2,U2>.<3,U3>.<4,U4>.<5,U5>.<6,U6>.<7,U7>.<8,U8>.<9,U9>.<10,U10>.<11,U11>.<12,U12>.nil
+
+* THM U_
+  >> ->Type
+  Extraction:
+  ài. if 0<i then [ nil  "uu"; h.t,v  if h.1=i then h.2 else v; @ U_list] else "uu"
+
+* DEF U
+  U<i:int>==term_of(U_)(<i>)
+
+* DEF all_types
+  <x:var>:Type. <P:prop>==i:. <x>:Ui. <P>
+
+* THM omega_cases
+  >> P:->Type. 
+      P(1) & P(2) & P(3) & P(4) & P(5) & P(6) & P(7) & P(8) & P(9) & P(10) & P(11) & P(12) 
+      => i:. P(i)
+
+* THM omega_cases_2
+  >> i:. Ui=U1 in Type  Ui=U2 in Type  Ui=U3 in Type  
+        Ui=U4 in Type  Ui=U5 in Type  Ui=U6 in Type  
+        Ui=U7 in Type  Ui=U8 in Type  Ui=U9 in Type  Ui=U10 in Type  Ui=U11 in Type  Ui=U12 in Type
+
+* ML OmegaCases
+  let OmegaCases t =
+    InstantiateLemma `omega_cases_2` [t]
+    THEN OnLastHyp RepeatOrE
+  ;;
+
+* ML LiftWf
+  let LiftWf =
+   (Id...) THEN (OmegaCases 'i'...)
+   THEN OnLastHyp
+        \i. (let Ucase = (second o equands o type_of_hyp i) p  in
+             Assert (make_equal_term Ucase (equands (concl p)))...)
+  ;;
+
+* THM U_members
+  >> i:. A:Ui. A in Type
+
+* THM U_cumulativity
+  >> i:. i<(-1) => A:Ui. A in U(i+1)
+
+* THM U1_contained_in_Ui
+  >> i:. A:U1. A in Ui
+
+* THM and_wf
+  >> i:. A,B:Ui. A & B in Ui
+
+* THM squash_wf
+  >> i:. A:Ui. (A) in Ui
+
+* THM prod_wf
+  >> i:. A:Ui. B:A->Ui. x:A#(B(x)) in Ui
+
+* THM set_wf
+  >> i:. A:Ui. B:A->Ui. {x:A|B(x)} in Ui
+
+* THM imp_wf
+  >> i:. A,B:Ui. A => B in Ui
+
+* THM fun_wf
+  >> i:. A:Ui. B:A->Ui. x:A->(B(x)) in Ui
+
+* THM or_wf
+  >> i:. A,B:Ui. A  B in Ui
+
+* THM list_wf
+  >> i:. A:Ui. A list in Ui
+
+* THM eq_wf
+  >> i:. A:Ui. x,y:A. (x=y in A) in Ui
+
+* ML AbstractAndApplyWfLemma
+  let AbstractAndApplyWfLemma p =
+  ( if not is_gen_universe_term (concl_type p) then fail ;
+    ReverseComputeConclUsing 
+      (map_on_member abstract_and_tag_top_type)
+    THEN (WfLemma `prod_wf` ORELSE WfLemma `fun_wf`
+          ORELSE WfLemma `set_wf`)
+    THEN Try (OnLastHyp SquashE)
+  ) p
+  ;;  
+
+* ML AndWf
+  let AndWf p =
+    let [t],T = destruct_equal (concl p) in
+    if not (is_and_term t & is_gen_universe_term T) then fail
+    else 
+    ( let a,b = destruct_and t in
+      Assert (make_equal_term T [make_product_term (undeclared_id p `x`) a b])
+      THENL [AbstractAndApplyWfLemma; Trivial]
+    ) p
+  ;; 
+
+* ML ImpWf
+  let ImpWf p =
+    let [t],T = destruct_equal (concl p) in
+    if not (is_implies_term t & is_gen_universe_term T) then fail
+    else 
+    ( let a,b = destruct_implies t in
+      Assert (make_equal_term T [make_function_term (undeclared_id p `x`) a b])
+      THENL [AbstractAndApplyWfLemma; Trivial]
+    ) p
+  ;;  
+
+* ML add_wfers
+  map 
+    (\x. add_to_autotactic x (WfLemma x))
+    ``squash_wf or_wf list_wf eq_wf`` 
+  ;;
+  
+  add_to_autotactic `and_wf` AndWf ;; 
+  
+  add_to_autotactic `imp_wf` ImpWf ;; 
+  
+  add_to_autotactic `AbstractAndApplyWfLemma` 
+    AbstractAndApplyWfLemma
+  ;;
+  
+   
+
+* THM tight_subst
+  >> A:Type. a,b:A. b=a in A => B:{x:A|x=a in A}->Type. B(a) => B(b)
+
+* ML TightSubst
+  let TightSubst t p =
+  ( let [b;a],A = destruct_equal t in
+    let B_on_b = abstract (concl p) b (undeclared_id p `x`) in
+    let B = fst (destruct_apply B_on_b) in
+    let B_on_a = make_apply_term B a in
+    FLemmaUsing `tight_subst` [t; B_on_a]
+    THENS FastAp (Reduce THEN Trivial)
+    THEN Try (IfThenOnConcl ($= B o first_equand) 
+               (EqI THENG OnLastHyp E)
+             )
+    THEN IfThenOnConcl ($= B_on_a) ReduceConcl
+  ) p
+  ;; 
+    
+
+* THM Atom_eq_decidable
+  >> a,b:Atom. a=b in Atom  (a=b in Atom)
+
+* DEF END_Basic
+  ==
+
+* DEF BEGIN_List
+  ==
+
+* DEF list1
+  [<x:*>]==((<x>).nil)
+
+* DEF list2
+  [<x:*>;<y:*>]==((<x>).(<y>).nil)
+
+* THM null_
+  >> object
+  Extraction:
+  àl. [ nil  True; h.t,v  False; @ l]
+
+* DEF null
+  null==term_of(null_)
+
+* THM null__
+  >> i:. A:Ui. l:A list. null(l) in Ui
+
+* THM null_lemma
+  >> i:. A:Ui. l:A list. null(l) => l = nil in A list
+
+* THM null_char
+  >> i:. A:Ui. l:A list. 
+       h:A. t:A list. l=h.t in A list => (null(l))
+       & null(l) <=> l = nil in A list
+
+* THM null_decidable
+  >> i:. A:Ui. l:A list. null(l)  (null(l))
+
+* ML add_null_decidable
+  add_to_Decidable `null_decidable`
+  (Lemma `null_decidable`)
+  ;; 
+
+* DEF if_null
+  if null(<l:A list>) then <b:B> else <c:C>==[ nil  <b>; _.__,___  <c>; @ <l>]
+
+* THM if_null_wf
+  >> A,B:Type. l:A list. b:B. f:((null(l)))->B. 
+       if null(l) then b else f(axiom) in B 
+
+* ML add_if_null_wf
+  add_to_member_i `if_null_wf`
+  ( LemmaWithMatchHack `if_null_wf` 
+    'if null(x) then y else z in T' [`x`;`y`;`z`;`T`] 
+    [`z`, \t. mtt 1 (fast_ap (substitute '(\x.t)(axiom)') ['t',t])]
+  )
+  ;; 
+
+* THM if_null_char
+  >> A,B:Type. l:A list. 
+       null(l) => a,b:B. if null(l) then a else b = a in B
+       & (null(l)) => a,b:B. if null(l) then a else b = b in B 
+
+* THM if_null_wf_2
+  >> A,B,C:Type. l:A list. b:B. c:C. if null(l) then b else c in if null(l) then B else C 
+
+* THM if_null_2_
+  >> Object
+  Extraction:
+  à b f l. if null(l) then b else f(l)
+
+* DEF if_null_2
+  if null(<l:A list>) then <b:B> else <f:(A list)+ -\> B>==if_null_2(<b>)(<f>)(<l>)
+
+* THM if_null_2__
+  >> j:. A,B:Uj. b:B. f: {l:A list|(null(l))} -> B . 
+       l:A list. if null(l) then b else f in B
+
+* THM hd_
+  >> object 
+  Extraction:
+  àl. list_ind(l;"uu";h,t,v.h)
+
+* DEF hd
+  hd==term_of(hd_)
+
+* THM hd__
+  >> A:Type. l:A list. (null(l)) => hd(l) in A
+
+* THM tl_
+  >> object
+  Extraction:
+  àl. list_ind(l;nil;h,t,v.t)
+
+* DEF tl
+  tl==term_of(tl_) 
+
+* THM tl__
+  >> A:Type. l:A list. tl(l) in A list
+
+* THM append_
+  >> object
+  Extraction:
+  à l1 l2. [ nil  l2; h.t,v  h.v; @ l1]
+
+* DEF append
+  <l:list>@<ll:list>==term_of(append_)(<l>)(<ll>)
+
+* THM append__
+  >> A:Type. l1,l2:A list. l1@l2 in A list
+
+* THM cons_of_append
+  >> A:Type. a:A. x,y:A list. 
+     a.(x@y) = (a.x)@y in A list
+
+* THM append_assoc
+  >> A:Type. x,y,z:A list. x@(y@z) = (x@y)@z in A list
+
+* THM append_to_nil
+  >> A:Type. x:A list. x@nil = x in A list
+
+* DEF all_tails
+   tails <h:var>.<t:var> of <l:list>. <P:prop>==
+  list_ind(<l>;True;<h>,<t>,_.<P> & _)
+
+* DEF if_hd
+  if <h:var> = hd(<l:list>) then <P:prop>==
+  list_ind(<l>;True;<h>,_,__.<P>)
+
+* THM all_elements_
+  >> Object
+  Extraction:
+  à A Q l. [ nil  True; h.t,v  Q(h) & v; @ l]
+
+* DEF all_elements
+   <l:list> : <A:type> list. <Q:pred>==
+  all_elements(<A>)(<Q>)(<l>)
+
+* THM all_elements__
+  >> i:. A:Ui. Q:A->Ui. l:A list. ( l : A list. Q) in Ui
+
+* THM all_elements_mono
+  >> i:. A:Ui. P,Q:A->Ui. (a:A. P(a) => Q(a)) => 
+         x:A list.  x : A list. P =>  x : A list. Q
+
+* THM all_elements_of_append
+  >> i:. A:Ui. P:A->Ui. x,y:A list. 
+         x : A list. P =>  y : A list. P =>  x@y : A list. P
+
+* THM all_elements_of_cons
+  >> i:. A:Ui. P:A->Ui. a:A. x:A list. 
+        P(a) =>  x : A list. P =>  a.x : A list. P
+
+* THM append_of_all_elements
+  >> i:. A:Ui. P:A->Ui. x,y:A list. 
+         x@y : A list. P =>  x : A list. P &  y : A list. P
+
+* THM cons_of_all_elements
+  >> i:. A:Ui. P:A->Ui. a:A. x:A list. 
+         a.x : A list. P => P(a) &  x : A list. P
+
+* THM some_element_
+  >> Object
+  Extraction:
+  à A Q l. [ nil  False; h.t,v  Q(h)  v; @ l]
+
+* DEF some_element
+   <l:list> : <A:type> list. <Q:pred>==
+  some_element(<A>)(<Q>)(<l>)
+
+* THM some_element__
+  >> i:. A:Ui. Q:A->Ui. l:A list. ( l : A list. Q) in Ui
+
+* THM some_element_mono
+  >> i:. A:Ui. P,Q:A->Ui. (a:A. P(a) => Q(a)) => 
+         x:A list.  x : A list. P =>  x : A list. Q
+
+* THM map_
+  >> Object
+  Extraction:
+  à B f l. [ nil  nil; h.t,v  f(h).v; @ l]
+
+* DEF map
+  (map <f:fn> on <l:list> to <B:Type> list)==map(<B>)(<f>)(<l>)
+
+* THM map__
+  >> A,B:Type. f:A->B. 
+       l:A list. (map f on l to B list) in B list
+
+* THM map_on_empty
+  >> i:. A,B:Ui. f:A->B. l:A list. 
+       null(l) => null((map f on l to B list))
+
+* THM map_on_nonempty
+  >> i:. A,B:Ui. f:A->B. l:A list. 
+       (null(l)) => (null((map f on l to B list)))
+
+* THM accumulate_
+  >> Object
+  Extraction:
+  à x f l. [ nil  x; h.t,v  f(h,v); @ l]
+
+* DEF accumulate
+  (accumulate <f:fn> over <l:list> from <x:init>)==accumulate(<x>)(<f>)(<l>)
+
+* THM accumulate__
+  >> A,B:Type. f:A->B->B. x:B. l:A list. 
+       (accumulate f over l from x) in B
+
+* THM it_fun_
+  >> Object
+  Extraction:
+  à f l. 
+  [ nil  "uu"; h.t,v  if null(t) then h else f(h,v); @ l]
+
+* DEF it_fun
+  it_fun(<f:A-\>A-\>A>,<l:A list>)==it_fun(<f>,<l>)
+
+* THM it_fun__
+  >> i:. A:Ui. f:A->A->A. l:A list. (null(l)) => it_fun(f,l) in A
+
+* THM it_fun_base
+  >> i:. A:Ui. f:A->A->A. l:A list. 
+       (null(l)) => null(tl(l))
+            => it_fun(f,l) = hd(l) in A
+
+* THM it_fun_unroll
+  >> i:. A:Ui. f:A->A->A. l:A list. 
+       (null(l)) => (null(tl(l)))
+            => it_fun(f,l) = f(hd(l),it_fun(f,tl(l))) in A
+
+* THM it_fun_on_cons_base
+  >> i:. A:Ui. f:A->A->A. h:A. l:A list. 
+       null(l) => it_fun(f,h.l) = h in A
+
+* THM it_fun_on_cons_unroll
+  >> i:. A:Ui. f:A->A->A. h:A. l:A list. 
+       (null(l)) => it_fun(f,h.l) = f(h,it_fun(f,l)) in A
+
+* THM length_
+  >> Object
+  Extraction:
+  àl. [ nil  0; h.t,v  v+1; @ l]
+
+* DEF length
+  |<l:list>|==length(<l>)
+
+* THM length__
+  >> A:Type. l:A list. |l| in N
+
+* THM length_of_tl
+  >> i:. A:Ui. l:A list. (null(l)) => |tl(l)| = |l|-1 in N
+
+* THM length_of_map
+  >> A,B:Type. f:A->B. l:A list. |(map f on l to B list)| = |l| in N
+
+* THM not_null_iff_length
+  >> i:. A:Ui. l:A list. (null(l)) <=> 0<|l|
+
+* THM com_
+  >> Object
+  Extraction:
+  à l1 l2. [ nil  àl2. nil; h.t,f  àl2. <h,hd(l2)> . f(tl(l2)); @ l1](l2)
+
+* DEF com
+  com(<l:A list>,<ll:B list>)==com(<l>)(<ll>)
+
+* THM com__
+  >> i:. A,B:Ui. l1:A list. l2:B list. 
+        |l1|=|l2| in N => com(l1,l2) in A#B list 
+
+* THM com_on_empty
+  >> i:. A,B:Ui. l1:A list. l2:B list. 
+        |l1|=|l2| in N => ( null(l1) <=> null(com(l1,l2)) )
+
+* THM com_on_nonempty
+  >> i:. A,B:Ui. l1:A list. l2:B list. 
+        |l1|=|l2| in N => ( (null(l1)) <=> (null(com(l1,l2))) )
+
+* THM sublist_
+  >> Object
+  Extraction:
+  à A l1 l2.  l1 : A list. àx.  l2 : A list. ày. x=y in A
+
+* DEF sublist
+  (<l1:A list><l2:A list>  <A:A:Ui> list)==sublist(<A>)(<l1>)(<l2>)
+
+* THM sublist__
+  >> i:. A:Ui. l1,l2:A list. (l1l2  A list) in Ui
+
+* THM some_element_mono_wrt_sublist
+  >> i:. A:Ui. P:(A->Ui). l1,l2:A list. 
+        l1 : A list. P => (l1l2  A list) =>  l2 : A list. P
+
+* THM sublist_refl
+  >> i:. A:Ui. l:A list. (ll  A list)
+
+* THM sublist_trans
+  >> i:. A:Ui. l1,l2,l3:A list. 
+        (l1l2  A list) => (l2l3  A list) => (l1l3  A list)
+
+* THM N_list_max_
+  >> (N list) -> N
+  Extraction:
+  àl. (accumulate à i a. max(i,a) over l from 0)
+
+* DEF N_list_max
+  max(<l:N list>)==N_list_max(<l>)
+
+* THM List_inclusion
+  >> A:Type. Q:A->Type. l:{z:A|Q(z)} list. l in A list
+
+* THM List_inclusion_2
+  >> i:. A:Ui. Q:A->Ui. l:{z:A|Q(z)} list. 
+       l in { ll:A list |  ll : A list. Q}  
+
+* THM List_inclusion_3
+  >> i:. A:Ui. Q:A->Ui. l:{ l:A list |  l : A list. Q }.  
+       l in {z:A|Q(z)} list
+
+* THM apply2_
+  >> Object
+  Extraction:
+  à B f l. f(hd(l),hd(tl(l)))
+
+* DEF apply2
+  apply2{<B:B:Type>}(<f:A-\>A-\>B>,<l:A list>)==apply2(<B>)(<f>)(<l>)
+
+* THM apply2__
+  >> A,B:Type. f:A->A->B. l:A list. |l|=2 in N => apply2{B}(f,l) in B
+
+* THM list2_elim
+  >> A:Type. l:A list. |l|=2 in N => P:{l:A list||l|=2 in N}->Type. 
+       (a,b:A. P([a;b])) => P(l)
+
+* ML List2E
+  let List2E l = 
+    AbstractConcl l THEN Lemma `list2_elim`
+  ;; 
+
+* THM parallel_list_elim
+  >> A,B:Type. P: l1:A list -> {l2:B list||l1|=|l2| in N} -> Type . 
+       P(nil,nil) => 
+       ( h1:A. h2:B. t1:A list. t2:B list. 
+           |t1|=|t2| in N => P(t1,t2) => P(h1.t1, h2.t2) ) => 
+       l1:A list. l2:B list. |l1|=|l2| in N => P(l1,l2)
+
+* THM list_rec_1_
+  >> Object
+  Extraction:
+  à b g. àl. [ nil  "uu"; h.t,v  if null(t) then b(h) else g(h,t,v); @ l]
+
+* DEF list_rec_1
+  ([a]  <b:A-\>*>(a); <g:A-\>(A list)-\>*-\>*>; @ <a:A list>)==list_rec_1(<b>)(<g>)(<a>)
+
+* THM list_rec_1__
+  >> j:. A:Uj. B: {l:A list|(null(l))} -> Uj . b:(a:A->B([a])). 
+       g: h:A -> t:{l:A list|(null(l))} -> B(t) -> B(h.t) .  l:A list. 
+       (null(l)) => ([a]  b(a); g; @ l) in B(l)
+
+* THM list_subset_membership
+  >> j:. A:Uj. P:A->Uj. x:{x:A|P(x)} list. y:A list. 
+       x=y in A list => y in {x:A|P(x)} list
+
+* THM eq_lists_if_eq_in_superset
+  >> j:. A:Uj. P:A->Uj. x:{x:A|P(x)} list. y:A list. 
+       x=y in A list => x=y in {x:A|P(x)} list
+
+* THM list_eq_decidable
+  >> A:Type. a1,a2:A. a1=a2 in A   (a1=a2 in A)
+        => l1,l2:A list. l1=l2 in A list  (l1=l2 in A list)
+
+* THM Atom_list_eq_decidable
+  >> l1,l2:Atom list. l1=l2 in Atom list  (l1=l2 in Atom list)
+
+* THM Int_list_eq_decidable
+  >> l1,l2:Int list. l1=l2 in Int list  (l1=l2 in Int list)
+
+* ML ListUnroll2
+  let ListUnroll2 t p =
+    let T = get_using_type p t in
+    if not is_list_term T then failwith `ListUnroll2: not list type` ;
+  ( Decide (make_apply_term 'null' t)
+    THENS Assert (make_equal_term T [t]) % efficiency %
+    THENS (OnNthLastHyp 2 (\i. BringHyps [i]) THEN ETermUsing t T 
+           THENM UnrollDefsInConcl ``null`` THENM I
+           THENW Try (OnLastHyp 
+                       (\i. IfThenOnHyp ($= '(True)' o snd) (E i) i))
+           THENW Try Trivial)
+    THEN Try (ThinToEnd (number_of_hyps p + 2))
+  ) p
+  ;; 
+
+* ML TrivEqIListInd
+  % Elim only the term occurrence in the principal arg. %
+  let TrivEqIListInd p =
+  ( let equands,T = destruct_equal (concl p) in
+    let l = hd (subterms (hd equands)) in
+    let z = undeclared_id p `z` in
+    let new_equands = 
+      map (\t. let a,b,c = destruct_list_induction t in
+               make_list_induction_term (l=a => mvt z | a) b c )
+          equands  in
+    let Elim t =
+      ETerm t THENM UnrollDefsInConcl ``null`` THENM I THENW
+      OnLastHyp (\i. IfThenOnHyp ($= '(True)' o snd) (E i) i)
+      THENW Try Trivial
+      THEN Try (ThinToEnd (number_of_hyps p + 2)) in
+    Decide (make_apply_term 'null' l) THENS
+    (\p. let A = 
+           replace_subterm l (mvt z) (type_of_declaration (last (hyps p))) in
+         let B = make_implies_term A (make_equal_term T new_equands) in
+         (OnLastHyp (\i. BringHyps [i]) THEN ApplyToOcc Elim z B) p
+    )
+  ) p
+  ;;  
+          
+
+* DEF END_List
+  ==
+
+* DEF BEGIN_Set
+  ==
+
+* THM trans_
+  >> i: -> A:Ui -> r:((A#A)->Ui) -> Ui
+  Extraction:
+  à i A r. x,y,z:A. r(x,y) => r(y,z) => r(x,z)
+
+* DEF trans
+  trans{<A>:U<i:int>}(<r:reln>)==trans(<i>)(<A>)(<r>)
+
+* THM sym_
+  >> i: -> A:Ui -> r:((A#A)->Ui) -> Ui
+  Extraction:
+  à i A r. x,y:A. r(x,y) => r(y,x)
+
+* DEF sym
+  sym{<A>:U<i:int>}(<r:reln>)==sym(<i>)(<A>)(<r>)
+
+* THM refl_
+  >> i: -> A:Ui -> r:((A#A)->Ui) -> Ui
+  Extraction:
+  à i A r. x:A. r(x,x)
+
+* DEF refl
+  refl{<A>:U<i:int>}(<r:reln>)==refl(<i>)(<A>)(<r>)
+
+* THM eq_reln_
+  >> i: -> A:Ui -> r:((A#A)->Ui) -> Ui
+  Extraction:
+  à i A r. refl{A:Ui}(r) & sym{A:Ui}(r) & trans{A:Ui}(r)
+
+* DEF eq_reln
+  eq_reln{<A>:U<i:int>}(<r:reln>)==eq_reln(<i>)(<A>)(<r>)
+
+* THM Seti_
+  >>  -> Type
+  Extraction:
+  ài. A:Ui # { r:(A#A)->Ui | eq_reln{A:Ui}(r) }
+
+* DEF Seti
+  Set(<i:>)==Seti(<i>)
+
+* THM tos_
+  >> Object
+  Extraction:
+  àS. S.1
+
+* DEF tos
+  |<S:Set(i)>|==tos(<S>)
+
+* THM tos__
+  >> i:. S:Set(i). |S| in Ui
+
+* THM eos_
+  >> Object
+  Extraction:
+  àS. S.2
+
+* DEF eos
+  =_{<S:S:Set(i)>}==eos(<S>)
+
+* THM eos__
+  >> i:. S:Set(i). =_{S} in (|S|#|S|) -> Ui
+
+* THM eos_eq_reln
+  >> i:. S:Set(i). (eq_reln{|S|:Ui}(=_{S}))
+
+* DEF seq
+  <a:S>=<b:S> in <S:S:Set(i)>===_{<S>}(<a>,<b>)
+
+* ML seq_adder
+  add_matching_def_adder `seq`
+  'eos(x)(<y,z>)' ``y z x`` (\l. true) 
+  ;;
+
+* THM fnl_
+  >> Object
+  Extraction:
+  à S1 S2 f. x,y:|S1|. x=y in S1 => f(x)=f(y) in S2
+
+* DEF fnl
+  fnl{<S1:S1:Set(i)>,<S2:S2:Set(i)>}(<f:|S1|-\>|S2|>)==fnl(<S1>)(<S2>)(<f>)
+
+* THM fnl__
+  >> i:. S1,S2:Set(i). f:|S1|->|S2|. fnl{S1,S2}(f) in Ui
+
+* THM fun_type_
+  >> Object
+  Extraction:
+  à S1 S2. { f:|S1|->|S2| | fnl{S1,S2}(f) }
+
+* DEF fun_type
+  fun_type(<S:Set(i)>,<SS:Set(i)>)==fun_type(<S>)(<SS>)
+
+* THM fun_type__
+  >> i:. S1,S2:Set(i). fun_type(S1,S2) in Ui
+
+* THM fun_eq_
+  >> Object
+  Extraction:
+  à S1 S2. à f,g. x:|S1|. f(x)=g(x) in S2
+
+* DEF fun_eq
+  fun_eq(<S:Set(i)>,<SS:Set(i)>)==fun_eq(<S>)(<SS>)
+
+* THM fun_eq__
+  >> i:. S1,S2:Set(i). 
+       fun_eq(S1,S2) in (fun_type(S1,S2)#fun_type(S1,S2)) -> Ui
+
+* THM fun_eq_eq_reln
+  >> i:. S1,S2:Set(i). 
+       ( eq_reln{fun_type(S1,S2):Ui}(fun_eq(S1,S2)) )
+
+* THM fun_
+  >> Object
+  Extraction:
+  à S1 S2. <fun_type(S1,S2), fun_eq(S1,S2)>
+
+* DEF fun
+  <S:Set(i)>-\><SS:Set(i)>==fun(<S>)(<SS>)
+
+* THM fun__
+  >> i:. S1,S2:Set(i). S1->S2 in Set(i)
+
+* THM prod_type_
+  >> Object
+  Extraction:
+  à S1 S2. |S1|#|S2|
+
+* DEF prod_type
+  prod_type(<S:Set(i)>,<SS:Set(i)>)==prod_type(<S>)(<SS>)
+
+* THM prod_type__
+  >> i:. S1,S2:Set(i). prod_type(S1,S2) in Ui
+
+* THM prod_eq_
+  >> Object
+  Extraction:
+  à S1 S2. à x,y. x.1=y.1 in S1 & x.2=y.2 in S2
+
+* DEF prod_eq
+  prod_eq(<S:Set(i)>,<SS:Set(i)>)==prod_eq(<S>)(<SS>)
+
+* THM prod_eq__
+  >> i:. S1,S2:Set(i). 
+       prod_eq(S1,S2) in (prod_type(S1,S2)#prod_type(S1,S2)) -> Ui
+
+* THM prod_eq_eq_reln
+  >> i:. S1,S2:Set(i). 
+       ( eq_reln{prod_type(S1,S2):Ui}(prod_eq(S1,S2)) )
+
+* THM prod_
+  >> Object
+  Extraction:
+  à S1 S2. <prod_type(S1,S2), prod_eq(S1,S2)>
+
+* DEF prod
+  <S:Set(i)>#<SS:Set(i)>==prod(<S>)(<SS>)
+
+* THM prod__
+  >> i:. S1,S2:Set(i). S1#S2 in Set(i)
+
+* THM tos_on_prod
+  >> i:. S1,S2:Set(i). |S1#S2| = |S1| # |S2| in Ui
+
+* THM injective_
+  >> Object
+  Extraction:
+  à S1 S2 i. x,y:|S1|. i(x)=i(y) in S2 => x=y in S1
+
+* DEF injective
+  injective(<i:*><S1:Set(i)>-\><S2:Set(i)>)==injective(<S1>)(<S2>)(<i>)
+
+* THM injective__
+  >> j:. S1,S2:Set(j). i:|S1->S2|. injective(iS1->S2) in Uj
+
+* THM subset_
+  >> Object
+  Extraction:
+  à S1 S2. {i:|S1->S2||injective(iS1->S2)}
+
+* DEF subset
+  <S:Set(i)><SS:Set(i)>==subset(<S>)(<SS>)
+
+* THM subset__
+  >> i:. S1,S2:Set(i). S1S2 in Ui
+
+* THM member_
+  >> Object
+  Extraction:
+  à S1 S2 i. ày. x:|S1| where y=i(x) in S2
+
+* DEF member
+  <y:S2>  <S1:S1:Set(i)> {<i:S1-\>S2>} <S2:S2:Set(i)>==member(<S1>)(<S2>)(<i>)(<y>)
+
+* THM member__
+  >> j:. S1,S2:Set(j). i:S1S2. y:|S2|. (y  S1 {i} S2) in Uj
+
+* THM full_subset_
+  >> Object
+  Extraction:
+  à S1 S2 i. y:|S2|. y  S1 {i} S2 => x:|S1| where y=i(x) in |S2|
+
+* DEF full_subset
+  full(<S1:S1:Set(i)> {<i:S1-\>S2>} <S2:S2:Set(i)>)==full_subset(<S1>)(<S2>)(<i>)
+
+* THM full_subset__
+  >> j:. S1,S2:Set(j). i:S1S2. (full(S1 {i} S2)) in Uj
+
+* THM full_injection_
+  >> Object
+  Extraction:
+  à S1 S2 i. (injective(iS1->S2))
+
+* DEF full_injection
+  full_injection(<i:*><S1:Set(i)>-\><S2:Set(i)>)==full_injection(<S1>)(<S2>)(<i>)
+
+* THM full_injection__
+  >> j:. S1,S2:Set(j). i:|S1->S2|. full_injection(iS1->S2) in Uj
+
+* DEF Top
+  U==U8
+
+* DEF Top_level
+  U_level==8
+
+* DEF Topp
+  U'==U9
+
+* THM SET_
+  >> U
+  Extraction:
+  Set(7)
+
+* DEF SET
+  SET==SET
+
+* DEF SET_U
+  SET_U==U7
+
+* THM Set_
+  >> U
+  Extraction:
+  Set(6)
+
+* DEF Set
+  Set==Set
+
+* THM Set1_contained_in_Set
+  >> S:Set(1). S in Set
+
+* THM Set_contained_in_SET
+  >> S:Set. S in SET
+
+* ML add_Set_inclusions
+  add_to_inclusion `Set1_contained_in_Set` 
+  (\i. Lemma `Set1_contained_in_Set` THEN Trivial) ;;
+  
+  add_to_inclusion `Set_contained_in_SET` 
+  (\i. Lemma `Set_contained_in_SET` THEN Trivial) ;;
+
+* THM SET_eq_if_Set_eq
+  >> S1,S2:Set. S1=S2 in Set => S1=S2 in SET
+
+* THM Prop_
+  >> SET
+  Extraction:
+  <U6,à P,Q. P <=> Q>
+
+* DEF Prop
+  Prop==Prop
+
+* THM sot_
+  >> Object
+  Extraction:
+  àT. <T, à x,y. (x=y in T)>
+
+* DEF sot
+  <T:Type>==sot(<T>)
+
+* THM sot__
+  >> i:. T:Ui. T in Set(i)
+
+* THM prod_of_list_
+  >> Object
+  Extraction:
+  àl. it_fun(à S1 S2. S1#S2, l)
+
+* DEF prod_of_list
+  #(<l:SET list>)==prod_of_list(<l>)
+
+* THM prod_of_list__
+  >> Sl:SET list. (null(Sl)) => (#(Sl) in SET)
+
+* THM prod_of_list_base
+  >> Sl:SET list. S:SET. null(Sl) => (#(S.Sl)=S in SET)
+
+* THM prod_of_list_unroll
+  >> Sl:SET list. S:SET. (null(Sl)) => (#(S.Sl)=S#(#(Sl)) in SET)
+
+* THM unroll_tos_on_prod_of_list
+  >> Sl:SET list. S:SET. (null(Sl)) => x:|S|#|#(Sl)|.  x in |#(S.Sl)|
+
+* THM roll_tos_on_prod_of_list
+  >> Sl:SET list. S:SET. (null(Sl)) => x:|#(S.Sl)|.  x in |S|#|#(Sl)|
+
+* DEF END_Set
+  ==
+
+* DEF BEGIN_Rec
+  ==
+
+* DEF letrec
+  letrec <h:var>(<z:var>) = <b:body> in <a:term>==
+  let <h> = à<z>. rec_ind(<z>;<h>,<z>.<b>) in <a>
+
+* DEF Atom
+  Atom==Atom
+
+* THM Term0_
+  >> U1
+  Extraction:
+  rec(T. (Atom#T list) | (T#T#Atom) | (Atom#T#T) | Int )
+
+* DEF Term0
+  Term0==Term0
+
+* THM inf_
+  >> Atom -> Term0 list -> Term0
+  Extraction:
+  à f args. inl(<f,args>)
+
+* DEF inf
+  <f:Atom>(<args:Term0 list>)==inf(<f>)(<args>)
+
+* THM ine_
+  >> Term0 -> Term0 -> Atom -> Term0
+  Extraction:
+  à a b A. inr(inl(<a,b,A>))
+
+* DEF ine
+  <a:Term0>=<b:Term0> in <A:Atom>==ine(<a>)(<b>)(<A>)
+
+* THM ini_
+  >> Atom -> Term0 -> Term0 -> Term0
+  Extraction:
+  à i a b. inr(inr(inl(<i,a,b>)))
+
+* DEF ini
+  <b:b:Term0>{<i:Atom> <a:a:Term0>}==ini(<i>)(<a>)(<b>)
+
+* THM inn_
+  >> Int -> Term0
+  Extraction:
+  àn. inr(inr(inr(n)))
+
+* DEF inn
+  <n:Int>==inn(<n>)
+
+* ML add_Term0_list_subset_hack
+  add_to_inclusion `Term0_list_subset_hack`
+  (\i p.
+    if eq_type (concl p) = 'Term0 list' 
+       & is_set_term (fake_compute_ap (destruct_list (h i p)))
+    then (E i THEN (Id ...*)) p
+    else fail
+  )
+  ;; 
+
+* THM Term0_hereditary_
+  >> Object
+  Extraction:
+  àP. 
+  f:Atom. l:Term0 list. P(f(l)) =>  l : Term0 list. P   & 
+  t,u:Term0. A:Atom. P(t=u in A) => P(t) & P(u) & 
+  i:Atom. t,u:Term0. P(u{i t}) => P(t) & P(u)
+
+* DEF Term0_hereditary
+  (<P:Term0-\>Ui> hereditary over Term0)==Term0_hereditary(<P>)
+
+* THM Term0_hereditary__
+  >> j:. P:Term0->Uj. (P hereditary over Term0) in Uj
+
+* THM Term0_induction
+  >> j:. P:Term0->Uj. 
+          f:Atom. l:Term0 list.  l : Term0 list. P => P(f(l))
+       => t,u:Term0. A:Atom. P(t) => P(u) => P(t=u in A)
+       => i:Atom. t,u:Term0. P(t) => P(u) => P(u{i t})
+       => n:Int. P(n)
+       => t:Term0. P(t)
+
+* THM Term0_induction_2
+  >> P:Term0->U. 
+          f:Atom. l:Term0 list.  l : Term0 list. P => P(f(l))
+       => t,u:Term0. A:Atom. P(t) => P(u) => P(t=u in A)
+       => i:Atom. t,u:Term0. P(t) => P(u) => P(u{i t})
+       => n:Int. P(n)
+       => t:Term0. P(t)
+
+* ML Term0Induction
+  set_d_tactic_args 1 [] [] ``P x h z f l u v A i u v n`` ;; 
+  
+  let Term0Induction i p =
+    Pattern `Term0_induction_pattern` [] []
+     (new_ids_from_ids ``P x h z f l u v A i u v n`` p) i p
+  ;; 
+
+# THM Term0_induction_pattern
+  >> s:Term0. "G"
+
+* THM Term0_heredity_under_squash
+  >> j:. P:Term0->Uj. 
+       (P hereditary over Term0) => (àx. (P(x)) hereditary over Term0)
+
+* THM Term0_cases_
+  >> A:Type. (Atom->(Term0 list)->A) -> (Term0->Term0->Atom->A)
+       -> (Atom->Term0->Term0->A) -> (Int->A) -> Term0 -> A
+  Extraction:
+  àA. àe. à f g h. 
+  àt. d(t; u. (let a,l = u in e(a,l)); 
+           u. d(u; v.let x,y,A = v in f(x,y,A);
+                   v.d(v; w.let i,x,y = w in g(i,x,y); w.h(w))))
+
+* DEF Term0_cases
+  case <t:Term0> to <A:Type>
+    <e:Atom-\>(Term0 list)-\>A>
+    <f:Term0-\>Term0-\>Atom-\>A>
+    <g:Atom-\>Term0-\>Term0-\>A>
+    <h:Int-\>A>==
+  Term0_cases(<A>)(<e>)(<f>)(<g>)(<h>)(<t>)
+
+* THM Term0_subset_induction
+  >> j:. P:Term0->Uj. Q:{x:Term0|P(x)}->Uj. 
+          (P hereditary over Term0) 
+       => f:Atom. l:{x:Term0|P(x)} list. 
+              l : {x:Term0|P(x)} list. Q => (P(f(l))) => Q(f(l))
+       => t,u:{x:Term0|P(x)}. A:Atom. Q(t) => Q(u) => (P(t=u in A)) => Q(t=u in A)
+       => i:Atom. t,u:{x:Term0|P(x)}. Q(t) => Q(u) => (P(u{i t})) => Q(u{i t})
+       => n:Int. (P(n)) => Q(n)
+       => t:{x:Term0|P(x)}. Q(t)
+
+* ML Term0SubsetUnroll
+  set_d_tactic_args 1 [] [] ``f l u v A i u v n`` ;; 
+  
+  let Term0SubsetUnroll i p =
+    Pattern `Term0_subset_unroll` [] []
+     (new_ids_from_ids ``f l u v A i u v n`` p) i p
+  ;; 
+
+# THM Term0_subset_unroll
+  >> s:{s:Term0|"P"(s)}. "G"
+
+* ML Term0SubsetInduction
+  set_d_tactic_args 1 [] [] ``P x h z f l u v A i u v n`` ;; 
+  
+  let Term0SubsetInduction i p =
+    Pattern `Term0_subset_induction_pattern` [] []
+     (new_ids_from_ids ``P x h z f l u v A i u v n`` p) i p
+  ;; 
+
+# THM Term0_subset_induction_pattern
+  >> s:{s:Term0|"P"(s)}. "G"
+
+* ML Term0EqI
+  set_d_tactic_args 0 [] [] ``P h z f l u v A i u v n`` ;; 
+  
+  let Term0EqI p =
+    Pattern `Term0_EqI_pattern` [] []
+     (new_ids_from_ids ``P h z f l u v A i u v n`` p) 0 p
+  ;; 
+
+# THM Term0_EqI_pattern
+  >> rec_ind("s";h,z."d"(h,z)) in "T"("s")
+
+* ML Term0SubsetEqI
+  set_d_tactic_args 1 ['àt. "Q"(t)'] [] ``P h z f l u v A i u v n`` ;; 
+  
+  let Term0SubsetEqI i p =
+    Pattern `Term0_subset_EqI_pattern` [] []
+     (new_ids_from_ids ``P h z f l u v A i u v n`` p) i p
+  ;; 
+
+# THM Term0_subset_EqI_pattern
+  >> rec_ind("s";h,z."d"(h,z)) in "T"("s")
+
+* THM size_
+  >> Term0 -> N
+  Extraction:
+  àt. rec_ind(t; s,x.
+  case x to N
+    f,l -> 1 + max((map s on l to N list))
+    x,y,A -> 1 + max(s(x),s(y))
+    i,x,y -> 1 + max(s(x),s(y))
+    n -> 1)
+
+* DEF size
+  |<t:Term0>|==size(<t>)
+
+* THM N_induction
+  >> A:Type. Q:A->Type. s:A->N. 
+       u:A. ( t:A. s(t)<s(u) => Q(t) ) => Q(u) => 
+       u:A. Q(u)
+
+* THM size_induction
+  >> Q:Term0->Type. 
+       u:Term0. ( t:Term0. |t|<|u| => Q(t) ) => Q(u) => 
+       u:Term0. Q(u)
+
+* DEF END_Rec
+  ==
+
+* DEF BEGIN_TEnv
+  ==
+
+* DEF Fail
+  ?<T:Type>==<T>  True
+
+* DEF fail
+  fail==inr(axiom)
+
+* DEF succeed
+  s(<x:A>)==inl(<x>)
+
+* DEF catch
+  <t:?A>?<tt:?A>==d(<t>;u.inl(u);v.<tt>)
+
+* DEF fails
+  fails(<x:?A>)==isr(<x>)
+
+* ML add_fails
+  add_matching_def_adder `fails`
+  'isr(x)' ``x`` (\l.true)
+  ;; 
+
+* DEF succeeds
+  succeeds(<x:?A>)==isl(<x>)
+
+* ML add_succeeds
+  add_matching_def_adder `fails`
+  'isr(x)' ``x`` (\l.true)
+  ;; 
+
+* DEF flet
+  let (s(<x:var:A>)=<a:?A>) ? <c:B> in <d:B>==
+  let _ = <a> in d(_;<x>.<d>;__.<c>)
+
+* DEF with
+  with s(<x:var:A>)=<a:?A> . <d:Prop>==let (s(<x>)=<a>) ? False in <d>
+
+* DEF ifs
+  if s(<x:var:A>)=<a:?A> . <d:Prop>==let (s(<x>)=<a>) ? True in <d>
+
+* THM fails_or_succeeds
+  >> A:Type. x:?A. fails(x)  succeeds(x)
+
+* THM succeeds_iff_not_fails
+  >> i:. A:Ui. x:?A. succeeds(x) <=> (fails(x))
+
+* THM catch_fails
+  >> A:Type. x,y:?A. fails(x?y) <=> fails(x) & fails(y)
+
+* THM catch_succeeds
+  >> A:Type. x,y:?A. succeeds(x?y) <=> succeeds(x)  succeeds(y)
+
+* THM fails_char
+  >> A:Type. x:?A. fails(x) <=> u:True where x=inr(u) in ?A
+
+* THM catch_char
+  >> A:Type. a,b:?A. 
+         succeeds(a) & outl(a?b) = outl(a) in A
+        fails(a) & succeeds(b) & outl(a?b) = outl(b) in A
+        fails(a) & fails(b) & fails(a?b)
+
+* THM alist_ap_
+  >> A:Type. l:(Atom#A) list. x:Atom. ?A
+  Extraction:
+  à A l x. [ nil  inr(axiom); h.t,v  if h.1=x then inl(h.2) else v; @ l]
+
+* DEF alist_ap
+  <l:(Atom#A) list>{<A:A:Type>}(<x:Atom>)==alist_ap(<A>,<l>,<x>)
+
+* THM or_decidability
+  >> P,Q:Type. P  (P) => Q  (Q) => (P  Q)  (P  Q)
+
+* THM and_decidability
+  >> P,Q:Type. P  (P) => Q  (Q) => P & Q  (P & Q)
+
+* THM imp_decidability
+  >> P,Q:Type. P  (P) => Q  (Q) => (P => Q)  (P => Q)
+
+* ML PropDecidability
+  let PropDecidability =
+  (Progress o RepeatW)
+  ( Lemma `or_decidability` ORELSE
+    Lemma `and_decidability` ORELSE
+    Lemma `imp_decidability` ORELSE
+    Lemma `Atom_eq_decidable`
+  )
+  ;; 
+  
+  add_to_Decidable `PropDecidability`
+  PropDecidability
+  ;; 
+
+* THM all_elements_decidability
+  >> i:. A:Ui. Q:A->Ui. x:A. Q(x)  (Q(x))
+         => l:A list. ( l : A list. Q)  ( l : A list. Q)
+
+* ML add_all_elements_decidablity
+  add_to_Decidable `all_elements_decidability`
+  (Lemma `all_elements_decidability` THENM ReduceConcl)
+  ;; 
+
+* THM some_element_decidability
+  >> i:. A:Ui. Q:A->Ui. x:A. Q(x)  (Q(x))
+         => l:A list. ( l : A list. Q)  ( l : A list. Q)
+
+* ML add_some_element_decidability
+  add_to_Decidable `some_element_decidability`
+  (Lemma `some_element_decidability` THENM ReduceConcl)
+  ;; 
+
+* THM alist_membership_decidable
+  >> i:. A:Ui. a:Atom. l:(Atom # A) list. 
+        l : Atom#A list. àx. a=x.1 in Atom
+        ( l : Atom#A list. àx. a=x.1 in Atom)
+
+* THM fails_iff_unbound
+  >> i:. A:Ui. x:Atom. l:Atom#A list. fails(l{A}(x)) <=> ( l : Atom#A list. àu. x=u.1 in Atom)
+   
+* THM succeeds_iff_bound
+  >> i:. A:Ui. x:Atom. l:Atom#A list. 
+       succeeds(l{A}(x)) <=>  l : Atom#A list. àu. x=u.1 in Atom
+
+* THM with_char
+  >> A:Type. P:A->Type. a:?A. with s(x)=a . P(x) => 
+        succeeds(a) => P(outl(a))
+      & (fails(a))
+
+* THM ifs_char
+  >> A:Type. P:A->Type. a:?A. if s(x)=a . P(x) => succeeds(a) => P(outl(a))
+
+* THM ifs_with_lemma
+  >> A:Type. P:A->A->Type. a,b:?A. if s(x)=a . with s(y)=b . P(x,y)
+        => succeeds(a) => (succeeds(b) & P(outl(a),outl(b)))
+
+* THM sub_alist_
+  >> Object
+  Extraction:
+  à A l1 l2. 
+  a:Atom. 
+    if s(x)=l1{A}(a) . 
+    with s(y)=l2{A}(a) . 
+    x=y in A
+
+* DEF sub_alist
+  (<l1><l2>  (Atom#<A:A:Ui> list))==sub_alist(<A>)(<l1>)(<l2>)
+
+* THM sub_alist__
+  >> i:. A:Ui. l1,l2:Atom#A list. (l1l2  (Atom#A list)) in Ui
+
+* THM sub_alist_char
+  >> i:. A:Ui. l1,l2:Atom#A list. (l1l2  (Atom#A list)) => a:Atom. 
+        succeeds(l1{A}(a))
+        => succeeds(l2{A}(a)) & outl(l1{A}(a)) = outl(l2{A}(a)) in A
+
+* THM alist_ap_on_cons
+  >> i:. A:Ui. l:Atom#A list. x:Atom#A. a:Atom. 
+       x.1=a in Atom => x.l{A}(a) = s(x.2) in ?A
+       & (x.1=a in Atom) => x.l{A}(a) = l{A}(a) in ?A
+
+* THM sub_alist_of_cons
+  >> i:. A:Ui. l1,l2:Atom#A list. x:Atom#A. 
+       ( if s(a)=l1{A}(x.1) . x.2=a in A )
+       => (l1l2  (Atom#A list)) => (l1x.l2  (Atom#A list))
+
+* THM cons_sub_alist
+  >> i:. A:Ui. l1,l2:Atom#A list. x:Atom#A. 
+       ( with s(a)=l2{A}(x.1) . x.2=a in A )
+       => (l1l2  (Atom#A list)) => (x.l1l2  (Atom#A list))
+
+* THM sub_alist_if_all_elements
+  >> i:. A:Ui. l1,l2:Atom#A list. 
+        l1 : Atom#A list. àu. (with s(v)=l2{A}(u.1) . u.2=v in A)
+       => (l1l2  (Atom#A list))
+
+* THM sub_alist_refl
+  >> i:. A:Ui. l:Atom#A list. (ll  (Atom#A list))
+
+* THM sub_alist_trans
+  >> i:. A:Ui. l1,l2,l3:Atom#A list. 
+        (l1l2  (Atom#A list)) => (l2l3  (Atom#A list)) => (l1l3  (Atom#A list))
+
+* THM lemma_for_alist_ap_mono_lemma
+  >> A:Type. a,b,c:?A. (if s(x)=b . with s(y)=c . x=y in A) => 
+       succeeds(a)  succeeds(b)  => outl(a?b) = outl(a?c) in A
+
+* THM alist_ap_mono_lemma
+  >> j:. A:Uj. l0,l1,l2:Atom#A list. (l1l2  (Atom#A list)) => 
+       a:Atom.  l0 : Atom#A list. àu. a=u.1 in Atom
+                  l1 : Atom#A list. àu. a=u.1 in Atom
+       => outl(l0{A}(a)?l1{A}(a)) = outl(l0{A}(a)?l2{A}(a)) in A
+
+* THM triv_eq_
+  >> SET -> U
+  Extraction:
+  àS. x,y:|S|. (x=y in S) => x=y in S
+
+* DEF triv_eq
+  triv_eq(<S:Set>)==triv_eq(<S>)
+
+* THM Int_eq_triv
+  >> triv_eq(Int)
+
+* THM False_eq_triv
+  >> triv_eq(False)
+
+* THM True_eq_triv
+  >> triv_eq(True)
+
+* THM TEnvVal_
+  >> U
+  Extraction:
+  S:Set # ?triv_eq(S)
+
+* DEF TEnvVal
+  TEnvVal==TEnvVal
+
+* THM TEnvUnit_
+  >> U
+  Extraction:
+  Atom # TEnvVal
+
+* DEF TEnvUnit
+  TEnvUnit==TEnvUnit
+
+* THM TEnv_
+  >> U
+  Extraction:
+  TEnvUnit list
+
+* DEF TEnv
+  TEnv==TEnv
+
+* THM TEnv_containment_lemma
+  >> â:TEnv. â in Atom#TEnvVal list
+
+* ML add_TEnv_containment_lemma
+  add_to_inclusion `TEnv_containment_lemma`
+  (\i. 
+   IfOnConcl ($= 'Atom#TEnvVal list' o eq_type)
+    (Lemma `TEnv_containment_lemma` THEN Trivial)
+    Fail
+  )
+  ;; 
+
+* THM g0_
+  >> TEnv
+  Extraction:
+  <"Int", <Int, s(Int_eq_triv)>> 
+  . <"False", <False, s(False_eq_triv)>> 
+  . <"True", <True, s(True_eq_triv)>>
+  . nil
+
+* DEF g0
+  â0==g0
+
+* THM type_atom@_
+  >> TEnv -> Atom -> U
+  Extraction:
+  à â A. 
+   A="Prop" in Atom
+     â0 : TEnvUnit list. àu. A=u.1 in Atom
+     â : TEnvUnit list. àu. A=u.1 in Atom
+
+* DEF type_atom@
+  type_atom@(<g:TEnv>,<A:Atom>)==type_atom@(<g>,<A>)
+
+* THM type_atom@_decidable
+  >> â:TEnv. a:Atom. type_atom@(â,a)  (type_atom@(â,a))
+
+* ML add_type_atom@_decidable
+  add_to_Decidable `type_atom@_decidable`
+  (Lemma `type_atom@_decidable`) 
+  ;; 
+
+* THM type_atom_
+  >> TEnv -> Atom -> U
+  Extraction:
+  à â a. isl(type_atom@_decidable(â,a))
+
+* DEF type_atom
+  type_atom(<g:TEnv>,<A:Atom>)==type_atom(<g>,<A>)
+
+* THM type_atom_char
+  >> â:TEnv. a:Atom. type_atom(â,a) <=> type_atom@(â,a)
+
+* THM Prop_type_atom
+  >> â:TEnv. type_atom(â,"Prop")
+
+* THM Int_type_atom
+  >> â:TEnv. type_atom(â,"Int")
+
+* THM all_type_atoms@_
+  >> TEnv -> (Atom list # Atom) -> U
+  Extraction:
+  à â t. let a,b = t in 
+   a : Atom list. àx. type_atom@(â,x) & 
+  type_atom@(â,b)
+
+* DEF all_type_atoms@
+  all_type_atoms@(<g:TEnv>,<x:Atom list # Atom>)==all_type_atoms@(<g>,<x>)
+
+* THM all_type_atoms@_decidable
+  >> â:TEnv. t:Atom list # Atom. all_type_atoms@(â,t)  (all_type_atoms@(â,t))
+
+* THM all_type_atoms_
+  >> TEnv -> (Atom list # Atom) -> U
+  Extraction:
+  à â t. isl(all_type_atoms@_decidable(â,t))
+
+* DEF all_type_atoms
+  all_type_atoms(<g:TEnv>,<x:Atom list # Atom>)==all_type_atoms(<g>,<x>)
+
+* THM all_type_atoms_char
+  >> â:TEnv. t:Atom list # Atom. 
+  all_type_atoms(â,t) <=> all_type_atoms@(â,t)
+
+* THM AtomicMType_i_
+  >> TEnv -> U
+  Extraction:
+  àâ. { a: Atom | type_atom(â,a) }
+
+* DEF AtomicMType_i
+  AtomicMType(<g:TEnv>)==AtomicMType_i(<g>)
+
+* THM MType_i_
+  >> TEnv -> U
+  Extraction:
+  àâ. { t: Atom list # Atom | all_type_atoms(â,t) }
+
+* DEF MType_i
+  MType(<g:TEnv>)==MType_i(<g>)
+
+* THM MType_i_char
+  >> â:TEnv. 
+       mt:(Atom list)#Atom. (all_type_atoms@(â,mt)) => mt in MType(â)
+       & mt:(Atom list)#Atom. (all_type_atoms(â,mt)) => mt in MType(â)
+       & mt:MType(â). (all_type_atoms(â,mt)) & (type_atom(â,mt.2))
+                     & (all_type_atoms@(â,mt)) & (type_atom@(â,mt.2))
+                     & mt.2 in AtomicMType(â)
+
+* THM Prop_in_AtomicMType_i
+  >> â:TEnv. "Prop" in AtomicMType(â)
+
+* ML add_Prop_in_AtomicMType_i
+  add_to_member_i `add_Prop_in_AtomicMType_i`
+  (IfOnConcl ($= '"Prop"' o first_equand)
+    (Lemma `add_Prop_in_AtomicMType_i`)
+    Fail
+  )
+  ;; 
+
+* THM mtype_dom_i_atoms
+  >> â:TEnv. mt:MType(â). mt.1 in AtomicMType(â) list
+
+* THM mtype_range_i
+  >> â:TEnv. mt:MType(â). mt.2 in AtomicMType(â)
+
+* ML add_MType_containment_lemmas
+  add_to_member_i `mtype_dom_i_atoms`
+  (IfOnConcl (is_list_term o eq_type)
+    (Lemma `mtype_dom_i_atoms`)
+    Fail
+  );;
+  add_to_member_i `mtype_range_i`
+  (IfOnConcl ($= `AtomicMType_i` o ext_name o eq_type)
+    (Lemma `mtype_range_i`)
+    Fail
+  );; 
+
+* THM TEnvAp_i_
+  >> U
+  Extraction:
+  S:SET # ?triv_eq(S)
+
+* DEF TEnvAp_i
+  TEnvAp==TEnvAp_i
+
+* THM TEnvVal_contained_in_TEnvAp_i
+  >> v:TEnvVal. v in TEnvAp
+
+* ML add_TEnvVal_contained_in_TEnvAp_i
+  add_to_inclusion `TEnvVal_contained_in_TEnvAp_i` 
+  (\i. Lemma `TEnvVal_contained_in_TEnvAp_i` THEN Trivial) ;;
+
+* THM TEnvAp_i_eq_if_TEnvVal_eq
+  >> u,v:TEnvVal. u=v in TEnvVal => u=v in TEnvAp
+
+* THM tenv_ap_i_
+  >> â:TEnv -> AtomicMType(â) -> TEnvAp
+  Extraction:
+  à â a. if a="Prop" then <Prop,fail>
+   else outl( â0{TEnvVal}(a) ? â{TEnvVal}(a) )
+
+* DEF tenv_ap_i
+  <g:TEnv>(<a:AtomicMType>)==tenv_ap_i(<g>)(<a>)
+
+* THM sub_tenv_
+  >> TEnv -> TEnv -> U
+  Extraction:
+  à â1 â2. (â1â2  (Atom#TEnvVal list))
+
+* DEF sub_tenv
+  <g1:TEnv><g2:TEnv>==sub_tenv(<g1>)(<g2>)
+
+* THM trivial_sub_tenv
+  >> â:TEnv. nil  â
+
+* THM tenv_ap_i_mono
+  >> â1,â2:TEnv. â1â2 => a:AtomicMType(â1). â1(a)=â2(a) in TEnvAp
+
+* THM type_atom@_mono
+  >> â1,â2:TEnv. â1â2 => a:Atom. 
+    type_atom@(â1,a) => type_atom@(â2,a)
+
+* THM type_atom_mono
+  >> â1,â2:TEnv. â1â2 => a:Atom. 
+    type_atom(â1,a) => type_atom(â2,a)
+
+* THM AtomicMType_i_mono
+  >> â1,â2:TEnv. â1â2 => a:AtomicMType(â1). a in AtomicMType(â2)
+
+* ML add_AtomicMType_i_mono_to_Inclusion
+  add_to_inclusion `AtomicMType_i_mono`
+  (\i.
+   IfOnConcl 
+    ($= `AtomicMType_i` o ext_name o eq_type)  (ContainmentLemma `AtomicMType_i_mono` i THEN Trivial)
+    Fail
+  )
+  ;; 
+
+* THM all_type_atoms@_mono
+  >> â1,â2:TEnv. â1â2 => x:Atom list # Atom. 
+    all_type_atoms@(â1,x) => all_type_atoms@(â2,x)
+
+* THM all_type_atoms_mono
+  >> â1,â2:TEnv. â1â2 => x:Atom list # Atom. 
+    all_type_atoms(â1,x) => all_type_atoms(â2,x)
+
+* THM MType_i_mono
+  >> â1,â2:TEnv. â1â2 => x:MType(â1). x in MType(â2)
+
+* ML add_MType_i_mono_to_Inclusion
+  add_to_inclusion `MType_i_mono`
+  (\i. 
+   IfOnConcl 
+    ($= `MType_i` o ext_name o eq_type) 
+    (ContainmentLemma `MType_i_mono` i THEN Trivial)
+    Fail
+  )
+  ;; 
+
+* THM type_atom_val_i_
+  >> â:TEnv -> AtomicMType(â) -> SET
+  Extraction:
+  à â a. â(a).1
+
+* DEF type_atom_val_i
+  val(<g:TEnv>,<a:AtomicMType>)==type_atom_val_i(<g>,<a>)
+
+* THM type_atom_val_i_mono
+  >> â1,â2:TEnv. â1â2 => a:AtomicMType(â1). val(â1,a)=val(â2,a) in SET
+
+* THM type_atom_val_i_on_Prop
+  >> â:TEnv. x:Atom. x="Prop" in Atom => val(â,x)=Prop in SET
+
+* THM mtype_dom_val_i_
+  >> â:TEnv -> { mt:MType(â) | (null(mt.1)) } -> SET
+  Extraction:
+  à â mt. 
+   let l,b = mt in 
+   #((map àa. val(â,a) on l to SET list))
+
+* DEF mtype_dom_val_i
+  dom_val(<g:TEnv>,<mt:MType>)==mtype_dom_val_i(<g>,<mt>)
+
+* THM mtype_dom_val_i_mono
+  >> â1,â2:TEnv. â1â2 => 
+       mt:{ mt:MType(â1) | (null(mt.1)) }. dom_val(â1,mt)=dom_val(â2,mt) in SET 
+
+* THM mtype_val_i_
+  >> â:TEnv -> MType(â) -> SET
+  Extraction:
+  à â mt. 
+   let l,b = mt in 
+   if null(l) then val(â,b) else dom_val(â,mt) -> val(â,b)
+
+* DEF mtype_val_i
+  val(<g:TEnv>,<mt:MType>)==mtype_val_i(<g>,<mt>)
+
+* THM mtype_val_i_mono
+  >> â1,â2:TEnv. â1â2 => 
+       mt:MType(â1). val(â1,mt)=val(â2,mt) in SET 
+
+* THM mtype_val_i_type_mono
+  >> â1,â2:TEnv. â1â2 => mt:MType(â1). 
+       f:|val(â1,mt)|. f in |val(â2,mt)| 
+
+* ML add_mtype_val_i_type_mono
+  add_to_inclusion `add_mtype_val_i_type_mono`
+  (\i.
+    IfOnConcl ($= `tos` o ext_name o eq_type)
+      (BringHyps [i] THEN Lemma `mtype_val_i_type_mono`)
+      Fail
+  )
+  ;; 
+
+* THM mtype_val_i_char
+  >> â:TEnv. mt:MType(â). 
+       null(mt.1) => val(â,mt)=val(â,mt.2) in SET
+       & (null(mt.1)) => val(â,mt)=dom_val(â,mt) -> val(â,mt.2) in SET
+
+* THM type_atom_val_smallish
+  >> â:TEnv. a:AtomicMType(â). 
+       val(â,a) in A:U7 # { r: (A#A)->U6 | eq_reln{A:U7}(r) }
+
+* THM type_atom_val_eq_small
+  >> â:TEnv. a:AtomicMType(â). x,y:|val(â,a)|. (x=y in val(â,a)) in |Prop|
+
+* THM SmallEqSET_
+  >> U
+  Extraction:
+  A:U7 # { r: (A#A)->U6 | eq_reln{A:U7}(r) }
+
+* DEF SmallEqSET
+  SmallEqSET==SmallEqSET
+
+* THM type_atom_val_i_small_type
+  >> â:TEnv. a:AtomicMType(â). val(â,a) in SmallEqSET
+
+* THM eos_on_SmallEqSET
+  >> S:SmallEqSET. =_{S} in (|S|#|S|) -> |Prop|
+
+* THM SmallEqSET_contained_in_SET
+  >> S:SmallEqSET. S in SET
+
+* THM Set_contained_in_SmallEqSET
+  >> S:Set. S in SmallEqSET
+
+* THM SmallTEnvAp_i_
+  >> U
+  Extraction:
+  S:SmallEqSET # ?triv_eq(S)
+
+* DEF SmallTEnvAp_i
+  SmallTEnvAp==SmallTEnvAp_i
+
+* THM Prop_small_type
+  >> Prop in SmallEqSET
+
+* ML AdjustType
+  % When type subterms can be computed out. %
+  let AdjustTypeInConcl old new p =
+  ( let new_concl = replace_subterm old new (concl p) in
+    Assert new_concl 
+    THENS (OnLastHyp EvalHyp THEN EvalConcl THEN Trivial)
+  ) p
+  ? failwith `AdjustTypeInConcl`
+  ;; 
+  
+  let AdjustTypeInHyp old new i p =
+  ( let new_hyp = replace_subterm old new (h i p) in
+    Assert new_hyp
+    THENO (EvalHyp i THEN EvalConcl THEN Trivial)
+  ) p
+  ? failwith `AdjustTypeInHyp`
+  ;; 
+   
+
+* THM tenv_alist_ap_small
+  >> â:TEnv. a:Atom. â{TEnvVal}(a) in ?SmallTEnvAp
+
+* THM tenv_ap_i_small_type
+  >> â:TEnv. a:AtomicMType(â). â(a) in SmallTEnvAp
+
+* THM TEnvVal_contained_in_SmallTEnvAp_i
+  >> v:TEnvVal. v in SmallTEnvAp
+
+* THM tenv_ap_i_small_mono
+  >> â1,â2:TEnv. â1â2 => a:AtomicMType(â1). â1(a)=â2(a) in SmallTEnvAp
+
+* THM triv_pred_
+  >> S:SET -> |S -> Prop| -> U
+  Extraction:
+  à S P. x:|S|. (P(x)) => P(x)
+
+* DEF triv_pred
+  triv(<S:S:SET>,<P:S-\>Prop>)==triv_pred(<S>,<P>)
+
+* THM semi_triv_pred_
+  >> S:SET -> |S -> Prop| -> U
+  Extraction:
+  à S P. x,y:|S| where x=y in S. P(x) => P(y)
+
+* DEF semi_triv_pred
+  semi_triv(<S:S:SET>,<P:S-\>Prop>)==semi_triv_pred(<S>,<P>)
+
+* THM val_triv_pred_i_
+  >> â:TEnv -> mt:MType(â) -> |val(â,mt)| -> U
+  Extraction:
+  à â mt f. (mt.2="Prop" in Atom & (null(mt.1))) & triv(dom_val(â,mt),f)
+
+* DEF val_triv_pred_i
+  triv_pred(<g:TEnv>,<mt:MType>,<v:val>)==val_triv_pred_i(<g>)(<mt>)(<v>)
+
+* THM val_triv_pred_i_mono
+  >> â1,â2:TEnv. mt:MType(â1). f:|val(â1,mt)|. 
+    â1â2 => triv_pred(â1,mt,f) => triv_pred(â2,mt,f)
+
+* THM val_triv_pred_i_mono_2
+  >> â1,â2:TEnv. mt:MType(â1). f:|val(â1,mt)|. 
+    â1â2 => x:triv_pred(â1,mt,f). x in triv_pred(â2,mt,f)
+
+* ML add_val_triv_pred_i_mono_2
+  add_membership_mono_lemma_to_inclusion 
+  `val_triv_pred_i_mono_2` `val_triv_pred_i` 
+  ;; 
+
+* THM val_semi_triv_pred_i_
+  >> â:TEnv -> mt:MType(â) -> |val(â,mt)| -> U
+  Extraction:
+  à â mt f. (mt.2="Prop" in Atom & (null(mt.1))) & semi_triv(dom_val(â,mt),f)
+
+* DEF val_semi_triv_pred_i
+  semi_triv_pred(<g:TEnv>,<mt:MType>,<v:val>)==val_semi_triv_pred_i(<g>)(<mt>)(<v>)
+
+* THM val_semi_triv_pred_i_mono
+  >> â1,â2:TEnv. mt:MType(â1). f:|val(â1,mt)|. 
+       â1â2 => semi_triv_pred(â1,mt,f) => semi_triv_pred(â2,mt,f)
+
+* THM val_semi_triv_pred_i_mono_2
+  >> â1,â2:TEnv. mt:MType(â1). f:|val(â1,mt)|. 
+       â1â2 => x:semi_triv_pred(â1,mt,f). x in semi_triv_pred(â2,mt,f)
+
+* ML add_val_semi_triv_pred_i_mono_2
+  add_membership_mono_lemma_to_inclusion
+  `val_semi_triv_pred_i_mono_2` `val_semi_triv_pred_i`
+  ;; 
+
+* THM val_full_injection_i_
+  >> â:TEnv -> mt:MType(â) -> |val(â,mt)| -> U
+  Extraction:
+  à â mt f. (null(mt.1)) & full_injection(fdom_val(â,mt)->val(â,mt.2))
+
+* DEF val_full_injection_i
+  full_injection(<g:TEnv>,<mt:MType>,<v:val>)==val_full_injection_i(<g>)(<mt>)(<v>)
+
+* THM val_full_injection_i_mono
+  >> â1,â2:TEnv. mt:MType(â1). f:|val(â1,mt)|. 
+       â1â2 => full_injection(â1,mt,f) => full_injection(â2,mt,f)
+
+* THM val_full_injection_i_mono_2
+  >> â1,â2:TEnv. mt:MType(â1). f:|val(â1,mt)|. 
+       â1â2 => x:full_injection(â1,mt,f). x in full_injection(â2,mt,f)
+
+* ML add_val_full_injection_i_mono_2
+  add_membership_mono_lemma_to_inclusion
+  `val_full_injection_i_mono_2` `val_full_injection_i`
+  ;; 
+
+* THM val_kind_i_
+  >> â:TEnv -> mt:MType(â) -> |val(â,mt)| -> U
+  Extraction:
+  à â mt f. True  triv_pred(â,mt,f)  semi_triv_pred(â,mt,f)  full_injection(â,mt,f)
+
+* DEF val_kind_i
+  val_kind(<g:TEnv>,<mt:MType>,<v:val>)==val_kind_i(<g>)(<mt>)(<v>)
+
+* THM val_kind_i_mono
+  >> â1,â2:TEnv. mt:MType(â1). f:|val(â1,mt)|. 
+       â1â2 => val_kind(â1,mt,f) => val_kind(â2,mt,f)
+
+* THM val_kind_i_mono_2
+  >> â1,â2:TEnv. mt:MType(â1). f:|val(â1,mt)|. 
+       â1â2 => x:val_kind(â1,mt,f). x in val_kind(â2,mt,f)
+
+* ML add_val_kind_i_mono_2
+  add_membership_mono_lemma_to_inclusion 
+  `val_kind_i_mono_2` `val_kind_i`
+  ;; 
+
+* DEF no_kind
+  no_kind==inl(axiom)
+
+* DEF triv_pred_kind
+  triv_pred_kind(<x:triv_pred>)==inl(inr(<x>))
+
+* DEF semi_triv_pred_kind
+  semi_triv_pred_kind(<x:semi_triv_pred>)==inl(inr(inr(<x>)))
+
+* DEF full_injection_kind
+  full_injection_kind(<x:full_injection>)==inr(inr(inr(<x>)))
+
+* DEF END_TEnv
+  ==
+
+* DEF BEGIN_Env
+  ==
+
+* THM FEnvVal_i_
+  >> TEnv -> U
+  Extraction:
+  àâ. mt:MType(â) # f:|val(â,mt)| # val_kind(â,mt,f)
+
+* DEF FEnvVal_i
+  FEnvVal(<g:TEnv>)==FEnvVal_i(<g>)
+
+* THM FEnvUnit_
+  >> TEnv -> U
+  Extraction:
+  àâ. Atom # FEnvVal(â)
+
+* DEF FEnvUnit
+  FEnvUnit(<g:TEnv>)==FEnvUnit(<g>)
+
+* THM FEnv_
+  >> TEnv -> U
+  Extraction:
+  àâ. FEnvUnit(â) list
+
+* DEF FEnv
+  FEnv(<g:TEnv>)==FEnv(<g>)
+
+* THM FEnvVal_i_mono
+  >> â1,â2:TEnv. â1â2 => ç:FEnvVal(â1). ç in FEnvVal(â2)
+
+* THM FEnvVal_i_mono_2
+  >> â1,â2:TEnv. â1â2 => ç:?FEnvVal(â1). ç in ?FEnvVal(â2)
+
+* ML add_FEnvVal_i_mono
+  add_to_inclusion `FEnvVal_i_mono_2` 
+  (\i. 
+   IfOnConcl (is_union_term o eq_type)
+    (BringTyping i THEN Lemma `FEnvVal_i_mono_2`)
+    Fail
+  )
+  ;; 
+  
+  add_membership_mono_lemma_to_inclusion
+  `FEnvVal_i_mono` `FEnvVal_i`
+  ;; 
+
+* THM FEnv_mono
+  >> â1,â2:TEnv. â1â2 => ç:FEnv(â1). ç in FEnv(â2)
+
+* ML add_FEnv_mono
+  add_membership_mono_lemma_to_inclusion
+  `FEnv_mono` `FEnv`
+  ;; 
+
+* THM FEnv_containment_lemma_2
+  >> â:TEnv. ç:FEnv(â). ç in (Atom # FEnvVal(â)) list
+
+* ML add_FEnv_containment_lemma
+  add_to_inclusion `FEnv_containment_lemma_2`
+  (\i.
+   IfOnConcl (is_list_term o eq_type) 
+    (Lemma `FEnv_containment_lemma_2`)
+    Fail) ;; 
+  
+  add_to_inclusion `FEnv_containment_lemma`
+  (\i.
+   IfOnConcl (is_list_term o eq_type) 
+    (Lemma `FEnv_containment_lemma`)
+    Fail) ;; 
+
+* THM a0_
+  >> FEnv(â0)
+  Extraction:
+  <"True",<nil,"Prop">,True,no_kind>
+  . <"False",<nil,"Prop">,False,no_kind>
+  . nil
+
+* DEF a0
+  ç0==d0
+
+* THM d0_
+  >> FEnv(nil)
+  Extraction:
+  <"True",<nil,"Prop">,True,no_kind>
+  . <"False",<nil,"Prop">,False,no_kind>
+  . nil
+
+* DEF d0
+  ç0==d0
+
+* THM Env_
+  >> U
+  Extraction:
+  â:TEnv # FEnv(â)
+
+* DEF Env
+  Env==Env
+
+* THM FEnv_containment_lemma
+  >> :Env. ç:FEnv(.1). ç in (Atom # FEnvVal(.1)) list
+
+* THM FEnvVal_
+  >> Env -> U
+  Extraction:
+  à. FEnvVal(.1)
+
+* DEF FEnvVal
+  FEnvVal(<g:Env>)==FEnvVal(<g>)
+
+* THM MType_
+  >> Env -> U
+  Extraction:
+  à. MType(.1)
+
+* DEF MType
+  MType(<a:Env>)==MType(<a>)
+
+* THM AtomicMType_
+  >> Env -> U
+  Extraction:
+  à. AtomicMType(.1)
+
+* DEF AtomicMType
+  AtomicMType(<a:Env>)==AtomicMType(<a>)
+
+* THM mtype_dom_atoms
+  >> :Env. mt:MType(). mt.1 in AtomicMType() list
+
+* THM mtype_range
+  >> :Env. mt:MType(). mt.2 in AtomicMType()
+
+* ML add_more_MType_containment_lemmas
+  add_to_member_i `mtype_dom_atoms`
+  (IfOnConcl (is_list_term o eq_type)
+    (IfOnConcl (\c. can (match 'mtype(,f).1' (first_equand c)) `` f``)
+       (Lemma `mtype_dom_atoms`)
+       (Lemma `mtype_dom_atoms` THEN Complete (Id...)))
+    Fail
+  )
+  ;; 
+  
+  add_to_member_i `mtype_range_i`
+  (IfOnConcl ($= `AtomicMType` o ext_name o eq_type)
+    (IfOnConcl (\c. can (match 'mtype(,f).2' (first_equand c)) `` f``)
+       (Lemma `mtype_range`)
+       (Lemma `mtype_range` THEN Complete (Id...)))
+    Fail
+  )
+  ;;  
+
+* THM tenv_ap_
+  >> :Env -> AtomicMType() -> TEnvAp
+  Extraction:
+  à  a. (.1)(a)
+
+* DEF tenv_ap
+  <g:Env>(<a:AtomicMType>)==tenv_ap(<g>)(<a>)
+
+* THM type_atom_val_
+  >> :Env -> AtomicMType() -> SET
+  Extraction:
+  à  a. val(.1,a)
+
+* DEF type_atom_val
+  val(<g:Env>,<a:AtomicMType>)==type_atom_val(<g>,<a>)
+
+* THM type_atom_val_small_type
+  >> :Env. a:AtomicMType(). val(,a) in SmallEqSET
+
+* THM mtype_dom_val_
+  >> :Env -> { mt:MType() | (null(mt.1)) } -> SET
+  Extraction:
+  à  mt. dom_val(.1,mt)
+
+* DEF mtype_dom_val
+  dom_val(<g:Env>,<mt:MType>)==mtype_dom_val(<g>,<mt>)
+
+* THM mtype_val_
+  >> :Env -> MType() -> SET
+  Extraction:
+  à  mt. val(.1,mt)
+
+* DEF mtype_val
+  val(<g:Env>,<mt:MType>)==mtype_val(<g>,<mt>)
+
+* THM mtype_val_char
+  >> :Env. mt:MType(). 
+       null(mt.1) => val(,mt)=val(,mt.2) in SET
+       & (null(mt.1)) => val(,mt)=dom_val(,mt) -> val(,mt.2) in SET
+
+* THM fun_atom@_
+  >> Env -> Atom -> U
+  Extraction:
+  à  a.   ç0 : FEnvUnit(nil) list. àu. a=u.1 in Atom
+     .2 : FEnvUnit(.1) list. àu. a=u.1 in Atom
+
+* DEF fun_atom@
+  fun_atom@(<g:Env>,<A:Atom>)==fun_atom@(<g>,<A>)
+
+* THM fun_atom@_decidable
+  >> :Env. a:Atom. fun_atom@(,a)  (fun_atom@(,a))
+
+* THM fun_atom_
+  >> Env -> Atom -> U
+  Extraction:
+  à  a. isl(fun_atom@_decidable(,a))
+
+* DEF fun_atom
+  fun_atom(<g:Env>,<A:Atom>)==fun_atom(<g>,<A>)
+
+* THM fun_atom_char
+  >> :Env. a:Atom. fun_atom(,a) <=> fun_atom@(,a)
+
+* THM MFun_
+  >> Env -> U
+  Extraction:
+  à. {a:Atom|fun_atom(,a)}
+
+* DEF MFun
+  MFun(<a:Env>)==MFun(<a>)
+
+* THM fenv_ap_
+  >> :Env -> f:MFun() -> FEnvVal()
+  Extraction:
+  à  f. outl( ç0{FEnvVal(nil)}(f) ? (.2){FEnvVal(.1)}(f) )
+
+* DEF fenv_ap
+  <g:Env>(<a:AtomicMFun>)==fenv_ap(<g>)(<a>)
+
+* THM mtype_
+  >> :Env -> MFun() -> MType()
+  Extraction:
+  à  f. ((f)).1
+
+* DEF mtype
+  mtype(<a:Env>,<f:MFun>)==mtype(<a>)(<f>)
+
+* THM mfun_val_
+  >> :Env -> f:MFun() -> |val(,mtype(,f))|
+  Extraction:
+  à  f. ((f)).2.1
+
+* DEF mfun_val
+  val(<a:Env>,<f:MFun>)==mfun_val(<a>)(<f>)
+
+* THM constant_mfun_val
+  >> :Env. f:MFun(). null(mtype(,f).1) => 
+       val(,f) in |val(,mtype(,f).2)|
+
+* ML add_constant_mfun_val
+  add_to_member_i `constant_mfun_val`
+  (IfOnConcl 
+    (\c. `tos` = ext_name (eq_type c) 
+         & let l = decompose_ap (first_equand c) in 
+           length l = 3 & `mfun_val` = ext_name (hd l)
+    )
+    (Lemma `constant_mfun_val`)
+    Fail
+  )
+  ;; 
+
+* THM mfun_val_fun
+  >> :Env. f:MFun(). (null(mtype(,f).1)) => 
+       val(,f) in |dom_val(,mtype(,f))| -> |val(,mtype(,f).2)|
+
+* THM mfun_val_ap
+  >> :Env. f:MFun(). (null(mtype(,f).1)) => 
+       x:|dom_val(,mtype(,f))|.  val(,f)(x) in |val(,mtype(,f).2)|
+
+* ML add_mfun_val_ap
+  add_to_member_i `mfun_val_ap`
+  (IfOnConcl 
+    (\c. `tos` = ext_name (eq_type c) 
+         & let l = decompose_ap (first_equand c) in 
+           length l = 4 & `mfun_val` = ext_name (hd l)
+    )
+    (Lemma `mfun_val_ap`)
+    Fail
+  )
+  ;; 
+
+* THM val_kind_
+  >> :Env -> MFun() -> U
+  Extraction:
+  à  f. val_kind(.1, mtype(,f), val(,f))
+
+* DEF val_kind
+  val_kind(<g:Env>,<f:MFun>)==val_kind(<g>)(<f>)
+
+* THM val_kind_pf_
+  >> :Env -> f:MFun() -> val_kind(,f)
+  Extraction:
+  à  f. ((f)).2.2
+
+* DEF val_kind_pf
+  val_kind_pf(<g:Env>,<mt:MFun>)==val_kind_pf(<g>)(<mt>)
+
+* THM is_injection_
+  >> :Env -> MFun() -> U
+  Extraction:
+  à  f. d(val_kind_pf(,f);u.False;v.d(v;u.False;v.isr(v)))
+
+* DEF is_injection
+  is_injection(<a:Env>,<mt:MFun>)==is_injection(<a>)(<mt>)
+
+* THM is_injection_char
+  >> :Env. f:MFun(). is_injection(,f) => 
+       ( null ( mtype(,f).1 ) ) & 
+       (injective( val(,f)  dom_val(,mtype(,f)) -> val(,mtype(,f).2) ))
+
+* THM is_triv_pred_
+  >> :Env -> MFun() -> U
+  Extraction:
+  à  f. d(val_kind_pf(,f);u.False;v.isl(v))
+
+* DEF is_triv_pred
+  is_triv_pred(<a:Env>,<mt:MFun>)==is_triv_pred(<a>)(<mt>)
+
+* THM is_triv_pred_char
+  >> :Env. f:MFun(). is_triv_pred(,f) => 
+       (mtype(,f).2 = "Prop" in Atom  &  (null(mtype(,f).1)))
+       & triv(dom_val(,mtype(,f)), val(,f))
+
+* THM is_semi_triv_pred_
+  >> :Env -> MFun() -> U
+  Extraction:
+  à  f. d(val_kind_pf(,f);u.False;v.d(v;u.False;v.isl(v)))
+
+* DEF is_semi_triv_pred
+  is_semi_triv_pred(<a:Env>,<mt:MFun>)==is_semi_triv_pred(<a>)(<mt>)
+
+* THM is_semi_triv_pred_char
+  >> :Env. f:MFun(). is_semi_triv_pred(,f) => 
+       (mtype(,f).2 = "Prop" in Atom  &  (null(mtype(,f).1)))
+       & semi_triv(dom_val(,mtype(,f)),val(,f))
+
+* THM Int_in_AtomicMType
+  >> :Env. "Int" in AtomicMType()
+
+* ML add_Int_in_AtomicMType
+  add_to_member_i `Int_in_AtomicMType`
+  (IfOnConcl ($= '"Int"' o first_equand)
+    (Lemma `Int_in_AtomicMType`)
+    Fail
+  )
+  ;; 
+
+* DEF END_Env
+  ==
+
+* DEF BEGIN_PBool
+  ==
+
+* THM Bool_
+  >> U1
+  Extraction:
+  True  True
+
+* DEF Bool
+  Bool==Bool
+
+* THM btrue_
+  >> Bool
+  Extraction:
+  inl(ax)
+
+* DEF btrue
+  true==btrue
+
+* THM is_btrue_
+  >> Bool -> U1
+  Extraction:
+  àb. isl(b)
+
+* DEF is_btrue
+  <b:Bool>==is_btrue(<b>)
+
+* THM bfalse_
+  >> Bool
+  Extraction:
+  inr(ax)
+
+* DEF bfalse
+  false==bfalse
+
+* THM is_bfalse_
+  >> Bool -> U1
+  Extraction:
+  àb. isr(b)
+
+* DEF is_bfalse
+  (<b:Bool>)==is_bfalse(<b>)
+
+* THM bif_
+  >> Object
+  Extraction:
+  à b f g. d(b;u.f(u);v.g(v))
+
+* DEF bif
+  if <b:Bool> then <f:True-\>*> else <g:True-\>*>==bif(<b>)(<f>)(<g>)
+
+* THM bif__
+  >> A:Type. b:Bool. f:(b)->A. g:((b))->A. 
+       (if b then f else g) in A
+
+* THM PBool_
+  >> U'
+  Extraction:
+  Bool  U
+
+* DEF PBool
+  PBool==PBool
+
+* ML PBoolE
+  set_d_tactic_args 1 [] [] [] ;; 
+  
+  let PBoolE i =
+   Pattern `PBoolE_pattern` [] [] [] i ;; 
+
+# THM PBoolE_pattern
+  >> x:PBool -> "P"(x)
+
+* THM prop_
+  >> Object
+  Extraction:
+  àP. inr(P)
+
+* DEF prop
+  prop(<P:U>)==prop(<P>)
+
+* THM prop__
+  >> Q:U. prop(Q) in PBool
+
+* THM bool_
+  >> Object
+  Extraction:
+  àb. inl(b)
+
+* DEF bool
+  bool(<P:Bool>)==bool(<P>)
+
+* THM bool__
+  >> b:Bool. bool(b) in PBool
+
+* THM PBool_cases_
+  >> Object
+  Extraction:
+  à tt ff g. àt. d(t;u.d(u;v.tt;v.ff);u.g(u))
+
+* DEF PBool_cases
+  case <pb:PBool(P)>   true: <tt:A> false: <ff:A> else: <g:U-\>A>==
+  PBool_cases(<tt>)(<ff>)(<g>)(<pb>)
+
+* THM PBool_cases__
+  >> A:Type. tt,ff:A. g:U->A. pb:PBool. 
+       case pb   true: tt false: ff else: g in A
+
+* THM is_pbtrue_
+  >> PBool -> U
+  Extraction:
+  àpb. case pb   true: True false: False else: àQ. Q
+
+* DEF is_pbtrue
+  <pb:PBool>==is_pbtrue(<pb>)
+
+* THM prop_char
+  >> Q:U. prop(Q) <=> Q
+
+* THM pband_
+  >> PBool -> PBool -> PBool
+  Extraction:
+  à pb1 pb2. 
+  case pb1
+     true: pb2
+     false: bool(false)
+     else: àQ1. case pb2   true: prop(Q1) false: bool(false) else: àQ2. prop(Q1 & Q2)
+
+* DEF pband
+  <P:PBool> & <Q:PBool>==pband(<P>)(<Q>)
+
+* THM pband_char
+  >> pb1,pb2:PBool. pb1 & pb2 <=> pb1 & pb2
+
+* THM pbcand_
+  >> pb:PBool -> ((pb)->PBool) -> PBool
+  Extraction:
+  à pb1 pb2. 
+  case pb1
+     true: pb2(ax)
+     false: bool(false)
+     else: àQ1. prop(Q1 & pb2(ax))
+
+* DEF pbcand
+  <P:PBool> & <Q:(.)-\>PBool>==pbcand(<P>)(<Q>)
+
+* THM pbcand_char
+  >> pb1:PBool. pb2:(pb1)->PBool. 
+       pb1 & pb2 <=> pb1 & pb2(ax)
+
+* THM pbnot_
+  >> PBool -> PBool
+  Extraction:
+  àpb. 
+  case pb   true: bool(false) false: bool(true) else: àQ. prop((Q))
+
+* DEF pbnot
+  (<pb:PBool>)==pbnot(<pb>)
+
+* THM pbnot_char
+  >> pb:PBool. (pb) <=> (pb)
+
+* THM pbor_
+  >> PBool -> PBool -> PBool
+  Extraction:
+  à pb1 pb2. 
+  case pb1
+     true: bool(true)
+     false: pb2
+     else: àQ1. case pb2   true: bool(true) false: prop(Q1)
+                           else: àQ2. prop(Q1  Q2)
+
+* DEF pbor
+  <P:PBool>  <Q:PBool>==pbor(<P>)(<Q>)
+
+* THM pbor_char
+  >> pb1,pb2:PBool. 
+       pb1  pb2 <=> pb1  pb2
+
+* THM pb_all_elements_
+  >> Object
+  Extraction:
+  à A Q l. [ nil  bool(true); h.t,v  Q(h) & v; @ l]
+
+* DEF pb_all_elements
+   <l:list> : <A:type> list. <Q:pb-pred>==
+  pb_all_elements(<A>)(<Q>)(<l>)
+
+* THM pb_all_elements__
+  >> A:Type. P:A->PBool. l:A list. ( l : A list. P) in PBool
+
+* THM pb_all_elements_char
+  >> A:U. P:A->PBool. l:A list. 
+        l : A list. P
+       <=>  l : A list. àa. P(a)
+
+* THM pb_Int_eq_
+  >> Int -> Int -> PBool
+  Extraction:
+  à m n. if m=n then bool(true) else bool(false)
+
+* DEF pb_Int_eq
+  <x:int>=<y:int>==pb_Int_eq(<x>)(<y>)
+
+* THM pb_Int_eq_char
+  >> m,n:Int. m=n <=> m = n
+
+* THM pb_Atom_eq_
+  >> Atom -> Atom -> PBool
+  Extraction:
+  à a b. if a=b then bool(true) else bool(false)
+
+* DEF pb_Atom_eq
+  <x:Atom>=<y:Atom>==pb_Atom_eq(<x>)(<y>)
+
+* THM pb_Atom_eq_char
+  >> a,b:Atom. a=b <=> (a=b in Atom)
+
+* THM pb_of_decide_
+  >> Object
+  Extraction:
+  àd. d(d;u.bool(true);u.bool(false))
+
+* DEF pb_of_decide
+  pb_of_decide(<d:PP>)==pb_of_decide(<d>)
+
+* THM pb_of_decide__
+  >> P:Type. d:(P  (P)). pb_of_decide(d) in PBool
+
+* THM pb_of_decide_char
+  >> P:Type. d:(P  (P)). pb_of_decide(d) <=> P
+
+* ML PBoolChar
+  let PBoolChar_lemmas = 
+  ``pband_char pbcand_char pbor_char pb_all_elements_char pb_Int_eq_char pb_Atom_eq_char pb_of_decide_char  pbnot_char`` ;; 
+  
+  let PBoolChar = First (map Lemma PBoolChar_lemmas) ;; 
+  
+  let FPBoolChar i = First (map (\x. FLemma x [i]) PBoolChar_lemmas) ;; 
+
+* DEF END_PBool
+  ==
+
+* DEF BEGIN_TypeChecking
+  ==
+
+* THM Prop_in_AtomicMType
+  >> :Env. "Prop" in AtomicMType()
+
+* ML add_Prop_in_AtomicMType
+  add_to_member_i `Prop_in_AtomicMType`
+  (IfOnConcl ($= '"Prop"' o first_equand)
+    (Lemma `Prop_in_AtomicMType`)
+    Fail
+  )
+  ;; 
+
+* THM Val_
+  >> Env -> U
+  Extraction:
+  à. a:AtomicMType() # |val(,a)|
+
+* DEF Val
+  Val(<a:Env>)==Val(<a>)
+
+* THM subtype_
+  >> Object
+  Extraction:
+  à S1 S2. 
+  P:|S2->Prop| where 
+    |S1| = {x:|S2||P(x)} in SET_U
+    & x,y:|S1|. x=y in S1 <=> x=y in S2
+
+* DEF subtype
+  <S:SET><SS:SET>==subtype(<S>)(<SS>)
+
+* THM subtype__
+  >> S1,S2:SET. S1S2 in U
+
+* THM val_member_
+  >> :Env -> v:Val() -> B:AtomicMType() -> U
+  Extraction:
+  à  v B. 
+  let A,a = v in 
+  A=B in Atom  val(,A)val(,B)  Q:val(,B)val(,A) where Q(a)
+
+* DEF val_member
+  <v:Val> {<a:Env>} <B:AtomicMType>==val_member(<a>)(<v>)(<B>)
+
+* THM val_member_char
+  >> :Env. v:Val(). B:AtomicMType(). v {} B => v.2 in |val(,B)|
+
+* THM vals_in_mtypes@_
+  >> :Env -> Val() list -> AtomicMType() list -> U
+  Extraction:
+  à  vl aml. 
+  |aml|=|vl| in N & 
+   com(vl,aml) : Val()#AtomicMType() list. (à v,B. v {} B)
+
+* DEF vals_in_mtypes@
+  <vl:Val list> {<a:Env>} <mt:AtomicMType list>==vals_in_mtypes@(<a>)(<vl>)(<mt>)
+
+* ML NilApMember
+  let NilApMember =
+    (If ($= 'nil' o last o decompose_ap o first_equand o concl) 
+        (Progress ComputeEquands)
+        Fail
+    ...*)
+  ;; 
+  
+  add_to_autotactic `NilApMember` NilApMember ;; 
+
+* DEF context_of_main_induction
+  ,P,wf,mtype,val. <P:Prop>==
+  :Env. P:Term0->U. wf: {t:Term0|P(t)} -> U . 
+  mtype: {t:Term0|P(t) & wf(t)} -> AtomicMType() . 
+  val: t:{t:Term0|P(t) & wf(t)} -> |val(,mtype(t))| . <P>
+
+* THM arg_tuple_typing
+  >> ,P,wf,mtype,val. mt:MType(). l:({t:Term0|P(t) & wf(t)} list). 
+       (null(mt.1))
+       => (map àt. <mtype(t),val(t)> on l to Val() list) {} mt.1
+       => ([a]  val(a); à h t v. <val(h),v>; @ l) in |dom_val(,mt)|
+
+* THM term_mtype_
+  >> Object
+  Extraction:
+  à  t. rec_ind(t; h,t.
+  case t to AtomicMType()
+    f,args -> mtype(,f).2
+    x,y,A -> "Prop"
+    i,x,y -> h(x)
+    n -> "Int")
+
+* DEF term_mtype
+  mtype(<a:Env>,<t:Term@>)==term_mtype(<a>)(<t>)
+
+* THM term_type_
+  >> Object
+  Extraction:
+  à  t. val(,mtype(,t))
+
+* DEF term_type
+  type(<a:Env>,<t:Term@>)==term_type(<a>)(<t>)
+
+* THM term_list_val_
+  >> Object
+  Extraction:
+  à  g l. ([a]  g(a); à h t v. <g(h),v>; @ l)
+
+* DEF term_list_val
+  <g:val fun>{<a:Env>}(<l:Term@ list>)==term_list_val(<a>)(<g>)(<l>)
+
+* THM term_val_
+  >> Object
+  Extraction:
+  à  t. rec_ind(t; g,t.
+  case t to |type(,t)|
+    f,args -> if null(mtype(,f).1) then val(,f)
+              else val(,f) (g{}(args))
+    x,y,A  -> g(x)=g(y) in val(,A)
+    i,x,y -> g(x)
+    n -> n)
+
+* DEF term_val
+  val(<a:Env>,<t:Term@>)==term_val(<a>)(<t>)
+
+* THM wf_fun_ap@_
+  >> Object
+  Extraction:
+  à  f args. 
+  fun_atom@(,f) & 
+  (map àt. <mtype(,t), val(,t)> on args to Val() list)  {} mtype(,f).1
+
+* DEF wf_fun_ap@
+  wf_fun_ap@(<a:Env>,<f:Atom>,<args:Term list>)==wf_fun_ap@(<a>)(<f>)(<args>)
+
+* THM wf_eq_ap@_
+  >> Object
+  Extraction:
+  à. à x y A. 
+  type_atom(.1,A) & 
+  <mtype(,x),val(,x)> {} A  &  <mtype(,y),val(,y)> {} A
+
+* DEF wf_eq_ap@
+  wf_eq_ap@(<a:Env>,<x:Term>,<y:Term>,<A:Atom>)==wf_eq_ap@(<a>)(<x>)(<y>)(<A>)
+
+* THM wf_i_pair@_
+  >> Object
+  Extraction:
+  à. à i x y. 
+  fun_atom@(,i) & is_injection(,i) & 
+  [mtype(,x)] = mtype(,i).1 in Atom list & 
+  mtype(,y) = mtype(,i).2 in Atom & 
+  val(,i)(val(,x)) = val(,y) in val(,mtype(,y))
+
+* DEF wf_i_pair@
+  wf_i_pair@(<a:Env>,<i:Atom>,<x:Term>,<y:Term>)==wf_i_pair@(<a>)(<i>)(<x>)(<y>)
+
+* THM wf_term@_
+  >> Object
+  Extraction:
+  \ .\ t.rec_ind(t; F,t. 
+  case t to U
+    f,args ->  args : Term0 list. F & wf_fun_ap@(,f,args)
+    x,y,A  -> F(x) & F(y) & wf_eq_ap@(,x,y,A)
+    i,x,y  -> F(x) & F(y) & wf_i_pair@(,i,x,y)
+    n      -> True)
+
+* DEF wf_term@
+  wf@(<a:Env>,<t:Term0>)==wf_term@(<a>)(<t>)
+
+* THM wf_fun_ap@_body
+  >> ,P,wf,mtype,val. f:Atom. args:{x:Term0|P(x)} list. 
+         args : {x:Term0|P(x)} list. wf => 
+        fun_atom@(,f) & 
+          (map àt. <mtype(t), val(t)> on args to Val() list)  {} mtype(,f).1
+        in U
+
+* THM wf_i_pair@_body
+  >> ,P,wf,mtype,val. i:Atom. x,y:{t:Term0|P(t)}. 
+        wf(x) => 
+        wf(y) => 
+        fun_atom@(,i) & is_injection(,i)
+           & [mtype(x)] = mtype(,i).1 in Atom list
+           & mtype(y) = mtype(,i).2 in Atom
+           & val(,i)(val(x)) = val(y) in val(,mtype(y))
+        in U
+
+* THM main_typing_lemma
+  >> :Env. t:Term0. wf@(,t) in U & 
+       (wf@(,t)) => mtype(,t) in AtomicMType() & val(,t) in |type(,t)| 
+
+* THM wf_term@__
+  >> :Env. t:Term0. wf@(,t) in U
+
+* THM Term_
+  >> Env -> U
+  Extraction:
+  à. {t:Term0|wf@(,t)}
+
+* DEF Term
+  Term(<a:Env>)==Term(<a>)
+
+* THM term_mtype__
+  >> :Env. t:Term(). mtype(,t) in AtomicMType()
+
+* THM term_type__
+  >> :Env. t:Term(). type(,t) in SET
+
+* THM term_val__
+  >> :Env. t:Term(). val(,t) in |type(,t)|
+
+* THM term_list_type_
+  >> Object
+  Extraction:
+  à  l. #((map term_type() on l to SET list))
+
+* DEF term_list_type
+  type(<a:Env>,<l:Term@ list>)==term_list_type(<a>)(<l>)
+
+* THM term_list_type__
+  >> :Env. l:Term() list. (null(l)) => type(,l) in SET
+
+* THM term_list_val__
+  >> :Env. l:Term() list. 
+       (null(l)) => (term_val()){}(l) in |type(,l)|
+
+* THM term_list_val_in_mtype_dom
+  >> :Env. f:Atom. args:Term() list. 
+        wf_fun_ap@(,f,args) => (null(mtype(,f).1))
+        => term_val(){}(args) in |dom_val(, mtype(,f))|
+
+* THM mfun_if_wf_term@_1
+  >> :Env. f:Atom. l:Term0 list. wf@(,f(l)) => f in MFun()
+
+* THM mfun_if_wf_term@_2
+  >> :Env. i:Atom. u,v:Term0. wf@(,v{i u}) => i in MFun()
+
+* THM wf_fun_ap@__
+  >> :Env. f:Atom. args:Term0 list. 
+        args : Term0 list. wf_term@() => wf_fun_ap@(,f,args) in U
+   
+* THM wf_i_pair@_aux_
+  >> Object
+  Extraction:
+  à. à i x y. 
+  fun_atom@(,i) & is_injection(,i) & 
+  [mtype(,x)] = mtype(,i).1 in Atom list & 
+  mtype(,y) = mtype(,i).2 in Atom
+
+* DEF wf_i_pair@_aux
+  wf_i_pair@_aux(<a:Env>,<i:Atom>,<x:Term>,<y:Term>)==wf_i_pair@_aux(<a>)(<i>)(<x>)(<y>)
+
+* THM wf_i_pair@_aux__
+  >> :Env. i:Atom. x,y:Term0. wf@(,x) => wf@(,y) => wf_i_pair@_aux(,i,x,y) in U
+
+* THM wf_i_pair@_aux_lemma
+  >> :Env. i:Atom. x,y:Term0. 
+       wf@(,x) => wf@(,y) => wf_i_pair@_aux(,i,x,y) => 
+       val(,i) in |type(,x)|->|type(,y)|
+
+* THM wf_i_pair@__
+  >> :Env. i:Atom. x,y:Term0. wf@(,x) => wf@(,y) => wf_i_pair@(,i,x,y) in U
+
+* THM wf_eq_ap@__
+  >> :Env. x,y:Term0. A:Atom. 
+       wf@(,x) => wf@(,y) => wf_eq_ap@(,x,y,A) in U
+
+* THM mtype_pair
+  >> :Env. mt:MType(). mt = <mt.1, mt.2> in MType()
+
+* THM wf_term@_hereditary
+  >> :Env. (àt. wf@(,t) hereditary over Term0)
+
+* ML TermUnroll
+  let TermUnroll i p = 
+    if can (match 'Term(a)' (h i p)) ``a`` 
+    then CHThen Term0SubsetUnroll i p
+    else failwith `TermUnroll` 
+  ;; 
+
+* ML TermInduction
+  let TermInduction i p = 
+    if can (match 'Term(a)' (h i p)) ``a`` 
+    then CHThen Term0SubsetInduction i p
+    else failwith `TermInduction` 
+  ;; 
+
+* THM Term_induction
+  >> :Env. Q:Term()->U. 
+          f:Atom. l:Term() list. 
+              l : Term() list. Q => (wf@(,f(l))) => Q(f(l))
+       => t,u:Term(). A:Atom. Q(t) => Q(u) => (wf@(,t=u in A)) => Q(t=u in A)
+       => i:Atom. t,u:Term(). Q(t) => Q(u) => (wf@(,u{i t})) => Q(u{i t})
+       => n:Int. Q(n)
+       => t:Term(). Q(t)
+
+* THM Term_containment_lemma
+  >> :Env. l:Term0 list.  l : Term0 list. wf_term@() => l in Term() list
+
+* ML add_Term_containment_lemma
+  add_to_inclusion `add_Term_containment_lemma`
+  (\i. IfOnConcl ($= `Term` o ext_name o destruct_list o eq_type)
+         ((Lemma `Term_containment_lemma` ...*))
+         Fail
+  ) 
+  ;; 
+
+* THM pb_val_member_
+  >> :Env -> v:Val() -> B:AtomicMType() -> PBool
+  Extraction:
+  à  v B. 
+  let A,a = v in 
+  A=B  prop(val(,A)val(,B)  Q:val(,B)val(,A) where Q(a))
+
+* DEF pb_val_member
+  <v:Val> {<a:Env>} <B:AtomicMType>==pb_val_member(<a>)(<v>)(<B>)
+
+* THM pb_val_member_char
+  >> :Env. v:Val(). B:AtomicMType(). 
+      v {} B <=> v {} B
+
+* THM vals_in_mtypes_
+  >> :Env -> Val() list -> AtomicMType() list -> PBool
+  Extraction:
+  à  vl aml. 
+  |aml|=|vl| & 
+  àax.  com(vl,aml) : Val()#AtomicMType() list. (à v,B. v {} B)
+
+* DEF vals_in_mtypes
+  <vl:Val list> {<a:Env>} <mt:AtomicMType list>==vals_in_mtypes(<a>)(<vl>)(<mt>)
+
+* THM vals_in_mtypes_char
+  >> :Env. vl:Val() list. amt:AtomicMType() list. 
+       vl {} amt <=> vl {} amt
+
+* THM wf_fun_ap_aux_
+  >> Object
+  Extraction:
+  à  f args. 
+  pb_of_decide(fun_atom@_decidable(,f)) & 
+  àax. (map àt. <mtype(,t), val(,t)> on args to Val() list) {} mtype(,f).1
+
+* DEF wf_fun_ap_aux
+  wf_fun_ap_aux(<a:Env>,<f:Atom>,<args:Term list>)==wf_fun_ap_aux(<a>)(<f>)(<args>)
+
+* THM wf_fun_ap_aux__
+  >> :Env. f:Atom. args:Term0 list. 
+        args : Term0 list. wf_term@() => wf_fun_ap_aux(,f,args) in PBool
+
+* THM wf_fun_ap_aux_char
+  >> :Env. f:Atom. args:Term0 list. 
+        args : Term0 list. wf_term@() => 
+       wf_fun_ap_aux(,f,args) <=> wf_fun_ap@(,f,args)
+
+* THM wf_fun_ap_
+  >> Object
+  Extraction:
+  à  f args. 
+  pb_of_decide(fun_atom@_decidable(,f)) & àax. 
+  let aml  = mtype(,f).1 in 
+  let vl = (map àt. <mtype(,t), val(,t)> on args to Val() list) in 
+  |aml|=|args| & àax. 
+   com(vl,aml) : Val()#AtomicMType() list. 
+    à v,B. let A,a = v in A=B
+            prop( val(,A)val(,B)  Q:val(,B)val(,A) where Q(a) )
+
+* DEF wf_fun_ap
+  wf_fun_ap(<a:Env>,<f:Atom>,<args:Term list>)==wf_fun_ap(<a>)(<f>)(<args>)
+
+* THM wf_fun_ap__
+  >> :Env. f:Atom. args:Term0 list. 
+        args : Term0 list. wf_term@() => wf_fun_ap(,f,args) in PBool
+
+* THM wf_eq_ap_
+  >> Object
+  Extraction:
+  à. à x y A. 
+  pb_of_decide(type_atom@_decidable(.1,A)) & 
+  àax. <mtype(,x),val(,x)> {} A  &  <mtype(,y),val(,y)> {} A
+
+* DEF wf_eq_ap
+  wf_eq_ap(<a:Env>,<x:Term>,<y:Term>,<A:Atom>)==wf_eq_ap(<a>)(<x>)(<y>)(<A>)
+
+* THM wf_eq_ap__
+  >> :Env. x,y:Term0. A:Atom. 
+       wf@(,x) => wf@(,y) => wf_eq_ap(,x,y,A) in PBool
+
+* THM wf_eq_ap_char
+  >> :Env. x,y:Term0. A:Atom. 
+       wf@(,x) => wf@(,y) => 
+       wf_eq_ap(,x,y,A) <=> wf_eq_ap@(,x,y,A)
+
+* THM b_is_injection_
+  >> :Env -> MFun() -> Bool
+  Extraction:
+  à  f. d(val_kind_pf(,f);u.false;v.d(v;u.false;v.d(v;w.false;w.true)))
+
+* THM b_is_injection_char
+  >> :Env. f:MFun(). bool(b_is_injection(,f)) <=> is_injection(,f)
+
+* THM wf_i_pair_aux_
+  >> Object
+  Extraction:
+  à. à i x y. 
+  pb_of_decide(fun_atom@_decidable(,i)) & 
+  àax. bool(b_is_injection(,i))
+       & pb_of_decide(Atom_list_eq_decidable([mtype(,x)], mtype(,i).1))
+       & mtype(,y)=mtype(,i).2
+
+* DEF wf_i_pair_aux
+  wf_i_pair_aux(<a:Env>,<i:Atom>,<x:Term>,<y:Term>)==wf_i_pair_aux(<a>)(<i>)(<x>)(<y>)
+
+* THM wf_i_pair_aux__
+  >> :Env. i:Atom. x,y:Term0. wf@(,x) => wf@(,y) => wf_i_pair_aux(,i,x,y) in PBool
+
+* THM wf_i_pair_aux_char
+  >> :Env. i:Atom. x,y:Term0. wf@(,x) => wf@(,y) => 
+       wf_i_pair_aux(,i,x,y) <=> wf_i_pair@_aux(,i,x,y) 
+
+* THM wf_i_pair_
+  >> Object
+  Extraction:
+  à. à i x y. 
+  wf_i_pair_aux(,i,x,y) & 
+  àax. prop( val(,i)(val(,x)) = val(,y) in val(,mtype(,y)) )
+
+* DEF wf_i_pair
+  wf_i_pair(<a:Env>,<i:Atom>,<x:Term>,<y:Term>)==wf_i_pair(<a>)(<i>)(<x>)(<y>)
+
+* THM wf_i_pair__
+  >> :Env. i:Atom. x,y:Term0. wf@(,x) => wf@(,y) => 
+       wf_i_pair(,i,x,y) in PBool
+
+* THM wf_i_pair_char
+  >> :Env. i:Atom. x,y:Term0. wf@(,x) => wf@(,y) => 
+       wf_i_pair(,i,x,y) <=> wf_i_pair@(,i,x,y)
+
+* THM wf_term_
+  >> Object
+  Extraction:
+  \ .\ t.rec_ind(t; F,t. 
+  case t to U
+    f,args ->  args : Term0 list. F  &  àax. wf_fun_ap_aux(,f,args)
+    x,y,A  -> F(x) & F(y) & àax. wf_eq_ap(,x,y,A)
+    i,x,y  -> F(x) & F(y) & àax. wf_i_pair(,i,x,y)
+    n      -> bool(true))
+
+* DEF wf_term
+  wf(<a:Env>,<t:Term0>)==wf_term(<a>)(<t>)
+
+* THM all_elements_mono_lemma
+  >> A:U. P,Q:A->U. (a:A. P(a) => Q(a)) => 
+         x:A list.  x : A list. P =>  x : A list. Q
+
+* THM wf_term_lemma
+  >> :Env. t:Term0. 
+       wf(,t) in PBool   &   wf(,t) <=> wf@(,t)
+
+* THM wf_term_char
+  >> :Env. t:Term0. wf(,t) <=> wf@(,t)
+
+* THM wf_term__
+  >> :Env. t:Term0. wf(,t) in PBool
+
+* THM terms_val_
+  >> Object
+  Extraction:
+  à  l. term_val(){}(l)
+
+* DEF terms_val
+  val(<a:Env>,<l:Term list>)==terms_val(<a>)(<l>)
+
+* THM terms_val__
+  >> :Env. l:Term() list. (null(l)) => val(,l) in |type(,l)|
+
+* THM term_list_type_base
+  >> :Env. h:Term(). l:Term() list. null(l) => type(,h.l) = type(,h) in SET
+
+* THM term_list_type_base_mem
+  >> :Env. h:Term(). l:Term() list. null(l)
+       => x:|type(,h)|. x in |type(,h.l)|
+
+* THM term_list_type_unroll
+  >> :Env. h:Term(). l:Term() list. (null(l))
+        => type(,h.l) = type(,h) # type(,l) in SET
+
+* THM term_list_type_unroll_mem
+  >> :Env. h:Term(). l:Term() list. (null(l))
+        => x:|type(,h)|#|type(,l)|. x in |type(,h.l)|
+
+* DEF END_TypeChecking
+  ==
+
+* DEF BEGIN_Subenv
+  ==
+
+* DEF elide
+  (...)<h:hidden>==<h>
+
+* ML Elide
+  let ElideHyp = ComputeHypUsing (\t. instantiate_trivial_def `elide` t) ;; 
+  let ElideConcl = ComputeConclUsing (\t. instantiate_trivial_def `elide` t) ;; 
+
+* THM sub_fenv_
+  >> â:TEnv -> FEnv(â) -> FEnv(â) -> U
+  Extraction:
+  à â ç1 ç2. (ç1ç2  (Atom#FEnvVal(â) list))
+
+* DEF sub_fenv
+  <d1:FEnv>{<g:TEnv>}<d2:FEnv>==sub_fenv(<g>)(<d1>)(<d2>)
+
+* ML add_sub_tenv_membership_hack
+  add_to_member_i `sub_tenv_membership_hack`
+  (Progress
+    (\p.(let [t],T = destruct_equal (concl p) in
+         if is_spread_term t & ext_name T = `FEnv` 
+         then Assert (make_equal_term (get_type p t) [t])
+              THENL [Id; OnLastHyp Inclusion]
+         else fail
+        ) p
+    )
+  )
+  ;; 
+
+* THM subenv_
+  >> Env -> Env -> U
+  Extraction:
+  à 1 2. 1.1  2.1  &  1.2 {2.1} 2.2
+
+* DEF subenv
+  <a1:Env><a2:Env>==subenv(<a1>)(<a2>)
+
+* DEF subenv_ctxt
+  12. <P:*>==1,2:Env. 12 => <P>
+
+* THM FEnvVal_mono
+  >> 12. v:FEnvVal(1). v in FEnvVal(2)
+
+* ML add_FEnvVal_mono
+  add_membership_mono_lemma_to_inclusion
+  `FEnvVal_mono` `FEnvVal`
+  ;; 
+
+* THM MType_mono
+  >> 12. mt:MType(1). mt in MType(2)
+
+* ML add_MType_mono
+  add_membership_mono_lemma_to_inclusion
+  `MType_mono` `MType`
+  ;; 
+
+* THM AtomicMType_mono
+  >> 12. a:AtomicMType(1). a in AtomicMType(2)
+
+* ML add_AtomicMType_mono
+  add_membership_mono_lemma_to_inclusion
+  `AtomicMType_mono` `AtomicMType`
+  ;; 
+
+* DEF TEnvAp
+  TEnvAp==TEnvAp_i
+
+* THM tenv_ap_mono
+  >> 12. a:AtomicMType(1). 1(a) = 2(a) in TEnvAp
+
+* THM type_atom_val_mono
+  >> 12. a:AtomicMType(1). val(1,a) = val(2,a) in SET
+
+* THM type_atom_val_small_mono
+  >> 12. a:AtomicMType(1). val(1,a) = val(2,a) in SmallEqSET
+
+* THM type_atom_val_mem_mono
+  >> 12. a:AtomicMType(1). x:|val(1,a)|. x in |val(2,a)|
+
+* THM mtype_dom_val_mono
+  >> 12. mt: { mt:MType(1) | (null(mt.1)) }. 
+       dom_val(1,mt) = dom_val(2,mt) in SET
+
+* THM mtype_dom_val_mem_mono
+  >> 12. mt: { mt:MType(1) | (null(mt.1)) }. 
+       x:|dom_val(1,mt)|. x in |dom_val(2,mt)|
+
+* THM mtype_val_mono
+  >> 12. mt:MType(1). val(1,mt) = val(2,mt) in SET
+
+* THM mtype_val_mem_mono
+  >> 12. mt:MType(1). x:|val(1,mt)|. x in |val(2,mt)|
+
+* THM bound_mono
+  >> A:U. l1,l2:Atom#A list. (l1l2  (Atom#A list)) => a:Atom. 
+           l1 : Atom#A list. àu. a=u.1 in Atom
+       =>  l2 : Atom#A list. àu. a=u.1 in Atom
+
+* THM fun_atom@_mono
+  >> 12. a:Atom. fun_atom@(1,a) => fun_atom@(2,a)
+
+* THM fun_atom_mono
+  >> 12. a:Atom. fun_atom(1,a) => fun_atom(2,a)
+
+* THM MFun_mono
+  >> 12. f:MFun(1). f in MFun(2)
+
+* ML add_MFun_mono
+  add_membership_mono_lemma_to_inclusion
+  `MFun_mono` `MFun`
+  ;; 
+
+* THM fenv_ap_mono
+  >> 12. f:MFun(1). 1(f) = 2(f) in FEnvVal(2)
+
+* THM mtype_mono
+  >> 1,2:Env. 12 => f:MFun(1). mtype(1,f) = mtype(2,f) in MType(1)
+
+* THM mtype_val_on_mtype_mem_mono
+  >> 12. f:MFun(1). x:|val(1,mtype(1,f))|. x in |val(2,mtype(2,f))|
+
+* ML add_some_mem_mono_lemmas
+  add_membership_mono_lemma_to_inclusion `type_atom_val_mem_mono` `tos` ;; 
+  add_membership_mono_lemma_to_inclusion `mtype_dom_val_mem_mono` `tos` ;; 
+  add_membership_mono_lemma_to_inclusion `mtype_val_mem_mono` `tos` ;; 
+  add_membership_mono_lemma_to_inclusion `mtype_val_on_mtype_mem_mono` `tos` ;; 
+
+* THM mfun_val_mono
+  >> 12. f:MFun(1). val(1,f) = val(2,f) in |val(1,mtype(1,f))|
+
+* THM val_kind_mem_mono
+  >> 12. f:MFun(1). x:val_kind(1,f). x in val_kind(2,f)
+
+* ML add_val_kind_mem_mono
+  add_membership_mono_lemma_to_inclusion 
+  `val_kind_mem_mono` `val_kind`
+  ;; 
+
+* THM val_kind_mono
+  >> 12. f:MFun(1). val_kind(1,f) => val_kind(2,f)
+
+* THM val_kind_pf_mono
+  >> 12. f:MFun(1). val_kind_pf(1,f) = val_kind_pf(2,f) in val_kind(2,f)
+
+* THM is_injection_mono
+  >> 12. f:MFun(1). is_injection(1,f) => is_injection(2,f)
+
+* THM is_triv_pred_mono
+  >> 12. f:MFun(1). is_triv_pred(1,f) => is_triv_pred(2,f)
+
+* THM is_semi_triv_pred_mono
+  >> 12. f:MFun(1). is_semi_triv_pred(1,f) => is_semi_triv_pred(2,f)
+
+* THM Val_mono
+  >> 12. x:Val(1). x in Val(2)
+
+* ML add_Val_mono
+  add_membership_mono_lemma_to_inclusion
+  `Val_mono` `Val`
+  ;; 
+
+* THM val_member_eq_mono
+  >> 12. v:Val(1). a:AtomicMType(1). v {1} a = v {2} a in U
+
+* THM val_member_mono
+  >> 12. v:Val(1). a:AtomicMType(1). v {1} a => v {2} a
+
+* THM vals_in_mtypes@_mono
+  >> 12. vl:Val(1) list. aml:AtomicMType(1) list. vl {1} aml => vl {2} aml
+
+* ML UnrollTermFun
+  let UnrollTermFunInConcl name =
+    UnrollRecInConcl name THEN UnfoldsInConcl ``Term0_cases inf ine ini inn``
+    THEN EvalConclOnly [] THEN RedefConcl
+  ;; 
+  
+  let UnrollTermFunInHyp name i =
+    UnrollRecInHyp name i THEN UnfoldsInHyp ``Term0_cases inf ine ini inn`` i
+    THEN EvalHypOnly [] i THEN RedefHyp i
+  ;; 
+  
+  let UnrollTermFun name =
+    TryEverywhere (UnrollTermFunInHyp name) (UnrollTermFunInConcl name)
+  ;; 
+
+* THM term_mtype_mono
+  >> 1,2:Env. 12 => t:Term(1). 
+       mtype(1,t) = mtype(2,t) in AtomicMType(1)
+
+* THM term_type_mono_lemma
+  >> 12. t:Term(1). wf@(2,t) => type(1,t) = type(2,t) in SET
+
+* THM val_eq_when_val_member
+  >> :Env. A,B:AtomicMType(). a1,a2:|val(,A)|. 
+       a1=a2 in |val(,A)| => <A,a1> {} B => a1=a2 in |val(,B)|
+
+* THM List_inclusion_2_lemma
+  >> A:U. Q:A->U. l:{z:A|Q(z)} list. 
+       l in { ll:A list |  ll : A list. Q} 
+
+* THM List_inclusion_3_lemma
+  >> A:U. Q:A->U. l:{ l:A list |  l : A list. Q }.  
+       l in {z:A|Q(z)} list
+
+* THM arg_tuple_eq
+  >> :Env. P:Term0->U. val1,val2: t:{t:Term0|wf@(,t) & P(t)} -> |type(,t)|. 
+     t:{t:Term0|wf@(,t) & P(t)}. val1(t)=val2(t) in |type(,t)| => 
+     aml:AtomicMType() list. (null(aml)) => 
+          l:{t:Term0|P(t)} list. |aml| = |l|
+       =>  l : {t:Term0|P(t)} list. wf_term@()
+       => (map àt. <mtype(,t),val1(t)> on l to Val() list) {} aml
+       => val1{}(l) = val2{}(l) in |#((map àa. val(,a) on aml to SET list))|
+
+* THM constant_mfun_val_mono
+  >> 12. f:MFun(1). null(mtype(1,f).1) => 
+       val(1,f) = val(2,f) in |val(1,mtype(1,f).2)|
+
+* THM mfun_val_fun_mono
+  >> 12. f:MFun(1). (null(mtype(1,f).1)) => 
+       val(1,f) = val(2,f) in |dom_val(1,mtype(1,f))| -> |val(1,mtype(1,f).2)|
+
+* ML add_some_omega_members_2
+  add_to_member_i `some_omega_members`
+  (IfOnConcl (\c. let [t],T = destruct_equal c in is_integer_term t & T='')
+    (Refine (lemma `some_omega_members` `NIL`) THEN OnLastHyp FastRepeatAndE THEN Trivial) Fail
+  )
+  ;; 
+
+* THM term_val_mono_lemma
+  >> 12. t:Term(1). wf@(2,t) => val(1,t) = val(2,t) in |type(1,t)|
+
+* THM and_all_elements
+  >> A:U. P,Q:A->U. l:A list. 
+        l : A list. P &  l : A list. Q <=>  l : A list. àa. P(a) & Q(a)
+   
+* THM subset_if_all_elements
+  >> A:U. P:A->U. l:A list. ( l : A list. P) => l in {a:A|P(a)} list
+
+* THM wf_i_pair@_aux_mono_lemma
+  >> 12. i:Atom. x,y:Term0. 
+       wf@(1,x) => wf@(1,y) => wf_i_pair@_aux(1,i,x,y) => 
+       wf@(2,x) => wf@(2,y) => wf_i_pair@_aux(2,i,x,y) => 
+       (val(1,i)(val(1,x)) = val(1,y) in val(1,mtype(1,y))) 
+       = val(2,i)(val(2,x)) = val(2,y) in val(2,mtype(2,y))
+       in U
+
+* THM val_member_mono_2
+  >> 12. t:Term0. wf@(1,t) => wf@(2,t) => a:AtomicMType(1). 
+       <mtype(1,t),val(1,t)> {1} a => <mtype(2,t),val(2,t)> {2} a
+
+* THM wf_term@_mono
+  >> 12. t:Term0. wf@(1,t) => wf@(2,t)
+
+* THM term_type_mono
+  >> 12. t:Term(1). type(1,t) = type(2,t) in SET
+
+* THM term_val_mono
+  >> 12. t:Term(1). val(1,t) = val(2,t) in |type(1,t)|
+
+* THM term_list_type_mono
+  >> 12. l:Term(1) list. (null(l)) => type(1,l) = type(2,l) in SET
+
+* THM term_list_type_mem_mono
+  >> 12. l:Term(1) list. (null(l)) => x:|type(1,l)|. x in |type(2,l)|
+
+* ML add_term_list_type_mem_mono
+  add_membership_mono_lemma_to_inclusion `term_list_type_mem_mono` `tos` ;; 
+
+* THM terms_val_mono
+  >> 12. l:Term(1) list. (null(l)) => val(1,l) = val(2,l) in |type(1,l)|
+
+* THM appended_alist_ap
+  >> A:U. l1,l2:Atom#A list. a:Atom. l1@l2{A}(a) = l1{A}(a) ? l2{A}(a) in ?A
+
+* THM alist_values_char
+  >> A:U. P:A->U. l:Atom#A list. 
+      a:Atom. if s(x)=l{A}(a) . P(x)
+      <=> a:Atom where  l : Atom#A list. àx. a=x.1 in Atom. P(outl(l{A}(a)))
+
+* THM cst_alists_
+  >> A:U -> Atom#A list -> Atom#A list -> U
+  Extraction:
+  à A l1 l2. a:Atom. succeeds(l1{A}(a)) => succeeds(l2{A}(a)) => l1{A}(a)=l2{A}(a) in ?A
+
+* DEF cst_alists
+  cst{<A:U>}(<l1:Atom#A list>,<l2:Atom#A list>)==cst_alists(<A>)(<l1>)(<l2>)
+
+* THM cst_alists_suff_cond_
+  >> A:U -> Atom#A list -> Atom#A list -> U
+  Extraction:
+  à A l1 l2.  l2 : Atom#A list. ày. if s(x)=l1{A}(y.1) . x=y.2 in A
+
+* DEF cst_alists_suff_cond
+  cst{<A:U>}(<l1:Atom#A list>,<l2:Atom#A list>)==cst_alists_suff_cond(<A>)(<l1>)(<l2>)
+
+* THM sub_alist_intro_lemma
+  >> A:Type. x,y:?A. (succeeds(x) => succeeds(y) & x=y in ?A)
+       => if s(a)=x . with s(b)=y . a=b in A
+
+* THM sub_alist_intro
+  >> A:Type. l1,l2:Atom#A list. 
+       (a:Atom. succeeds(l1{A}(a)) => succeeds(l2{A}(a)) & l1{A}(a)=l2{A}(a) in ?A)
+       => (l1l2  (Atom#A list))
+
+* THM catch_char_2
+  >> A:Type. a,b:?A. (succeeds(a) & a?b = a in ?A)  (fails(a) & a?b=b in ?A)
+
+* THM catch_char_3
+  >> A:Type. a,b:?A. (succeeds(a) => a?b = a in ?A) & (fails(a) => a?b=b in ?A)
+
+* THM cst_alists_suff_cond_suffices
+  >> A:U. l1,l2:Atom#A list. cst{A}(l1,l2)
+       => cst{A}(l1,l2)
+
+* THM sub_alist_of_append
+  >> A:U. l1,l2:Atom#A list. (l1l1@l2  (Atom#A list))
+       & (cst{A}(l1,l2) => (l2l1@l2  (Atom#A list)))
+
+* THM sub_alist_char_2
+  >> A:U. l1,l2:Atom#A list. (l1l2  (Atom#A list)) => a:Atom. 
+        succeeds(l1{A}(a))
+        => succeeds(l2{A}(a)) & l1{A}(a) = l2{A}(a) in ?A
+
+* THM sub_fenv_mono
+  >> â1,â2:TEnv. ç1,ç2:FEnv(â1). â1â2 => ç1{â1}ç2 => ç1{â2}ç2
+
+* THM cst_if_sub_alist
+  >> A:U. l1,l2:Atom#A list. (l1l2  (Atom#A list)) => cst{A}(l1,l2)
+
+* THM append_to_sub_alist
+  >> A:U. l1,l2:Atom#A list. (l1l2  (Atom#A list))
+        => (l1@l2l2  (Atom#A list))
+           & (l2l1@l2  (Atom#A list))
+
+* THM append_lub_wrt_sub_alist
+  >> A:U. l1,l2,l3:Atom#A list. 
+      (l1l3  (Atom#A list)) => (l2l3  (Atom#A list)) => (l1@l2l3  (Atom#A list))
+
+* THM cst_alists_sym
+  >> A:U. l1,l2:Atom#A list. cst{A}(l1,l2) => cst{A}(l2,l1)
+
+* THM append_when_cst_lemma
+  >> A:U. l1,l2:Atom#A list. cst{A}(l1,l2) => (l1@l2l2@l1  (Atom#A list))
+
+* THM catch_succeeds_2
+  >> A:Type. x,y:?A. succeeds(x?y) <=> succeeds(x)  (fails(x) & succeeds(y))
+
+* THM alist_cst_with_append
+  >> A:U. l1,l2,l3:Atom#A list. cst{A}(l1,l2) => cst{A}(l1,l3) => cst{A}(l1,l2@l3)
+
+* THM cst_tenvs_
+  >> TEnv -> TEnv -> U
+  Extraction:
+  à â1 â2. cst{TEnvVal}(â1,â2)
+
+* DEF cst_tenvs
+  cst(<l1:TEnv>,<l2:TEnv>)==cst_tenvs(<l1>)(<l2>)
+
+* THM cst_fenvs_
+  >> â:TEnv -> FEnv(â) -> FEnv(â) -> U
+  Extraction:
+  à â ç1 ç2. cst{FEnvVal(â)}(ç1,ç2)
+
+* DEF cst_fenvs
+  cst{<g:TEnv>}(<l1:FEnv>,<l2:FEnv>)==cst_fenvs(<g>)(<l1>)(<l2>)
+
+* THM membership_of_FEnv_of_append
+  >> 1,2:Env. cst(1.1,2.1) => 1.2 in FEnv(1.1@2.1) & 2.2 in FEnv(1.1@2.1)
+
+* ML add_membership_of_FEnv_of_append
+  add_to_inclusion `membership_of_FEnv_of_append`
+  (\i. 
+   IfOnConcl (\c. let a,b = destruct_apply (eq_type c) in 
+                  ext_name a = `FEnv` & ext_name b = `append`)
+    (Progress (Lemma `membership_of_FEnv_of_append` ...*))
+    Fail
+  )
+  ;; 
+
+* THM cst_envs_
+  >> Env -> Env -> U
+  Extraction:
+  à 1 2. cst(1.1,2.1) & cst{1.1@2.1}(1.2,2.2)
+
+* DEF cst_envs
+  cst(<l1:Env>,<l2:Env>)==cst_envs(<l1>)(<l2>)
+
+* THM env_append_
+  >> Object
+  Extraction:
+  à 1 2. < 1.1 @ 2.1, 1.2 @ 2.2 >
+
+* DEF env_append
+  <l:Env>@<ll:Env>==env_append(<l>)(<ll>)
+
+* THM env_append__
+  >> 1,2:Env. cst(1,2) => 1@2 in Env
+
+* THM subenv_of_append
+  >> 1,2:Env.  cst(1,2)  =>  1  1@2 & 2  1@2
+
+* THM cst_if_subenv
+  >> 1,2:Env. 12 => cst(1,2)
+
+* THM append_to_subenv
+  >> 1,2:Env. 12 => 1@2  2 & 2  1@2
+
+* THM subenv_refl
+  >> :Env. 
+
+* THM subenv_trans
+  >> 1,2,3:Env. 12 => 23 => 13
+
+* THM cst_envs_refl
+  >> :Env. cst(,)
+
+* THM cst_fenvs_mono
+  >> â1,â2:TEnv. ç1,ç2:FEnv(â1). â1â2 => cst{â1}(ç1,ç2) => cst{â2}(ç1,ç2)
+
+* THM cst_envs_sym
+  >> 1,2:Env. cst(1,2) => cst(2,1)
+
+* THM env_cst_with_append
+  >> 1,2,3:Env. cst(1,2) => cst(2,3) => cst(1,3) => cst(1,2@3)
+
+* THM all_pairs_
+  >> A:U -> (A->A->U) -> A list -> U
+  Extraction:
+  à A P l. [ nil  True; h.t,Q  ( t : A list. P(h)) & Q; @ l]
+
+* DEF all_pairs
+  (x,y)<l:A list>: <A:A:U>. <P:A-\>A-\>U>(x,y)==all_pairs(<A>)(<P>)(<l>)
+
+* THM cst_env_list_
+  >> Env list -> U
+  Extraction:
+  àl. (x,y)l: Env. cst_envs(x,y)
+
+* DEF cst_env_list
+  cst(<l:Env list>)==cst_env_list(<l>)
+
+* THM append_env_list_
+  >> Object
+  Extraction:
+  àl. [ nil  <nil,nil>; h.t,v  h@v; @ l]
+
+* DEF append_env_list
+  @(<l:Env list>)==append_env_list(<l>)
+
+* THM append_env_list_wf_lemma
+  >> l:Env list. cst(l) => 
+       @(l) in Env  &  :Env. ( l : Env list. cst_envs()) => cst(,@(l))
+
+* THM append_env_list__
+  >> l:Env list. cst(l) => @(l) in Env
+
+* THM env_cst_with_list_append
+  >> l:Env list. cst(l) => :Env. ( l : Env list. cst_envs()) => cst(,@(l))
+
+* THM member_subenv
+  >> l:Env list. :Env. cst(l) =>  l : Env list. àx. x= in Env =>   @(l)
+
+* THM disjoint_alists_
+  >> A:U -> Atom#A list -> Atom#A list -> U
+  Extraction:
+  à A l1 l2.  l1 : Atom#A list. àa. fails(l2{A}(a.1))
+
+* DEF disjoint_alists
+  disjoint{<A:U>}(<l1:Atom#A list>,<l2:Atom#A list>)==disjoint_alists(<A>)(<l1>)(<l2>)
+
+* THM cst_alists_if_disjoint
+  >> A:U. l1,l2:Atom#A list. disjoint{A}(l1,l2) => cst{A}(l1,l2)
+
+* THM all_elements_anti_mono
+  >> A:U. P:A->U. l1,l2:A list. (l1l2  A list) => 
+        l2 : A list. P =>  l1 : A list. P
+
+* THM member_cst
+  >> l:Env list. :Env. cst(l) => 
+        l : Env list. àx. x= in Env =>  l : Env list. cst_envs()
+
+* THM append_lub_wrt_subenv
+  >> 1,2,3:Env. 13 => 23 => 1@23
+
+* THM sublist_of_cons
+  >> A:U. h:A. l:A list. (lh.l  A list)
+
+* THM sublist_cst
+  >> l1,l2:Env list. (l1l2  Env list) => cst(l2) => cst(l1) & @(l1)@(l2)
+
+* THM subseq_
+  >> A:U -> A list -> A list -> U
+  Extraction:
+  à A l1 l2. 
+  [ nil  null
+  ; h2.uu,P  àl1. [ nil  True
+                   ; h1.t1,uu  P(l1)  (h1=h2 in A & P(t1))
+                   ; @ l1]
+  ; @ l2]
+  (l1)
+
+* DEF subseq
+  (<l1:A list><l2:A list>  <A:A:Ui> list)==subseq(<A>)(<l1>)(<l2>)
+
+* THM sublist_if_subseq
+  >> A:U. l2,l1:A list. (l1l2  A list) => (l1l2  A list)
+
+* DEF END_Subenv
+  ==
+
+* DEF BEGIN_Meta1
+  ==
+
+* DEF tok
+  <x:string>=="<x>"
+
+* DEF constant
+  <c:lifted constant>==<c>(nil)
+
+* THM mark_
+  >> Object
+  Extraction:
+  à mark t. <mark,t>.2
+
+* DEF val_kind_cases
+  with <u:var> = <x:val_kind>.  none: <a:*>  triv: <b:*>  semi_triv: <c:*>  injection: <d:*>==d(<x>;<u>.<a>;<u>.d(<u>;<u>.<b>;<u>.d(<u>;<u>.<c>;<u>.<d>)))
+
+* THM make_fenv_unit_
+  >> Object
+  Extraction:
+  àâ. àa. à mt f vk. <a,<mt,f,vk>>
+
+* DEF make_fenv_unit
+  make_fenv_unit(<g:TEnv>,<a:atom>,<mt:mt:MType>,<f:val(mt)>,<vk:kind>)==make_fenv_unit(<g>)(<a>)(<mt>)(<f>)(<vk>)
+
+* THM make_fenv_unit__
+  >> â:TEnv. a:Atom. mt:Atom list # Atom. all_type_atoms(â,mt) => f:|val(â,mt)|. vk:val_kind(â,mt,f). 
+       make_fenv_unit(â,a,mt,f,vk) in FEnvUnit(â)
+
+* THM make_simple_fenv_unit_
+  >> Object
+  Extraction:
+  àâ. à a mt f. make_fenv_unit(â,a,mt,f,no_kind)
+
+* DEF make_simple_fenv_unit
+  make_simple_fenv_unit(<g:TEnv>,<a:atom>,<mt:mt:MType>,<f:val(mt)>)==make_simple_fenv_unit(<g>)(<a>)(<mt>)(<f>)
+
+* THM make_simple_fenv_unit__
+  >> â:TEnv. a:Atom. mt:Atom list # Atom. all_type_atoms(â,mt) => f:|val(â,mt)|. 
+       make_simple_fenv_unit(â,a,mt,f) in FEnvUnit(â)
+
+* ML EqI_make_simple_fenv_unit
+  let EqI_make_simple_fenv_unit =
+    MemberI THENM EvalConcl THEN 
+    IfOnConcl (\c. `tos` = ext_name (eq_type c) ? false) 
+      (EvalConclExcept (defs `fun prod sot tos`) THEN OnLastHyp Thin) 
+      (Id...)
+  ;; 
+
+* THM Constant_
+  >> Env -> U
+  Extraction:
+  à. Atom # a:AtomicMType() # |val(,a)|
+
+* DEF Constant
+  Constant(<a:Env>)==Constant(<a>)
+
+* THM make_constant_
+  >> Object
+  Extraction:
+  à. à a A v. <a,A,v>
+
+* DEF make_constant
+  make_constant(<alpha:Env>,<a:Atom>,<A:A:AtomicMType>,<v:val(A)>)==make_constant(<alpha>)(<a>)(<A>)(<v>)
+
+* THM make_constant__
+  >> :Env. a,A:Atom. type_atom(.1,A) => v:|val(,A)|. make_constant(,a,A,v) in Constant()
+
+* THM fenv_unit_of_constant_
+  >> :Env -> Constant() -> FEnvUnit(.1)
+  Extraction:
+  à  c. let a,A,v = c in make_simple_fenv_unit(.1, a, <nil,A>, v)
+
+* DEF fenv_unit_of_constant
+  fenv_unit(<a:Env>,<c:Constant>)==fenv_unit_of_constant(<a>)(<c>)
+
+* THM add_constants_
+  >> :Env -> Constant() list -> Env
+  Extraction:
+  à  l. <.1, .2 @ ((map fenv_unit_of_constant() on l to FEnvUnit(.1) list))>
+
+* DEF add_constants
+  add_constants(<a:Env>,<cl:Constant list>)==add_constants(<a>)(<cl>)
+
+* THM subenv_of_add_constants
+  >> 1,2:Env. cl:Constant(2) list. 12 => 1  add_constants(2,cl)
+
+* ML Lift_templates
+  main_env_template := 'add_constants(@(l), cl)' ;; 
+  env_hyp_template := 'l in Env list & cst(l) & cl in Constant(@(l)) list' ;; 
+  subenv_hyp_template := 'a1a2' ;; 
+  term_hyp_template := 't in Term0 & wf(,t) & mtype(,t) = "Prop" in Atom' ;; 
+  lift_template := 'val(,t)' ;; 
+  term_val_type := ':Env->t:Term()->|type(,t)|' ;; 
+
+* THM term_mtype_eval_lemma
+  >> 1,2:Env. t:Term0. 1=2 in Env => wf(1,t) => 
+      mtype(2,t) = "Prop" in Atom => mtype(1,t) = "Prop" in Atom
+
+* THM wf_term_eval_lemma
+  >> 1,2:Env. t:Term0. 1=2 in Env => wf(2,t) => wf(1,t)
+
+* THM term_val_eval_lemma_1
+  >> 1,2:Env. t:Term0. 1=2 in Env => wf(1,t) => 
+      mtype(1,t) = "Prop" in Atom => val(2,t) => val(1,t)
+
+* THM term_val_eval_lemma_2
+  >> 1,2:Env. t:Term0. 1=2 in Env => wf(1,t) => 
+      mtype(1,t) = "Prop" in Atom => val(1,t) => val(2,t)
+
+* THM all_elements_if_all_elements
+  >> A:U. P:A->U. l:A list. a:A.  l : A list. àx. x=a in A => P(a) =>  l : A list. P
+
+* THM subenv_of_append_list
+  >> l:Env list. cst(l) =>  l : Env list. à. @(l)
+
+* THM subenv_of_append_list_lemma
+  >> :Env. l:Env list. cst(l) => cl:Constant(@(l)) list. 
+      =add_constants(@(l),cl) in Env =>  l : Env list. àx. x
+
+* ML restrict_inclusion
+  Inclusion_restricted_p := true ;; 
+
+* THM eq_term_val_
+  >> :Env -> Term() -> Term() -> U
+  Extraction:
+  à  t1 t2. mtype(,t1) = mtype(,t2) in Atom & val(,t1)=val(,t2) in type(,t1)
+
+* DEF eq_term_val
+  val(<t1:Term>) ={<a:Env>} val(<t2:Term>)==eq_term_val(<a>)(<t1>)(<t2>)
+
+* THM simple_val_member
+  >> :Env. v:Val(). B:AtomicMType(). v.1=B in Atom => v {} B
+
+* THM eq_term_val_char
+  >> :Env. t1,t2:Term(). 
+      val(t1) ={} val(t2)
+      <=> mtype(,t1)=mtype(,t2) in Atom & val(,t1=t2 in mtype(,t1))
+
+* THM term_mtype_mono_2
+  >> 1,2:Env. 12 => t:Term(1). 
+       mtype(1,t) = mtype(2,t) in Atom
+
+* THM AtomicMType_eq_char
+  >> :Env. A,B:AtomicMType(). A=B in AtomicMType() <=> A=B in Atom
+
+* THM Term_mono
+  >> 12. t:Term(1). t in Term(2)
+
+* ML add_Term_mono
+  add_membership_mono_lemma_to_inclusion
+  `Term_mono` `Term`
+  ;; 
+
+* THM eq_term_val_mono
+  >> 1,2:Env. 12 => t1,t2:Term(1). val(t1) ={1} val(t2) => val(t1) ={2} val(t2)
+
+* DEF SET_level
+  i_SET==7
+
+* THM eq_types_when_eq_mtypes
+  >> :Env. t1,t2:Term(). mtype(,t1)=mtype(,t2) in Atom =>  type(,t1)=type(,t2) in SET
+
+* THM mem_when_eq_mtype
+  >> :Env. t1,t2:Term(). mtype(,t1)=mtype(,t2) in Atom => val(,t1) in |type(,t2)|
+
+* THM eos_of_eq_sets
+  >> S1,S2:SET. x,y:|S1|. S1=S2 in SET => x=y in S1 => x=y in S2
+
+* THM eq_term_val_refl
+  >> :Env. t:Term(). (val(t) ={} val(t))
+
+* THM eq_term_val_sym
+  >> :Env. t1,t2:Term(). (val(t1) ={} val(t2) => val(t2) ={} val(t1))
+
+* THM eq_term_val_trans
+  >> :Env. t1,t2,t3:Term(). 
+       ( val(t1) ={} val(t2) => val(t2) ={} val(t3) => val(t1) ={} val(t3) )
+
+* THM val_inv_
+  >> Env -> ( Term0 -> ?Term0 ) -> U
+  Extraction:
+  à  f. t1:Term0 where wf@(,t1). if s(t2)=f(t1) . (wf@(,t2)) & (val(t1) ={} val(t2))
+
+* DEF val_inv
+  val_inv(<a:Env>,<f:Term0-\>?Term0>)==val_inv(<a>)(<f>)
+
+* THM val_inv_triv
+  >> :Env. f:Term0->?Term0. (val_inv(,f)) => val_inv(,f)
+
+* THM Rewrite_
+  >> Env -> U
+  Extraction:
+  à. 
+  { f: Term0->?Term0 | 2:Env where cst(,2). val_inv(@2,f) }
+
+* DEF Rewrite
+  Rewrite(<a:Env>)==Rewrite(<a>)
+
+* THM Rewrite_eq_i
+  >> f:Term0->?Term0. 1:Env. 
+       (2:Env where cst(1,2). val_inv(1@2,f))
+       => f in Rewrite(1)
+
+* THM Rewrite_char
+  >> f:Term0->?Term0. 1:Env. 
+       2:Env where cst(1,2). val_inv(1@2,f) <=> 2:Env where 12. val_inv(2,f)
+
+* THM Rewrite_mono
+  >> 2,3:Env. 23 => f:Rewrite(2). f in Rewrite(3)
+
+* THM rewrite_THEN_
+  >> (Term0->?Term0) -> (Term0->?Term0) -> Term0 -> ?Term0
+  Extraction:
+  à f g. àt. d(f(t);u.g(u);u.fail)
+
+* DEF rewrite_THEN
+  <f:Rewrite> THEN <g:Rewrite>==rewrite_THEN(<f>)(<g>)
+
+* THM rewrite_THEN_wf_lemma
+  >> :Env. f,g:Term0->?Term0. (val_inv(,f)) => (val_inv(,g)) => (val_inv(,f THEN g))
+
+* THM rewrite_THEN__
+  >> :Env. f,g:Rewrite(). f THEN g in Rewrite()
+
+* THM rewrite_ORELSE_
+  >> (Term0->?Term0) -> (Term0->?Term0) -> Term0 -> ?Term0
+  Extraction:
+  à f g. àt. d(f(t);u.s(u);u.g(t))
+
+* DEF rewrite_ORELSE
+  <f:Rewrite> ORELSE <g:Rewrite>==rewrite_ORELSE(<f>)(<g>)
+
+* THM rewrite_ORELSE_wf_lemma
+  >> :Env. f,g:Term0->?Term0. (val_inv(,f)) => (val_inv(,g)) => (val_inv(,f ORELSE g))
+
+* THM rewrite_ORELSE__
+  >> :Env. f,g:Rewrite(). f ORELSE g in Rewrite()
+
+* THM rewrite_Id_
+  >> Term0 -> ?Term0
+  Extraction:
+  àt. s(t)
+
+* DEF rewrite_Id
+  Id==rewrite_Id
+
+* THM rewrite_Id_wf_lemma
+  >> :Env. val_inv(,Id)
+
+* THM rewrite_Id__
+  >> :Env. Id in Rewrite()
+
+* THM simple_ind_
+  >> A:Type -> n:N -> A -> (A->A) -> A
+  Extraction:
+  àA. à n a f. [ 0  a ; n, y  f(y) ; @ n]
+
+* DEF simple_ind
+  simple_ind{<A:A:Type>}(<a:A>,<f:A-\>A>,<n:N>)==simple_ind(<A>)(<n>)(<a>)(<f>)
+
+* THM a_big_number_
+  >> Int
+  Extraction:
+  9999999999999
+
+* DEF a_big_number
+  a_big_number==a_big_number
+
+* THM fake_fixed_point_
+  >> A:Type -> A -> (A->A) ->A
+  Extraction:
+  à A a f. simple_ind{A}(a,f,a_big_number)
+
+* DEF fake_fixed_point
+  fix{<A:A:Type>}(<a:A>,<f:A-\>A>)==fake_fixed_point(<A>)(<a>)(<f>)
+
+* THM fake_fixed_point_induction
+  >> A:Type. a:A. f:A->A. P:A->Type. 
+       P(a) => (x:A. P(x) => P(f(x))) => P(fix{A}(a,f))
+
+* THM rewrite_letrec_
+  >> ( (Term0->?Term0) -> (Term0->?Term0) ) -> (Term0->?Term0)
+  Extraction:
+  àF. fix{(Term0->?Term0)}(Id, F)
+
+* DEF rewrite_letrec
+  letrec <f:var> = <t:body>==rewrite_letrec(à<f>. <t>)
+
+* THM rewrite_letrec_wf_lemma
+  >> :Env. F: (Term0->?Term0) -> (Term0->?Term0) . 
+       (f:Term0->?Term0. val_inv(,f) => val_inv(,F(f)))
+       => val_inv(,rewrite_letrec(F))
+
+* THM rewrite_letrec__
+  >> :Env. F:Rewrite()->Rewrite(). rewrite_letrec(F) in Rewrite()
+
+* THM parallel_list_elim_2
+  >> A,B:Type. P: l1:A list -> {l2:B list||l1|=|l2| in Int} -> Type . 
+       P(nil,nil) => 
+       ( h1:A. h2:B. t1:A list. t2:B list. 
+           |t1|=|t2| in Int => P(t1,t2) => P(h1.t1, h2.t2) ) => 
+       l1:A list. l2:B list. |l1|=|l2| in Int => P(l1,l2)
+
+* THM parallel_list_elim_3
+  >> A,B:U. P: l1:A list -> {l2:B list||l1|=|l2| in Int} -> U .   
+       P(nil,nil) => 
+       ( h1:A. h2:B. t1:A list. t2:B list. |t1|=|t2| in Int => P(t1,t2)
+            => (null(t1) & null(t2) => P(h1.t1, h2.t2))
+               & (null(t1)) & (null(t2)) => P(h1.t1, h2.t2) ) => 
+       l1:A list. l2:B list. |l1|=|l2| in Int => P(l1,l2)
+
+* THM parallel_null_cases
+  >> A:U. l1,l2:A list. |l1|=|l2| in Int => null(l1) & null(l2)  (null(l1)) & (null(l2))
+   
+* THM parallel3_null_cases
+  >> A,B,C:U. l1:A list. l2:B list. l3:C list. |l1|=|l2| in Int => |l1|=|l3| in Int => 
+       null(l1) & null(l2) & null(l3)  (null(l1)) & (null(l2)) & (null(l3))
+   
+* THM prod_of_list_base_mem
+  >> Sl:SET list. S:SET. null(Sl) => x:|S|. x in |#(S.Sl)|
+
+* THM squash2_
+  >> Type->Type
+  Extraction:
+  àA. (A)
+
+* DEF squash2
+  (<T:type>)==squash2(<T>)
+
+* THM eq_term_val_when_val_member
+  >> :Env. t1,t2:Term(). A:AtomicMType(). 
+       <mtype(,t1),val(,t1)> {} A => <mtype(,t2),val(,t2)> {} A
+       => val(t1) ={} val(t2) => (val(,t1)=val(,t2) in val(,A))
+
+* THM length_when_vals_in_mtypes
+  >> :Env. l:Term() list. aml:AtomicMType() list. 
+       (map àt. <mtype(,t),val(,t)> on l to Val() list) {} aml => |l|=|aml| in Int
+   
+* THM vals_in_mtypes_unroll
+  >> :Env. vl:Val() list. aml:AtomicMType() list. v:Val(). a:AtomicMType(). 
+       v.vl {} a.aml => vl {} aml & v {} a
+   
+* THM terms_val_mem
+  >> :Env. l:Term() list. aml:AtomicMType() list. (null(l)) => 
+       (map àt. <mtype(,t),val(,t)> on l to Val() list) {} aml
+       => val(,l) in |#((map type_atom_val() on aml to SET list))|
+    
+
+* THM terms_val_unroll
+  >> :Env. l:Term() list. h:Term(). aml:AtomicMType() list. (null(l)) => 
+       (map àt. <mtype(,t),val(,t)> on h.l to Val() list) {} aml
+       => val(,h.l) = <val(,h),val(,l)> in |#((map type_atom_val() on aml to SET list))|
+
+* THM fun_ap_arg_length
+  >> :Env. f:Atom. args:Term0 list. wf@(,f(args)) => |args|=|mtype(,f).1| in Int
+
+* THM fun_aps_arg_length
+  >> :Env. f:Atom. args1,args2:Term0 list. 
+       wf@(,f(args1)) => wf@(,f(args2)) => |args1|=|args2| in Int
+
+* THM fun_ap_functionality_lemma
+  >> :Env. aml:AtomicMType() list. l1,l2:Term() list. (null(l1)) => 
+          (map àt. <mtype(,t),val(,t)> on l1 to Val() list) {} aml
+       => (map àt. <mtype(,t),val(,t)> on l2 to Val() list) {} aml
+       =>  com(l1,l2) : Term0 list. (à t1,t2. val(t1) ={} val(t2))
+       => (val(,l1) = val(,l2) in #((map type_atom_val() on aml to SET list)))
+
+* THM fun_ap_functionality_lemma_2
+  >> :Env. f:Atom. args1,args2:Term0 list. wf@(,f(args1)) => wf@(,f(args2))
+        => (null(mtype(,f).1))
+        =>  com(args1,args2) : Term()#Term() list. (à t1,t2. val(t1) ={} val(t2))
+        => (val(,args1) = val(,args2) in dom_val(,mtype(,f)))
+   
+* THM mfun_val_fnl
+  >> :Env. f:MFun(). (null(mtype(,f).1))
+       => (fnl{dom_val(,mtype(,f)), val(,mtype(,f).2)}(val(,f)))
+
+* THM fun_ap_functional
+  >> :Env. f:Atom. args1,args2:Term0 list. wf@(,f(args1)) => wf@(,f(args2))
+        =>  com(args1,args2) : Term()#Term() list. (à t1,t2. val(t1) ={} val(t2))
+        => (val(f(args1)) ={} val(f(args2)))
+
+* THM slet_
+  >> Object
+  Extraction:
+  àB. à f a. d(a;x.f(x);x.fail)
+
+* DEF fap
+  <f:A-\>?B>(<a:A>): <B:B:Type>==slet(<B>)(<f>)(<a>)
+
+* DEF slet
+  let s(<x:var>) = <a:?A> in <t:*>: ?<B:Type>==slet(<B>)(à<x>. <t>)(<a>)
+
+* THM slet__
+  >> A,B:Type. a:?A. f:A->?B. slet(B,f,a) in ?B
+
+* THM slet2_
+  >> Object
+  Extraction:
+  àB. à f a b. let s(x) = a in let s(y) = b in f(x,y): ?B: ?B
+
+* DEF slet2
+  let s(<x:var>), s(<y:var>) = <a:?A>, <b:?B> in <t:*>: ?<C:Type>==slet2(<C>)(à <x> <y>. <t>)(<a>)(<b>)
+
+* THM slet2__
+  >> A,B,C:Type. a:?A. b:?B. f:A->B->?C. slet2(C,f,a,b) in ?C
+
+* THM fmap_
+  >> Object
+  Extraction:
+  à B f l. [ nil  s(nil); h.t,v  let s(x), s(y) = v, f(h) in s(y.x): ?(B list); @ l]
+
+* DEF fmap
+  (map <f:A-\>?B> on <l:A list> to ?(<B:B:Type> list))==fmap(<B>)(<f>)(<l>)
+
+* THM fmap__
+  >> A,B:Type. f:A->?B. 
+       l:A list. (map f on l to ?(B list)) in ?B list
+   
+* THM ds_
+  >> Object
+  Extraction:
+  àa. d(a;x.x;x."uu")
+
+* DEF ds
+  ds(<a:?A>)==ds(<a>)
+
+* THM ds__
+  >> A:Type. a:?A. succeeds(a) => ds(a) in A
+
+* THM ifs_i
+  >> A:Type. P:A->Type. a:?A. (succeeds(a) => P(ds(a))) => if s(x)=a . P(x)
+
+* THM fmap_success
+  >> A,B:U. f:A->?B. 
+    l:A list. succeeds((map f on l to ?(B list))) <=>  l : A list. àx. succeeds(f(x))
+
+* THM fmap_char
+  >> A,B:U. f:A->?B. 
+       l:A list. succeeds((map f on l to ?(B list)))
+       => ds((map f on l to ?(B list))) = (map àx. ds(f(x)) on l to B list) in B list
+
+* THM ds_on_slet
+  >> A,B:Type. a:?A. f:A->?B. succeeds(slet(B,f,a)) => slet(B,f,a) = f(ds(a)) in ?B
+
+* THM slet_success
+  >> A,B:Type. a:?A. f:A->?B. succeeds(slet(B,f,a)) <=> succeeds(a) & succeeds(f(ds(a)))
+
+* THM rewrite_Sub_
+  >> (Term0->?Term0) -> Term0 -> ?Term0
+  Extraction:
+  àg. àt. case t to ?Term0
+    f,args -> let s(args2) = (map g on args to ?(Term0 list)) in s(f(args2)): ?Term0
+    x,y,A  -> let s(x2), s(y2) = g(x), g(y) in s(x2=y2 in A): ?Term0
+    i,x,y  -> let s(x2), s(y2) = g(x), g(y) in s(y2{i x2}): ?Term0
+    n      -> s(n)
+
+* DEF rewrite_Sub
+  Sub(<f:Rewrite>)==rewrite_Sub(<f>)
+
+* ML add_Term_subset_hack
+  add_to_inclusion `Term_subset_hack`
+  (\i p. 
+    if ht i p = 'Term0' & ext_name (eq_type (concl p)) = `Term` 
+    then (SetElementI THENM Trivial) p
+    else fail
+  )
+  ;; 
+
+? THM rewrite_Sub_on_fun_ap
+  >> :Env. g:Term0->?Term0. (val_inv(,g)) => f:Atom. l:Term() list. 
+
+* ML ISquashed
+  % Only implemented for & so far %
+  let ISquashed p =
+  ( let A,B = destruct_and (destruct_squash (concl p) ? snd (destruct_apply (concl p))) in
+    Assert (make_product_term `NIL` (make_ext_ap `squash2` [A]) (make_ext_ap `squash2` [B]))
+    THENL [Id; Complete (Unfold `squash2`...)]
+  ) p
+  ;; 
+
+* THM vals_in_mtypes_roll
+  >> :Env. vl:Val() list. aml:AtomicMType() list. v:Val(). a:AtomicMType(). 
+       vl {} aml & v {} a => v.vl {} a.aml
+
+* THM val_member_when_eq_term_vals
+  >> :Env. t1,t2:Term(). A:AtomicMType(). 
+       (val(t1) ={} val(t2)) => <mtype(,t1),val(,t1)> {} A => <mtype(,t2),val(,t2)> {} A
+
+* THM vals_in_mtypes_on_eq_term_vals
+  >> :Env. aml:AtomicMType() list. P:Term()->U. g:{t:Term()|P(t)}->Term(). 
+       (t:{t:Term()|P(t)}. (val(t) ={} val(g(t))))
+       => l:{t:Term()|P(t)} list. 
+             (map àt. <mtype(,t),val(,t)> on l to Val() list) {} aml
+             => (map àt. <mtype(,t),val(,t)> on (map g on l to Term() list) to Val() list) {} aml
+
+* THM members_when_wf_eq_ap
+  >> :Env. A:Atom. u,v:Term0. wf@(,u=v in A) => val(,u) in |val(,A)| & val(,v) in |val(,A)|
+
+* THM eq_ap_fnl
+  >> :Env. t,u,v,w:Term0. A:Atom. 
+       (wf@(,t=u in A)) => (wf@(,v=w in A))
+       => (val(t) ={} val(v)) => (val(u) ={} val(w))
+       => (val(t=u in A) ={} val(v=w in A))
+
+* THM inj_ap_eq_lemma
+  >> S1,S2:SET. i:|S1|->|S2|. a1,b1:|S1|. a2,b2:|S2|. 
+       eq_reln{|S2|:Ui_SET}(=_{S2}) => fnl{S1,S2}(i)
+       => a1=b1 in S1 => a2=b2 in S2 => i(a1)=a2 in S2 => i(b1)=b2 in S2
+
+* THM types_when_wf_i_pair
+  >> :Env. u,v:Term0. i:Atom. wf@(,v{i u})
+       => type(,u) = dom_val(,mtype(,i)) in SET
+          & type(,v) = val(,mtype(,i).2) in SET
+          & val(,i) in |type(,u)|->|type(,v)|
+
+* THM wf_eq_ap_when_eq_term_val
+  >> :Env. i:Atom. t1,t2,u1,u2:Term0. 
+       (wf@(,t2{i t1})) => (wf@(,u1)) => (wf@(,u2))
+       => (val(t1) ={} val(u1)) => (val(t2) ={} val(u2))
+       => (wf@(,u2{i u1}))
+
+* THM rewrite_Sub_wf_lemma
+  >> :Env. g:Term0->?Term0. (val_inv(,g)) => (val_inv(, Sub(g)))
+
+* THM rewrite_Sub__
+  >> :Env. f:Rewrite(). Sub(f) in Rewrite()
+
+* DEF END_Meta1
+  ==
+
+* DEF BEGIN_Meta2
+  ==
+
+* ML Term0Unroll
+  set_d_tactic_args 1 [] [] ``z f l u v A i u v n`` ;; 
+  
+  let Term0Unroll i p =
+    Pattern `Term0_unroll_pattern` [] []
+     (new_ids_from_ids ``z f l u v A i u v n`` p) i p
+  ;; 
+
+# THM Term0_unroll_pattern
+  >> s:Term0. "G"
+
+* THM eq_term_val_if_wf_
+  >> :Env -> Term0 -> Term0 -> U
+  Extraction:
+  à  t1 t2. (wf@(,t1)) => (wf@(,t2)) => (val(t1) ={} val(t2))
+
+* DEF eq_term_val_if_wf
+  (wf => val(<t1:Term>) ={<a:Env>} val(<t2:Term>)==eq_term_val_if_wf(<a>)(<t1>)(<t2>)
+
+* THM is_btrue_decidable
+  >> b:Bool. b  (b)
+
+* ML add_is_btrue_decidable
+  add_to_Decidable `is_btrue_decidable`
+  (Lemma `is_btrue_decidable`) 
+  ;; 
+
+* THM fun_ap_functional_2
+  >> :Env. f1,f2:Atom. f1=f2 in Atom => args1,args2:Term0 list. wf@(,f1(args1)) => wf@(,f2(args2))
+        =>  com(args1,args2) : Term()#Term() list. (à t1,t2. val(t1) ={} val(t2))
+        => (val(f1(args1)) ={} val(f2(args2)))
+
+* ML add_poly_clause_to_autotactic
+  add_to_autotactic `poly_clause`
+  (\p. 
+    let [t],T = destruct_equal (concl p) in
+    assert almost_poly_defined_term t ;
+    (Lemma o append_underscore o destruct_term_of_theorem o hd o decompose_ap) t p
+  )
+  ;; 
+
+* THM all_members_of_com
+  >> A1,A2:U. P1:A1->U. P2:A2->U. P3,P4:(A1#A2)->U. l1:A1 list. l2:A2 list. 
+       |l1|=|l2| in Int =>  l1 : A1 list. P1 =>  l2 : A2 list. P2
+       =>  com(l1,l2) : A1#A2 list. P3
+       => (a1:A1. a2:A2. P1(a1) & P2(a2) & P3(a1,a2) => P4(a1,a2))
+       =>  com(l1,l2) : A1#A2 list. P4
+
+* THM com_all_elements
+  >> A1,A2:U. P1:A1->U. P2:A2->U. l1:A1 list. l2:A2 list. 
+       |l1|=|l2| in Int =>  l1 : A1 list. P1 =>  l2 : A2 list. P2
+       =>  com(l1,l2) : A1#A2 list. à x1,x2. P1(x1) & P2(x2)
+   
+* THM wf_i_pair_fnlty
+  >> :Env. i:Atom. u,v:Term0. (wf@(,v{i u})) => (fnl{type(,u),type(,v)}(val(,i)))
+
+* THM wf_i_pair_injectiveness
+  >> :Env. i:Atom. u,v:Term0. (wf@(,v{i u})) => (injective(val(,i)type(,u)->type(,v)))
+
+* THM inj_ap_eq_lemma_2
+  >> S1,S2:SET. i:|S1->S2|. a1,b1:|S1|. a2,b2:|S2|. 
+       eq_reln{|S2|:Ui_SET}(=_{S2}) => injective(iS1->S2)
+       => a2=b2 in S2 => i(a1)=a2 in S2 => i(b1)=b2 in S2 => a1=b1 in S1
+
+* THM inj_ap_when_wf_i_pair
+  >> :Env. i:Atom. u,v:Term0. wf@(,v{i u}) => 
+      val(,i)(val(,u)) = val(,v) in type(,v)
+
+* THM i_pair_fnl
+  >> :Env. i1,i2:Atom. u1,v1,u2,v2:Term0. i1=i2 in Atom => 
+       (wf@(,v1{i1 u1})) => (wf@(,v2{i2 u2})) => (val(v1) ={} val(v2))
+       => (val(v1{i1 u1}) ={} val(v2{i2 u2}))
+
+* THM eq_term_
+  >> t1,t2:Term0. b:Bool where :Env. (b) => (wf => val(t1) ={} val(t2)
+  Extraction:
+  . . .
+
+* DEF eq_term
+  eq(<t1:Term0>,<t2:Term0>)==eq_term(<t1>)(<t2>)
+
+* THM rewrite_true_eq_
+  >> Term0 -> ?Term0
+  Extraction:
+  àt. 
+  case t to ?Term0
+    f,l -> fail
+    x,y,A -> let s(z) = eq(x,y) in s(True): ?Term0
+    i,x,y -> fail
+    n -> fail
+
+* DEF rewrite_true_eq
+  true_eq==rewrite_true_eq
+
+* ML add_eq_term_to_member_i
+  add_to_member_i `eq_term`
+  (\p. let t.(), T = destruct_equal (concl p) in
+       if is_set_term T & ext_name t = `eq_term` then EqI p
+       else fail
+  )
+  ;; 
+
+* THM eq_true_when_eq_term_val
+  >> :Env. A:Atom. u,v:Term0. (wf@(,u=v in A)) => (val(u) ={} val(v)) => (val(,u=v in A))
+
+* THM rewrite_true_eq_wf_lemma
+  >> :Env. val_inv(,rewrite_true_eq)
+
+* THM rewrite_true_eq__
+  >> :Env. true_eq in Rewrite()
+
+* THM df_
+  >> t:Term0 -> ?( f:Atom # {l:Term0 list| t=f(l) in Term0} )
+  Extraction:
+  àt. case t to ?(f:Atom#{l:Term0 list|t=f(l) in Term0})
+    f,l -> s(<f,l>)
+    x,y,A -> fail
+    i,x,y -> fail
+    n -> fail
+
+* DEF df
+  df(<t:Term0>)==df(<t>)
+
+* THM de_
+  >> t:Term0 -> ?( u:Term0 # v:Term0 # {A:Atom|t=(u=v in A) in Term0} )
+  Extraction:
+  àt. case t to ?( u:Term0 # v:Term0 # {A:Atom|t=(u=v in A) in Atom} )
+    f,l -> fail
+    x,y,A -> s(<x,y,A>)
+    i,x,y -> fail
+    n -> fail
+
+* DEF de
+  de(<t:Term0>)==de(<t>)
+
+* THM di_
+  >> t:Term0 -> ?( i:Atom # u:Term0 # {v:Term0|t=(v{i u}) in Term0} )
+  Extraction:
+  àt. case t to ?( i:Atom # u:Term0 # {v:Term0|t=(v{i u}) in Term0} )
+    f,l -> fail
+    x,y,A -> fail
+    i,x,y -> s(<i,x,y>)
+    n -> fail
+
+* DEF di
+  di(<t:Term0>)==di(<t>)
+
+* THM dn_
+  >> t:Term0 -> ?( {n:Int|t=(n) in Term0} )
+  Extraction:
+  àt. case t to ?( i:Atom # u:Term0 # {v:Term0|t=(v{i u}) in Term0} )
+    f,l -> fail
+    x,y,A -> fail
+    i,x,y -> fail
+    n -> s(n)
+
+* DEF dn
+  dn(<t:Term0>)==dn(<t>)
+
+* THM f_sub_map_
+  >> (Term0->?Term0) -> Term0 -> ?Term0
+  Extraction:
+  àg. àt. case t to ?Term0
+    f,args -> let s(args2) = (map g on args to ?(Term0 list)) in s(f(args2)): ?Term0
+    x,y,A  -> let s(x2), s(y2) = g(x), g(y) in s(x2=y2 in A): ?Term0
+    i,x,y  -> let s(x2), s(y2) = g(x), g(y) in s(y2{i x2}): ?Term0
+    n      -> s(n)
+
+* DEF f_sub_map
+  f_sub_map(<f:Term0-\>?Term0>,<t:Term0>)==f_sub_map(<f>)(<t>)
+
+* THM sub_map_
+  >> (Term0->Term0) -> Term0 -> Term0
+  Extraction:
+  àg. àt. case t to Term0
+    f,args -> f((map g on args to Term0 list))
+    x,y,A  -> g(x)=g(y) in A
+    i,x,y  -> g(y){i g(x)}
+    n      -> n
+
+* DEF sub_map
+  sub_map(<f:Term0-\>Term0>,<t:Term0>)==sub_map(<f>)(<t>)
+
+* THM b_null_
+  >> Object
+  Extraction:
+  àl. if null(l) then true else false
+
+* DEF b_null
+  null==b_null
+
+* THM b_null__
+  >> A:Type. l:A list. null(l) in Bool
+
+* THM b_is_constant_
+  >> Term0 -> Bool
+  Extraction:
+  àt. let (s(x)=df(t)) ? false in null((x).2)
+
+* DEF b_is_constant
+  is_constant(<t:Term0>)==b_is_constant(<t>)
+
+* THM id_of_constant_
+  >> Object
+  Extraction:
+  àt. ds(df(t)).1
+
+* DEF id_of_constant
+  id_of(<t:Term0>)==id_of_constant(<t>)
+
+* THM id_of_constant__
+  >> t:Term0. is_constant(t) => id_of(t) in Atom
+
+* THM f_sub_rec_
+  >> (Term0->?Term0->?Term0) -> Term0 -> ?Term0
+  Extraction:
+  à g t. rec_ind(t; h,t. g(t, f_sub_map(h,t)))
+
+* DEF f_sub_rec
+  sub_rec(<f:Term0-\>?Term0-\>?Term0>,<t:Term0>)==f_sub_rec(<f>)(<t>)
+
+* THM sub_rec_
+  >> (Term0->Term0->Term0) -> Term0 -> Term0
+  Extraction:
+  à g t. rec_ind(t; h,t. g(t, sub_map(h,t)))
+
+* DEF sub_rec
+  sub_rec(<f:Term0-\>Term0-\>Term0>,<t:Term0>)==sub_rec(<f>)(<t>)
+
+* THM subst_
+  >> Atom#Term0 list -> Term0 -> Term0
+  Extraction:
+  à alist t. 
+  sub_rec(à t sub_mapped_t. 
+            if is_constant(t) then 
+              àax. let (s(t2)=alist{Term0}(id_of(t))) ? t in t2
+            else àax. sub_mapped_t , 
+          t)
+
+* DEF subst
+  <l:Atom#Term0 list>(<t:Term0>)==subst(<l>)(<t>)
+
+* THM occurs_
+  >> Atom -> Term0 -> U1
+  Extraction:
+  à id t. rec_ind(t; Q,t.
+  case t to U1
+    f,l -> (null(l) & id=f in Atom)   l : Atom list. Q
+    x,y,A -> Q(x)  Q(y)
+    i,x,y -> Q(x)  Q(y)
+    n -> False)
+
+* DEF occurs
+  <x:Atom><t:Term0>==occurs(<x>)(<t>)
+
+* THM covering_subst_
+  >> Atom list -> (Atom#Term0 list) -> Term0 -> U1
+  Extraction:
+  à vars subst t. 
+  a:Atom.  vars : Atom list. àx. a=x in Atom => at =>  subst : Atom#Term0 list. àx. a=x.1 in Atom
+
+* DEF covering_subst
+  (<al:subst> covers <t:Term0> wrt <vl:Atom list>)==covering_subst(<vl>)(<al>)(<t>)
+
+* THM limited_subst_
+  >> Atom list -> Atom#Term0 list -> U1
+  Extraction:
+  à vars s.  s : Atom#Term0 list. àpr.  vars : Atom list. àvar. pr.1=var in Atom
+
+* DEF limited_subst
+  <s:subst> limited to <vars:ids>==limited_subst(<vars>)(<s>)
+
+* THM complete_subst_
+  >> Atom list -> Atom#Term0 list -> Term0 -> U1
+  Extraction:
+  àvars. à s t. (s covers t wrt vars) & s limited to vars
+
+* DEF complete_subst
+  (<subst:subst>{<vars:Atom list>} complete on <t1:Term0>)==complete_subst(<vars>)(<subst>)(<t1>)
+
+* THM f_identical_terms_
+  >> t1,t2:Term0. ?(t1=t2 in Term0)
+  Extraction:
+  . . .
+
+* DEF f_identical_terms
+  <t:Term0><tt:Term0>==f_identical_terms(<t>)(<tt>)
+
+* THM f_subst_cst_
+  >> subst1,subst2:Atom#Term0 list. ?((cst{Term0}(subst1,subst2)))
+  Extraction:
+  . . .
+
+* DEF f_subst_cst
+  cst(<s:subst>,<ss:subst>)==f_subst_cst(<s>)(<ss>)
+
+* THM covering_subst_mono
+  >> vars:Atom list. s1,s2:Atom#Term0 list. (s1s2  (Atom#Term0 list))
+        => t:Term0. (s1 covers t wrt vars) => (s2 covers t wrt vars)
+
+* THM subst_succeeds
+  >> vars:Atom list. s:Atom#Term0 list. t:Term0. is_constant(t)
+        => (s covers t wrt vars) =>  vars : Atom list. àx. id_of(t)=x in Atom
+        => succeeds(s{Term0}(id_of(t)))
+
+* THM subst_base
+  >> s:Atom#Term0 list. t:Term0. is_constant(t) => succeeds(s{Term0}(id_of(t)))
+        => s(t) = ds(s{Term0}(id_of(t))) in Term0
+
+* THM subst_fails
+  >> vars:Atom list. s:Atom#Term0 list. t:Term0. is_constant(t)
+        => s limited to vars => ( vars : Atom list. àx. id_of(t)=x in Atom)
+        => fails(s{Term0}(id_of(t)))
+
+* THM subst_base_2
+  >> s:Atom#Term0 list. t:Term0. is_constant(t) => fails(s{Term0}(id_of(t)))
+        => s(t) = t in Term0
+
+* THM subst_on_fun_ap
+  >> f:Atom. l:Term0 list. (null(l))
+        => s:Atom#Term0 list. s(f(l)) = f((map subst(s) on l to Term0 list)) in Term0
+   
+* THM subst_on_eq_ap
+  >> A:Atom. u,v:Term0. s:Atom#Term0 list. s(u=v in A) = (s(u)=s(v) in A) in Term0
+
+* THM subst_on_i_pair
+  >> i:Atom. u,v:Term0. s:Atom#Term0 list. s(v{i u}) = (s(v){i s(u)}) in Term0
+
+* THM covering_subst_hereditary
+  >> vars:Atom list. s:Atom#Term0 list. 
+       f:Atom. l:Term0 list. (s covers f(l) wrt vars)
+           =>  l : Term0 list. àt. (s covers t wrt vars)  
+       & t,u:Term0. A:Atom. (s covers t=u in A wrt vars)
+           => (s covers t wrt vars) & (s covers u wrt vars)
+       & i:Atom. t,u:Term0. (s covers u{i t} wrt vars)
+           => (s covers t wrt vars) & (s covers u wrt vars)
+
+* THM subst_mono
+  >> vars:Atom list. s1,s2:Atom#Term0 list. ((s1s2  (Atom#Term0 list)))
+        => t:Term0. ((s1{vars} complete on t)) => ((s2{vars} complete on t))
+                     => s1(t)=s2(t) in Term0
+
+* THM limited_appended_subst
+  >> vars:Atom list. s2,s1:Atom#Term0 list. s1 limited to vars => s2 limited to vars => s1@s2 limited to vars
+   
+* THM list_subst_lemma
+  >> vars:Atom list. l1:Term0 list. 
+        l1 : Term0 list. 
+         (àt1. t2:Term0. ?s:Atom#Term0 list
+             where (s{vars} complete on t1) & s(t1)=t2 in Term0)
+       => l2:Term0 list. ?s:Atom#Term0 list where 
+              l1 : Term0 list. àt. (s{vars} complete on t)
+             & (map subst(s) on l1 to Term0 list) = l2 in Term0 list
+
+* THM complete_subst_on_fun_ap
+  >> vars:Atom list. f:Atom. l:Term0 list. (null(l)) => s:Atom#Term0 list. 
+        l : Term0 list. àt. (s{vars} complete on t) => (s{vars} complete on f(l))
+
+* THM complete_subst_on_eq_ap
+  >> vars:Atom list. A:Atom. u,v:Term0. s:Atom#Term0 list. 
+       (s{vars} complete on u) => (s{vars} complete on v)
+       => (s{vars} complete on (u=v in A))
+
+* THM complete_subst_on_i_pair
+  >> vars:Atom list. i:Atom. u,v:Term0. s:Atom#Term0 list. 
+       (s{vars} complete on u) => (s{vars} complete on v)
+       => (s{vars} complete on (v{i u}))
+
+* THM match_
+  >> vars:Atom list. t1,t2:Term0. ?(s:Atom#Term0 list where (s{vars} complete on t1) & s(t1)=t2 in Term0)
+  Extraction:
+  . . .
+
+* DEF match
+  match(<p:pattern>,<i:instance>,<ids:ids>)==match(<ids>,<p>,<i>)
+
+* THM rewrite_from_eqn_
+  >> Atom list -> Term0 -> Term0 -> (Term0->?Term0)
+  Extraction:
+  à vars u v. àt. let s(subst) = match(u,t,vars) in s(subst(v)): ?Term0
+
+* DEF rewrite_from_eqn
+  rewrite{<ids:ids>}(<lhs:Term0>-\><rhs:Term0>)==rewrite_from_eqn(<ids>,<lhs>,<rhs>)
+
+* THM full_subst_
+  >> Atom list -> Atom#Term0 list -> U1
+  Extraction:
+  à vars s. l:Term0 list where |vars|=|l| in Int & s = com(vars,l) in Atom#Term0 list
+
+* DEF full_subst
+  <s:subst> full over <v:ids>==full_subst(<v>)(<s>)
+
+* THM full_subst_from_subst
+  >> vars:Atom list. s1:Atom#Term0 list. s2:Atom#Term0 list where 
+       s2 full over vars & 
+        vars : Atom list. àa. 
+           succeeds(s1{Term0}(a)) => s1{Term0}(a) = s2{Term0}(a) in ?Term0 & 
+           fails(s1{Term0}(a)) => s2{Term0}(a) = s(a) in ?Term0
+
+* THM length_of_com
+  >> A1,A2:U. l1:A1 list. l2:A2 list. |l1|=|l2| in Int => |com(l1,l2)|=|l1| in Int & |com(l1,l2)|=|l2| in Int
+
+* THM limited_subst_if_full
+  >> vars:Atom list. s:Atom#Term0 list. s full over vars => s limited to vars
+
+* THM all_elements_elim
+  >> A:U. P:A->U. l:A list. 
+       ( l : A list. P) => a:A. ( l : A list. àx. a=x in A) => P(a)
+
+* THM constant_char
+  >> t:Term0. is_constant(t) => t=id_of(t) in Term0
+
+* THM limited_subst_failure
+  >> vars:Atom list. s:Atom#Term0 list. s limited to vars => 
+       a:Atom. ( vars : Atom list. àx. a=x in Atom) => fails(s{Term0}(a))
+
+* THM full_subst_from_limited_subst
+  >> vars:Atom list. s1:Atom#Term0 list. (s1 limited to vars) => 
+       s2:Atom#Term0 list where s2 full over vars & t:Term0. s1(t)=s2(t) in Term0
+
+* THM rewrite_from_eqn_lemma
+  >> 1:Env. vars:Atom list. u,v:Term0. 
+       2:Env. cst(1,2) => s:Atom#Term0 list. (s{vars} complete on u) => wf@(1@2,s(u))
+                => (wf@(1@2,s(v))) & (val(s(u)) ={1@2} val(s(v)))
+       => 2:Env. cst(1,2) => val_inv(1@2,rewrite{vars}(u->v))
+
+* THM rewrite_from_eqn_lemma_2
+  >> 1:Env. vars:Atom list. u,v:Term0. 
+       2:Env. cst(1,2) => s:Atom#Term0 list. s full over vars => wf@(1@2,s(u))
+                => (wf@(1@2,s(v))) & (val(s(u)) ={1@2} val(s(v)))
+       => 2:Env. cst(1,2) => val_inv(1@2,rewrite{vars}(u->v))
+   
+* THM rewrite_from_eqn__
+  >> 1:Env. vars:Atom list. u,v:Term0. 
+       (2:Env. cst(1,2) => s:Atom#Term0 list. s full over vars => wf@(1@2,s(u))
+                => (wf@(1@2,s(v))) & (val(s(u)) ={1@2} val(s(v))))
+       => rewrite{vars}(u->v) in Rewrite(1)
+
+* THM parallel_list_unroll
+  >> A,B:Type. P: l1:A list -> {l2:B list||l1|=|l2| in Int} -> Type . 
+       P(nil,nil) => 
+       h1:A. h2:B. t1:A list. t2:B list. |t1|=|t2| in Int => P(h1.t1, h2.t2)  => 
+       l1:A list. l2:B list. |l1|=|l2| in Int => P(l1,l2)
+
+* THM full_1subst
+  >> x:Atom. s:Atom#Term0 list. s full over [x] => t:Term0 where s=[<x,t>] in Atom#Term0 list
+
+* THM full_2subst
+  >> x,y:Atom. s:Atom#Term0 list. s full over [x;y]
+       => t,u:Term0 where s=[<x,t>;<y,u>] in Atom#Term0 list
+
+* DEF list3
+  [<x:*>;<y:*>;<z:*>]==((<x>).(<y>).(<z>).nil)
+
+* THM full_3subst
+  >> x,y,z:Atom. s:Atom#Term0 list. s full over [x;y;z]
+       => t:Term0. u,v:Term0 where s = [<x,t>;<y,u>;<z,v>] in Atom#Term0 list
+
+* THM rewrite_from_1eqn
+  >> 1:Env. x:Atom. u,v:Term0. 
+       (2:Env. cst(1,2) => t:Term0. 
+          let s = [<x,t>] in 
+          wf@(1@2,s(u)) => (wf@(1@2,s(v))) & (val(s(u)) ={1@2} val(s(v))))
+       => rewrite{[x]}(u->v) in Rewrite(1)
+    
+
+* THM rewrite_from_2eqn
+  >> 1:Env. x,y:Atom. u,v:Term0. 
+       (2:Env. cst(1,2) => t1,t2:Term0. 
+          let s = [<x,t1>;<y,t2>] in 
+          wf@(1@2,s(u)) => (wf@(1@2,s(v))) & (val(s(u)) ={1@2} val(s(v))))
+       => rewrite{[x;y]}(u->v) in Rewrite(1)
+    
+
+* THM rewrite_from_3eqn
+  >> 1:Env. x,y,z:Atom. u,v:Term0. 
+       (2:Env. cst(1,2) => t1,t2,t3:Term0. 
+          let s = [<x,t1>;<y,t2>;<z,t3>] in 
+          wf@(1@2,s(u)) => (wf@(1@2,s(v))) & (val(s(u)) ={1@2} val(s(v))))
+       => rewrite{[x;y;z]}(u->v) in Rewrite(1)
+    
+
+* THM special_ap_
+  >> Object
+  Extraction:
+  à f x. f(x)
+
+* THM val_member_char_2
+  >> :Env. t:Term(). A:AtomicMType(). <mtype(,t),val(,t)> {} A => val(,t) in |val(,A)|
+
+* THM type_when_prop
+  >> :Env. t:Term(). mtype(,t) = "Prop" in Atom => val(,t) in U
+
+* THM eq_term_val_when_props
+  >> :Env. x,y:Term(). mtype(,x) = "Prop" in Atom => val(x) ={} val(y) => 
+       mtype(,y) = "Prop" in Atom & val(,x) in U & val(,y) in U & val(,x) <=> val(,y)
+
+* THM trivial_env_append
+  >> :Env.  = @<nil,nil> in Env
+
+* THM trivially_cst_envs
+  >> :Env. cst(,<nil,nil>)
+
+* THM rewrite_ap_lemma
+  >> :Env. f:Rewrite(). x:Term0. 
+        (wf(,x)) => mtype(,x) = "Prop" in Atom => 
+        if s(y)=f(x) . y in Term0 & (wf(,y)) & mtype(,y) = "Prop" in Atom
+                          & (val(,x)) <=> (val(,y))
+       
+
+* DEF END_Meta2
+  ==
+
+* DEF BEGIN_Meta3
+  ==
+
+* THM PropTerm_
+  >> Env -> U
+  Extraction:
+  à. { t:Term() | mtype(,t)="Prop" in Atom }
+
+* DEF PropTerm
+  PropTerm(<a:Env>)==PropTerm(<a>)
+
+* THM true_prop_term_
+  >> :Env -> PropTerm() -> U
+  Extraction:
+  à  t. val(,t)
+
+* DEF true_prop_term
+  <t:PropTerm>{<a:Env>}==true_prop_term(<a>,<t>)
+
+* THM Complete_
+  >> Env -> U
+  Extraction:
+  à. hyps: {t:PropTerm()|t{}} list. concl:PropTerm(). ?(concl{})
+
+* DEF Complete
+  Complete(<a:Env>)==Complete(<a>)
+
+* THM term_is_eq
+  >> :Env. t:Term(). ? x,y:Term(). A:Atom where wf@(,x=y in A) & t = (x=y in A) in Term()
+
+* THM term_in_mtype_
+  >> :Env -> Term() -> AtomicMType() -> U
+  Extraction:
+  à  t A. <mtype(,t),val(,t)> {} A
+
+* DEF term_in_mtype
+  <t:Term> {<a:Env>} <A:AtomicMType>==term_in_mtype(<a>,<t>,<A>)
+
+* THM eq_terms_in_mtype_
+  >> :Env -> Term() -> Term() -> AtomicMType() -> U
+  Extraction:
+  à. à x y A. x {} A & y {} A & val(,x) = val(,y) in val(,A)
+
+* DEF eq_terms_in_mtype
+  <t:Term> = <tt:Term> {<a:Env>} <A:AtomicMType>==eq_terms_in_mtype(<a>)(<t>,<tt>,<A>)
+
+* ML FixedPointInd
+  let FixedPointInd p = 
+  let n = number_of_hyps p + 1 in
+  ( InstantiateLemma `fake_fixed_point_` [concl p] THEN
+    OnLastHyp ài. Try (Refine (hyp i)) THEN
+    (\pp. if is_membership_goal pp then (Id...) pp
+          if concl pp = concl p then Thin n pp
+          else (I THENW Thin n ...) pp
+    )
+  ) p
+  ;; 
+
+* THM terms_are_eq_in_mtype
+  >> :Env. t,u:Term(). A:AtomicMType() where wf@(,t=u in A). ?(t = u {} A)
+
+* THM terms_are_eq_in_mtype_2
+  >> :Env. t,u:Term(). A:AtomicMType() where t {} A & u {} A. ?(t = u {} A)
+
+* ML Assume_additions
+  add_to_Assume `terms_are_eq_in_mtype_2`;; 
+  add_to_Assume `term_is_eq` ;; 
+  add_to_Assume `Atom_eq_decidable` ;; 
+
+* THM term_in_mtype_char
+  >> :Env. A:AtomicMType(). t:Term(). t {} A => val(,t) in |val(,A)|
+
+* THM terms_eq_in_mtype_sym
+  >> :Env. A:AtomicMType(). t1,t2:Term(). (t1 = t2 {} A => t2 = t1 {} A)
+
+* THM terms_eq_in_mtype_sym_2
+  >> :Env. A:AtomicMType(). t1,t2:Term(). (t1 = t2 {} A) => (t2 = t1 {} A)
+
+* THM terms_eq_in_mtype_trans
+  >> :Env. A:AtomicMType(). t1,t2,t3:Term(). (t1 = t2 {} A => t2 = t3 {} A => t1 = t3 {} A)
+
+* THM terms_eq_in_mtype_trans_2
+  >> :Env. A:AtomicMType(). t1,t2,t3:Term(). (t1 = t2 {} A) => (t2 = t3 {} A) => (t1 = t3 {} A)
+
+* THM equality_
+  >> :Env -> Complete()
+  Extraction:
+  . . .
+
+* DEF triv_mtype_constant
+  <A:Atom>==<nil,<A>>
+
+* DEF mtype_constant
+  <A:Atom>-\><B:Atom>==<[<A>],<B>>
+
+* DEF mtype_constant_2
+  <A:Atom>#<B:Atom>-\><C:Atom>==<[<A>;<B>],<C>>
+
+* THM m_bin_op_
+  >> Env -> Atom -> Atom -> U
+  Extraction:
+  à  A f. type_atom(.1,A) & fun_atom(,f) & mtype(,f) = A#A->A in MType()
+
+* DEF m_bin_op
+  <f:Atom> bin op over <A:Atom>{<a:Env>}==m_bin_op(<a>,<A>,<f>)
+
+* THM m_member_
+  >> Env -> Atom -> Atom -> U
+  Extraction:
+  à  A e. type_atom(.1,A) & fun_atom(,e) & mtype(,e) = A in MType()
+
+* DEF m_member
+  <e:Atom> {<a:Env>} <A:Atom>==m_member(<a>,<A>,<e>)
+
+* THM m_bin_op_ap_
+  >> :Env -> A:Atom -> f: {f:Atom|f bin op over A{}} -> 
+     ({t:Term()|t {} A} -> {t:Term()|t {} A} -> |val(,A)|)
+  Extraction:
+  à  A f. à x y. val(,f)(val(,x),val(,y))
+
+* DEF m_bin_op_ap
+  ap{<a:Env>,<A:Atom>}(<f:Atom>)==m_bin_op_ap(<a>,<A>,<f>)
+
+* DEF infix
+  <x:*> <f:*#**> <y:*>==<f>(<x>,<y>)
+
+* THM monoid_
+  >> S:SET -> |S| -> |S#S->S| -> U
+  Extraction:
+  à S e o. 
+  x,y,z:|S|. x o (y o z) = (x o y) o z in S & x:|S|. x o e = x in S & e o x = x in S 
+
+* DEF monoid
+  monoid(<S:S:SET>,<e:|S|>,<o:|S#SS|>)==monoid(<S>,<e>,<o>)
+
+* THM com_monoid_
+  >> S:SET -> |S| -> |S#S->S| -> U
+  Extraction:
+  à S e o. monoid(S,e,o) & x,y:|S|. x o y = y o x in S
+
+* DEF com_monoid
+  com_monoid(<S:S:SET>,<e:|S|>,<o:|S#SS|>)==com_monoid(<S>,<e>,<o>)
+
+* THM m_bin_op_type
+  >> :Env. A,f:Atom. f bin op over A{} => val(,f) in |val(,A)#val(,A)->val(,A)|
+
+* DEF minfix
+  <x:Term> <f:MFun> <y:Term>==<f>([<x>;<y>])
+
+* THM m_bin_op_ap_wf
+  >> :Env. A,o:Atom. o bin op over A{} => 
+       x,y:Term0. wf@(,x) & wf@(,y) & x {} A & y {} A
+            => wf@(,x o y)
+
+* THM m_member_type
+  >> :Env. A,e:Atom. e {} A => 
+       e in Term() & mtype(,e) = A in Atom & e {} A & val(,e) in |val(,A)| & wf@(,e)
+
+* THM m_monoid_
+  >> Env -> Atom -> Atom -> Atom -> U
+  Extraction:
+  à. à A e o. e {} A & o bin op over A{} & monoid(val(,A), val(,e), val(,o))
+
+* DEF m_monoid
+  monoid(<a:Env>,<A:A:Atom>,<e:e:Atom>,<o:o:Atom>)==m_monoid(<a>,<A>,<e>,<o>)
+
+* THM m_bin_op_ap_type
+  >> :Env. A,o:Atom. o bin op over A{} => 
+       x,y:Term(). x {} A & y {} A
+            => x o y in Term() & mtype(,x o y) = A in Atom
+               & x o y {} A & val(,x o y) in |val(,A)|
+               & val(,o)(val(,x),val(,y)) in |val(,A)|
+       & u,v:|val(,A)|. val(,o)(u,v) in |val(,A)|
+
+* THM m_bin_op_ap_eq
+  >> :Env. A,o:Atom. o bin op over A{} => x,y:Term(). x {} A & y {} A
+        => val(,x o y) = val(,o)(val(,x),val(,y)) in |val(,A)|
+           & u,v:|val(,A)|. val(,x)=u in |val(,A)| => val(,y)=v in |val(,A)|
+                 => val(,x o y) = val(,o)(u,v) in |val(,A)|
+
+* THM m_member_eq
+  >> :Env. A,e:Atom. e {} A => val(,e) = val(,e) in |val(,A)|
+
+* ML MBinOpApMember
+  let match_m_bin_op_to_hyp H = 
+    match 'f bin op over A{}' (type_of_declaration H) ``f A `` ;; 
+  
+  let get_A_lists p = 
+    collect ((\t. [t]) o C lookup `A` o match_m_bin_op_to_hyp) (hyps p) ;; 
+  
+  let MBinOpApMemberI p =
+  ( Lemma `m_bin_op_ap_type` ORELSE First (map (LemmaUsing `m_bin_op_ap_type`) (get_A_lists p)) 
+                             ORELSE First (map (LemmaUsing `m_bin_op_ap_wf`) (get_A_lists p)) 
+    THEN Try Trivial THEN Try CanonicalI THEN Try Trivial
+  ) p
+  ;; 
+  
+  let MBinOpApMember = Try Trivial THEN Try ReduceEquandicity THEN Repeat MBinOpApMemberI ;; 
+
+* ML MMemberMember
+  let match_m_member_to_hyp H = 
+    match 'e {} A' (type_of_declaration H) ``e A `` ;; 
+  
+  let get_A_lists_2 p = 
+    collect ((\t. [t]) o C lookup `A` o match_m_member_to_hyp) (hyps p) ;; 
+  
+  let MMemberMemberI p =
+  ( Lemma `m_member_type` ORELSE First (map (LemmaUsing `m_member_type`) (get_A_lists_2 p))
+    THEN Try Trivial THEN Try CanonicalI THEN Try Trivial
+  ) p
+  ;; 
+  
+  let MMemberMember = Try Trivial THEN Try ReduceEquandicity THEN Repeat MMemberMemberI ;; 
+
+* THM m_monoid_char
+  >> :Env. A,e,o:Atom. monoid(,A,e,o)
+      => x,y,z:Term(). x {} A & y {} A & z {} A  =>  x o (y o z) = (x o y) o z  {}  A
+         & x:Term(). x {} A =>  x o e = x  {}  A  &  e o x = x  {}  A
+
+* THM m_com_monoid_
+  >> Env -> Atom -> Atom -> Atom -> U
+  Extraction:
+  à. à A e o. e {} A & o bin op over A{} & com_monoid(val(,A), val(,e), val(,o))
+
+* DEF m_com_monoid
+  com_monoid(<a:Env>,<A:A:Atom>,<e:e:Atom>,<o:o:Atom>)==m_com_monoid(<a>,<A>,<e>,<o>)
+
+* THM all_wf_and_members_
+  >> :Env -> AtomicMType() -> Term0 list -> U
+  Extraction:
+  à  A l.  l : Term0 list. àt. wf@(,t) & t {} A
+
+* DEF all_wf_and_members
+  t<l:Term0 list>. wf(t) & t {<a:Env>} <A:AtomicMType>==all_wf_and_members(<a>,<A>,<l>)
+
+* ML add_two_membership_hacks
+  add_to_member_i `AtomicMType when type of m_bin_op, etc`
+  (\p. if 'AtomicMType' = head_of_application (eq_type (concl p)) then
+         (let i = find_hyp (\x,A. member (head_of_application A) 
+                             ['m_bin_op'; 'm_member'; 'm_monoid'; 'm_com_monoid']) p in
+          Complete (UnfoldsInHyp ``m_com_monoid m_monoid m_member m_bin_op`` i 
+                    THEN (Id ...)) p) 
+       else fail
+  )
+  ;; 
+  
+  add_to_member_i `all_elements over Term0 membership` Fail
+  %(\p. let [t],T = destruct_equal (concl p) in
+       if 'all_elements' = head_of_application t then
+         (if second (decompose_ap t) = 'Term0'
+          then (ComputeEquands THEN Try MemberI) p else fail)
+       else fail
+  )%
+  ;; 
+
+* THM implode_m_monoid_term_
+  >> Object
+  Extraction:
+  à e o l. [ nil  e; h.t,v  h o v; @ l]
+
+* DEF implode_m_monoid_term
+  implode <l:Term list> using <e:e:Atom>,<o:o:Atom>==implode_m_monoid_term(<e>,<o>,<l>)
+
+* THM implode_m_monoid_term_lemma
+  >> :Env. e,o,A:Atom. l:Term0 list. e {} A => o bin op over A{}
+       => tl. wf(t) & t {} A  =>  wf@(,(implode l using e,o)) & (implode l using e,o) {} A
+
+* THM implode_m_monoid_term__
+  >> :Env. e,o,A:Atom. l:Term0 list. e {} A => o bin op over A{} => tl. wf(t) & t {} A
+      => (implode l using e,o) in Term()
+
+* THM eq_m_monoid_lists_
+  >> Env -> Atom -> Atom -> Atom -> Term0 list -> Term0 list -> U
+  Extraction:
+  à. à A e o. à l1 l2. 
+  o bin op over A{} & e {} A & 
+  tl1. wf(t) & t {} A & tl2. wf(t) & t {} A & 
+  (implode l1 using e,o) = (implode l2 using e,o) {} A
+
+* DEF eq_m_monoid_lists
+  <l1:Term0 list>=<l2:Term0 list> (mod <e:e:Atom>,<o:o:Atom>) {<a:Env>} <A:A:Atom> list==eq_m_monoid_lists(<a>)(<A>)(<e>)(<o>)(<l1>)(<l2>)
+
+* THM term_is_constant
+  >> t:Term0. e:Atom. ?(t=e in Term0)
+
+* THM m_monoid_term_elim
+  >> e,o:Atom. P:Term0->U. 
+      P(e) => (u,v:Term0. P(u o v)) => (t:Term0. P(t)) => t:Term0. P(t)
+
+* THM eq_terms_in_mtype_refl
+  >> :Env. A:AtomicMType(). t:Term(). (t {} A) => (t = t {} A)
+
+* THM m_bin_op_ap_subterms
+  >> :Env. A,o:Atom. o bin op over A{} => u,v:Term0. wf@(,u o v) => 
+      wf@(,u) & wf@(,v) & u {} A & v {} A
+
+* THM m_bin_op_fnlty
+  >> :Env. A,o:Atom. u,v,x,y:Term0. 
+       o bin op over A{} => t(u.v.x.y.nil). wf(t) & t {} A
+       => (u = x {} A) => (v = y {} A) => (u o v = x o y {} A)
+
+* THM eq_lemma_for_explode_m_monoid_term
+  >> :Env. A,e,o:Atom. u,v:Term0. x,y,z:Term0. 
+       monoid(,A,e,o) => (t(u.v.x.y.z.nil). wf(t) & t {} A)
+       =>  v o x = y {} A  =>  u o y = z {} A  => ( (u o v) o x = z {} A)
+
+* THM explode_m_monoid_term
+  >> A,e,o:Atom. t:Term0. l:Term0 list where 
+       :Env. monoid(,A,e,o) => wf@(,t) => t {} A => ([t]=l (mod e,o) {} A list)
+
+* THM m_com_monoid_char
+  >> :Env. A,e,o:Atom. com_monoid(,A,e,o)
+      => monoid(,A,e,o)
+         & x,y:Term(). x {} A & y {} A => x o y = y o x  {}  A
+
+* THM eq_m_monoid_lists_refl
+  >> :Env. A,e,o:Atom. monoid(,A,e,o) => l:Term0 list. 
+       tl. wf(t) & t {} A => (l=l (mod e,o) {} A list)
+
+* THM eq_lemma_for_insert_in_m_monoid_term_list
+  >> :Env. A,e,o:Atom. u,v,x,y:Term0. 
+       com_monoid(,A,e,o) => (t(u.v.x.y.nil). wf(t) & t {} A)
+       =>  u o x = y {} A  => (u o (v o x) = v o y {} A)
+
+* THM insert_in_m_monoid_term_list
+  >> A,e,o:Atom. ord:Term0->Term0->Bool. t:Term0. l1:Term0 list. l2:Term0 list where 
+       :Env. com_monoid(,A,e,o) => wf@(,t) => t {} A => tl1. wf(t) & t {} A
+               => (t.l1=l2 (mod e,o) {} A list)
+
+* THM sort_m_com_monoid_term_list
+  >> A,e,o:Atom. ord:Term0->Term0->Bool. l1:Term0 list. l2:Term0 list where 
+       :Env. com_monoid(,A,e,o) => tl1. wf(t) & t {} A
+               => (l1=l2 (mod e,o) {} A list)
+
+* THM is_m_monoid_term
+  >> A,e,o:Atom. t:Term0. ?(:Env. monoid(,A,e,o) => wf@(,t) => mtype(,t)=A in Atom)
+
+* THM typecheck
+  >> A:Atom. :Env. t:Term0. ?(2:Env. 2 => wf@(2,t) => mtype(2,t) = A in Atom)
+
+* THM m_monoid_mono
+  >> 12. A,e,o:Atom. monoid(1,A,e,o) => monoid(2,A,e,o)
+
+* THM m_com_monoid_mono
+  >> 12. A,e,o:Atom. com_monoid(1,A,e,o) => com_monoid(2,A,e,o)
+
+* THM eq_term_val_if_eq_terms_in_mtype
+  >> :Env. x,y:Term(). A:AtomicMType(). 
+       mtype(,x) = A in Atom => mtype(,y) = A in Atom => x = y {} A => val(x) ={} val(y)
+
+* THM finish_m_monoid_implosion
+  >> A,e,o:Atom. 1:Env. l:Term0 list. ?t:Term0 where 
+       2:Env. monoid(2,A,e,o) => 12 => tl. wf(t) & t {2} A => 
+           wf@(2,t) & t {2} A & (val(implode l using e,o) ={2} val(t))
+
+* THM band_
+  >> Bool->Bool->Bool
+  Extraction:
+  à b1 b2. d(b1;u.b2;u.false)
+
+* DEF band
+  <P:PBool> & <Q:PBool>==band(<P>)(<Q>)
+
+* THM less_wrt_alist_
+  >> A:Type -> Atom#A list -> Atom -> Atom -> Bool
+  Extraction:
+  àA. à l x y. 
+  if x=y then false else [ nil  false; h.t,v  if h.1=x then true else if h.1=y then false else v; @ l]
+
+* DEF less_wrt_alist
+  <x:Atom> \<{<l:alist>: Atom#<A:Type> list} <y:Atom>==less_wrt_alist(<A>)(<l>,<x>,<y>)
+
+* THM type_atom_less_
+  >> :Env -> Atom -> Atom -> Bool
+  Extraction:
+  à  x y. x <{.1: Atom#TEnvVal list} y
+
+* THM fun_atom_less_
+  >> :Env -> Atom -> Atom -> Bool
+  Extraction:
+  à  x y. x <{.2: Atom#FEnvVal(.1) list} y
+
+* THM term_less_
+  >> :Env. t1,t2:Term0. Bool
+  Extraction:
+  . . .
+
+* THM norm_m_com_monoid_term_lemma
+  >> 1:Env. A,e,o:Atom. t1:Term0. ?t2:Term0 where 
+       2:Env. 12 => com_monoid(2,A,e,o) => wf@(2,t1) => (wf@(2,t2) & val(t1) ={2} val(t2))
+
+* THM norm_com_monoid_term_
+  >> Env -> Atom -> Atom -> Atom -> Term0 -> ?Term0
+  Extraction:
+  norm_m_com_monoid_term_lemma
+
+* DEF norm_com_monoid_term
+  norm{<a:Env>,<A:A>,<e:e>,<o:o>}==norm_com_monoid_term(<a>,<A>,<e>,<o>)
+
+* THM norm_com_monoid_term__
+  >> 1:Env. A,e,o:Atom. com_monoid(1,A,e,o) => 
+       2:Env. 12 => norm{2,A,e,o} in Rewrite(2)
+
+* THM Int_plus_
+  >> Int->Int->Int
+  Extraction:
+  à x y. x+y
+
+* DEF Int_plus
+  <x>+<y>==Int_plus(<x>,<y>)
+
+* DEF Int_plus__m
+  <x>+<y>=="Int_plus"(<x>.<y>.nil)
+
+* THM Int_plus__v
+  >> FEnvUnit(nil)
+
+* THM a_Int_
+  >> Env
+  Extraction:
+  <nil,
+    Int_plus__v
+    .nil 
+   >
+
+* THM rewrite_test
+  >> rewrite{[x;y]}(x+y -> y+x)
+      in Rewrite(a_Int)
+
+* ML add_to_member_i
+  add_to_member_i `Rewrite membership`
+  (\p. if 'Rewrite' = fst (destruct_apply (eq_type (concl p))) then
+         (ReduceConcl THEN ApplyMembershipThm append_underscore) p
+       else fail
+  )
+  ;; 
+
+* DEF END_Meta3
+  ==
+
+* DEF BEGIN_Meta4
+  ==
+
+* ML add_Rewrite_clauses_to_member_i
+  add_to_member_i `Rewrite membership`
+  (\p. if not 'Rewrite' = fst (destruct_apply (eq_type (concl p))) then fail
+       if (ext_name (first_equand (concl p)) = `rewrite_from_eqn` ? false) then Id p
+       else (ReduceConcl THEN TryMembershipThm append_underscore) p
+  )
+  ;; 
+
+* THM rewrite_Progress_
+  >> (Term0->?Term0) -> (Term0->?Term0)
+  Extraction:
+  àf. àx. let s(y) = f(x) in d(eq(x,y);u.fail;u.s(y)): ?Term0
+
+* DEF rewrite_Progress
+  Progress(<f:Rewrite>)==rewrite_Progress(<f>)
+
+* THM rewrite_Progress_wf_lemma
+  >> :Env. f:Term0->?Term0. val_inv(,f) => val_inv(,Progress(f))
+
+* THM rewrite_Progress__
+  >> :Env. f:Rewrite(). Progress(f) in Rewrite()
+
+* THM rewrite_Repeat_
+  >> (Term0->?Term0) -> Term0 -> ?Term0
+  Extraction:
+  àf. fix{Term0->?Term0}(Id, àg. (Progress(f) THEN g) ORELSE Id)
+
+* DEF rewrite_Repeat
+  Repeat(<f:Rewrite>)==rewrite_Repeat(<f>)
+
+* THM rewrite_Repeat_wf_lemma
+  >> :Env. f:Term0->?Term0. (val_inv(,f)) => (val_inv(, Repeat(f)))
+
+* THM rewrite_Repeat__
+  >> :Env. f:Rewrite(). Repeat(f) in Rewrite()
+
+* THM rewrite_Try_
+  >> (Term0->?Term0) -> (Term0->?Term0)
+  Extraction:
+  àf. àx. let res = f(x) in d(res;u.s(u);v.s(x))
+
+* DEF rewrite_Try
+  Try(<f:Rewrite>)==rewrite_Try(<f>)
+
+* THM rewrite_Try_wf_lemma
+  >> :Env. f:Term0->?Term0. val_inv(,f) => val_inv(,Try(f))
+
+* THM rewrite_Try__
+  >> :Env. f:Rewrite(). Try(f) in Rewrite()
+
+* THM TopDown_
+  >> Object
+  Extraction:
+  àf. letrec g = Try(f) THEN Sub(g)
+
+* DEF TopDown
+  TopDown(<f:Rewrite>)==TopDown(<f>)
+
+* THM TopDown__
+  >> :Env. f:Rewrite(). TopDown(f) in Rewrite()
+
+* THM BotUp_
+  >> Object
+  Extraction:
+  àf. letrec g = Sub(g) THEN Try(f)
+
+* DEF BotUp
+  BotUp(<f:Rewrite>)==BotUp(<f>)
+
+* THM BotUp__
+  >> :Env. f:Rewrite(). BotUp(f) in Rewrite()
+
+* THM Topmost_
+  >> Object
+  Extraction:
+  àf. letrec g = f ORELSE Sub(g)
+
+* DEF Topmost
+  Topmost(<f:Rewrite>)==Topmost(<f>)
+
+* THM Topmost__
+  >> :Env. f:Rewrite(). Topmost(f) in Rewrite()
+
+* THM triv_eq_pf_
+  >> :Env -> A:AtomicMType() -> ?triv_eq(val(,A))
+  Extraction:
+  à  A. (A).2
+
+* DEF triv_eq_pf
+  triv_eq_pf(<a:Env>,<A:AtomicMType>)==triv_eq_pf(<a>,<A>)
+
+* THM triv_eq_pf_char
+  >> :Env. A:AtomicMType(). succeeds(triv_eq_pf(,A)) => triv_eq(val(,A))
+
+* THM triv_term_truth
+  >> :Env. t:Term(). ?( mtype(,t)="Prop" in Atom & (t{}) => t{} ) 
+
+* THM triv_term_truth_2
+  >> 1,2:Env. 1=2 in Env => t:Term0. (wf(1,t)) => succeeds(triv_term_truth(2,t))
+        => mtype(1,t)="Prop" in Atom & (val(1,t)) => val(1,t)
+
+* THM complete_ap_lemma
+  >> :Env. f:Complete(). hyps:Term0 list. concl:Term0. 
+       hyps : Term0 list. (àt. (wf(,t)) & mtype(,t)="Prop" in Atom & val(,t))
+      => (wf(,concl)) & mtype(,concl)="Prop" in Atom
+      => succeeds(f(hyps,concl))
+      => (val(,concl))
+
+* DEF END_Meta4
+  ==
+
+* DEF BEGIN_Q
+  ==
+
+* THM Int_cancellation
+  >> x,y,z:Int. (z = 0) => x*z = y*z => x = y
+
+* THM Int_cancellation_2
+  >> w,x,y,z:Int. (y = 0) => (z = 0) => (w*y)*z = (x*y)*z => w = x
+
+* THM Q_
+  >> Set(1)
+  Extraction:
+  <Int#N+, à x,y. x.1*y.2 = y.1*x.2 in Int>
+
+* DEF Q
+  Q==Q
+
+* THM Q_eq_triv
+  >> triv_eq(Q)
+
+* DEF Q_0__m
+  0==Q_0
+
+* DEF Q_1__m
+  1==Q_1
+
+* THM rat_
+  >> Int -> N+ -> |Q|
+  Extraction:
+  à x y. <x,y>
+
+* DEF rat
+  <x:Int>/<y:N+>==rat(<x>,<y>)
+
+* THM rat_of_int_
+  >> Int -> |Q|
+  Extraction:
+  àn. <n,1>
+
+* DEF rat_of_int
+  <n:int>==rat_of_int(<n>)
+
+* ML ExpandQ
+  let ExpandQ i p =
+  ( if `NIL` = id_of_hyp i p then failwith `ExpandQ` ;
+    let ExpandMember i p = 
+      if h i p = '|Q|' then (E i THEN Thin i THEN OnLastHyp E THEN ReduceConcl) p
+      else failwith `ExpandQ` in
+    if h i p = '|Q#Q|' then 
+      E i THEN Thin i THEN OnLastHyp ài. ExpandMember i THEN ExpandMember (i-1)
+    else ExpandMember i
+  ) p
+  ;;  
+
+* THM Q_plus_
+  >> |Q#Q -> Q|
+  Extraction:
+  à x,y. < x.1*y.2 + y.1*x.2, x.2*y.2 >
+
+* DEF Q_plus
+  <x:Q>+<y:Q>==Q_plus(<x>,<y>)
+
+* DEF Q_plus__m
+  <x:mQ>+<y:mQ>==<x> Q_plus <y>
+
+* THM Q_plus_assoc
+  >> x,y,z:|Q|. x+(y+z) = (x+y)+z in Q
+
+* THM Q_plus_com
+  >> x,y:|Q|. x+y = y+x in Q
+
+* THM Q_neg_
+  >> |Q->Q|
+  Extraction:
+  àx. <-x.1,x.2>
+
+* DEF Q_neg
+  -<x:Q>==Q_neg(<x>)
+
+* DEF Q_neg__m
+  -(<x:mQ>)==Q_neg([<x>])
+
+* THM Q_neg_over_plus
+  >> x,y:|Q|. -(x+y) = -x+-y in Q
+
+* THM Q_mult_
+  >> |Q#Q->Q|
+  Extraction:
+  à x,y. <x.1*y.1, x.2*y.2>
+
+* DEF Q_mult
+  <x:Q>*<y:Q>==Q_mult(<x>,<y>)
+
+* DEF Q_mult__m
+  <x:mQ>*<y:mQ>==<x> Q_mult <y>
+
+* THM Q_mult_assoc
+  >> x,y,z:|Q|. x*(y*z) = (x*y)*z in Q
+
+* THM Q_mult_com
+  >> x,y:|Q|. x*y = y*x in Q
+
+* THM a_Q_
+  >> Env
+  Extraction:
+  let â = [<Q,Q,s(Q_eq_triv)>] in 
+  <â,
+   make_simple_fenv_unit(â, Q_0, Q, 0).
+   make_simple_fenv_unit(â, Q_1, Q, 1).
+   make_simple_fenv_unit(â, Q_plus, Q#Q->Q, Q_plus).
+   make_simple_fenv_unit(â, Q_mult, Q#Q->Q, Q_mult).
+   make_simple_fenv_unit(â, Q_neg, Q->Q, Q_neg).
+   nil>
+
+* DEF a_Q
+  _Q==a_Q
+
+* THM Q_additive_m_com_monoid
+  >> com_monoid(_Q, Q, Q_0, Q_plus)
+
+* THM Q_multiplicative_m_com_monoid
+  >> com_monoid(_Q, Q, Q_1, Q_mult)
+
+* THM Q_mult_over_plus
+  >> x,y,z:|Q|. x*(y+z) = x*y+x*z in Q  &  (x+y)*z = x*z+y*z in Q
+
+* DEF lw
+  (<T:tactic>...)==
+  ( (\p. (<T>) p) THEN 
+    (\p. if is_term_val (destruct_squash (concl p)) ? false then
+           Try CompleteWeakAutotactic p
+         else WeakAutotactic p
+    )
+  )
+
+* THM equality_test
+  >> x,y,z:|Q|. z=x in Q => x=y in Q => y=z in Q
+
+* THM norm_wrt_Q_neg
+  >> Rewrite(_Q)
+
+* THM test_norm_wrt_Q_neg
+  >> w,x,y,z:|Q|. -(w+x+y*z+z) = -w+-x+-y*z+-z in Q
+
+* THM norm_Q_term_wrt_plus_
+  >> Object
+  Extraction:
+  à. Topmost(norm{,Q,Q_0,Q_plus})
+
+* DEF norm_Q_term_wrt_plus
+  norm_wrt_Q_plus(<a:Env>)==norm_Q_term_wrt_plus(<a>)
+
+* THM norm_Q_term_wrt_plus__
+  >> :Env. _Q => norm_wrt_Q_plus() in Rewrite()
+
+* THM test_norm_Q_term_wrt_plus
+  >> w,x,y,z:|Q|. x+(y+(w+z)) = ((y+z)+y)+z in Q  => (y+(0+y))+(z+z) = 0 in Q
+                => 0+0 = (z+x)+(w+y) in Q
+
+* DEF END_Q
+  ==
+

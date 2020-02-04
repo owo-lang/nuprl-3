@@ -1,0 +1,90 @@
+%-------------------------------------------------------------------------------------------+
+|                                                                                           |
+|  finset.ml:     PRL-extensions for natural numbers/ arithmetic/ finite sets etc.          |
+|                                                                                           |
++-------------------------------------------------------------------------------------------%
+
+
+   I. Constructors, Destructors & Predicates
+   -----------------------------------------
+
+
+   Ia: Constructors
+   ----------------
+
+    make_leq_term i j         
+    make_uneq_term i j     
+    make_nat_term             
+    make_nbar_term j          
+    make_nbar1_term j         
+    make_finite_term          
+    make_finset_term A        
+    nat                       
+    finite_sets               
+
+
+   Ib: Destructors
+   ---------------
+   
+   Ic: Predicates
+   --------------
+      ---- as usual --
+   ----------------------------------------------------------------------------------
+
+
+   II. Rules      (nearly all of these rules aren't written yet)
+   ---------
+
+
+   IIa: Formation
+   --------------
+
+   H >> ij in Ui by fintro                                 leq_intro
+      >> i in int
+      >> j in int
+
+   H >> ij in Ui by fintro                                 uneq_intro
+      >> i in int
+      >> j in int
+
+   H >> N in Ui by fintro                                   nat_intro
+
+   H >> {1,..,n} in Ui by fintro                            nbar_intro
+      >> n in int
+
+   H >> {0,..,n} in Ui by fintro                            nbar1_intro
+      >> n in int
+
+   H >> FINITE SETS in Ui by fintro                         finset_intro
+
+   H >> {A} in Ui by fintro                                 finset_equality_conversion
+      >> A in FINITE SETS
+
+   IIb: Introduction
+   -----------------
+
+
+   IIc: Elimination
+   ----------------
+
+
+   IId: Computation
+   ----------------
+
+   these should include rules like (see theorems in chapter 12b/12c)
+
+   H >> x in {1,..,k+1} 
+      >> x in {1,..k}
+
+   H >> x in {1,..,(k+1)-1} 
+      >> x in {1,..k}
+
+   H >> x in {1,..,k-1}
+      >> x in {1,..,k}
+      >> x  k
+
+   H >> 0< j-i
+      >> i < j
+
+
+%%

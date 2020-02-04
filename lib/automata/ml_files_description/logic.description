@@ -1,0 +1,324 @@
+%-------------------------------------------------------------------------------------------+
+|                                                                                           |
+|  logic.ml:     PRL-extensions for logic definitions                                       |
+|                                                                                           |
++-------------------------------------------------------------------------------------------%
+
+
+
+   I. Constructors, Destructors & Predicates
+   -----------------------------------------
+
+   Ia:   Constructors
+   ------------------
+
+    make_and_term             =  p q               into  "p&q"
+    make_or_term              =  p q               into  p|q
+    make_imp_term             =  p q               into  "p=>q"
+    make_equiv_term           =  p q               into  "p<=>q"
+    make_false_term/ FALSE    =                          "false"
+    make_not_term p           =  p                 into  "p"
+    make_all_term             =  x type term       into  "x:type. term"
+    make_all2_term            =  x y type term     into  "x,y:type. term"
+    make_all3_term            =  x y z type term   into  "x,y,z:type. term"
+    make_some_term            =  x type term       into  "x:type. term"
+    make_some2_term           =  x y type term     into  "x,y:type. term"
+    make_some3_term           =  x y z type term   into  "x,y,z:type. term"
+   
+   p,q,type,term  are placeholders for terms in Ui,  x,y,z for var_terms
+
+
+   Ib:   Destructors
+   -----------------
+
+   split the constructions named above into their parts. The result is a product term.
+   e.g. destruct_all2 = term -> (term#term#term#term) 
+                      : "x,y:type. term" into <x,y,type,term>
+
+   The names of these destructors are obvious.
+
+
+   Ic:   Predicates
+   ----------------
+
+   They detect if a term represents a particular product. Due to simulation of my types by
+   ordinary PRL-types not all types are disjoint.
+
+   not is a subtype of  imp (i.e. if is_not_term t  is true so is  is_imp_term t)
+   equiv                and
+   all3   of all2   of  all
+   some3  of some2  of  some
+
+   You have to remember this if you do case analysis using word-terms.
+   ------------------------------------------------------------------------------------------
+
+
+
+
+   II. Rules
+   ---------
+
+
+   IIa:  Formation                           ( -->>> lintro isn't written so far)
+   ---------------
+
+   H >> A&B in Ui by lintro                                 and_equality
+      >> A in Ui
+      >> B in Ui
+
+   H >> A|B in Ui by lintro                                 or_equality
+      >> A in Ui
+      >> B in Ui
+
+   H >> A=>B in Ui by lintro                                imp_equality
+      >> A in Ui
+      >> B in Ui
+
+   H >> A<=>B in Ui by lintro                               equiv_equality
+      >> A in Ui
+      >> B in Ui
+
+   H >> false in Ui by lintro                               false_equality
+
+   H >> A in Ui by lintro                                  not_equality
+      >> A in Ui
+
+   
+   H >> (x:A.B) in Ui by lintro                            all_equality
+      >> A in Ui
+      x:A >> B in Ui
+
+   H >> (x1:A1....xn:An.B) in Ui by lintro [n]            repeat_all_equality
+      >> A1 in Ui                                           repeat_all_equality_for n
+      x1:A1 >> A2 in Ui
+      .
+      .
+      x1:A1,..,xn:An >> B in Ui
+
+
+   H >> (x:A.B) in Ui by lintro                            some_equality
+      >> A in Ui
+      x:A >> B in Ui
+
+   H >> (x1:A1....xn:An.B) in Ui by lintro [n]            repeat_some_equality
+      >> A1 in Ui                                           repeat_some_equality_for n
+      x1:A1 >> A2 in Ui
+      .
+      .
+      x1:A1,..,xn:An >> B in Ui
+
+
+
+
+   IIb:  Introduction                        
+   ------------------
+
+   H >> A&B  by lintro                                and_equality
+      >> A 
+      >> B 
+
+   H >> A|B by lintro left i                          or_intro_left level
+      >> A 
+      >> B in Ui
+
+   H >> A|B by lintro right i                         or_intro_right level
+      >> B 
+      >> A in Ui
+
+   H >> A=>B  by lintro i                             imp_intro level
+      A >> B
+      >> A in Ui
+
+   H >> A<=>B  by lintro i                            equiv_intro level
+      A >> B
+      >> A in Ui
+      B >> A
+      >> B in Ui
+
+   H >> FALSE by lintro                               false_intro (H must be contradictory)
+
+   H >> A by lintro i                                not_intro level
+      A >> FALSE
+      >> A in Ui
+   
+   H >> x:A.B by lintro i                            all_intro level
+      x:A >> B
+      >> A in Ui
+
+
+   H >> x1:A1....xn:An.B  by lintro i [n]           repeat_all_equality level
+      x1:A1,..,xn:An >> B                             repeat_all_equality_for n level
+      x1:A1,..xn-1:An-1 >> An in Ui
+      .
+      .
+      >> A1 in Ui 
+
+
+   H >> x:A.B by lintro i a                          some_intro level a
+      >> a in A
+      >> B[a/x]
+      x:A >> B in Ui
+
+   H >> x1:A1....xn:An.B by lintro i a1..an [n]     repeat_some_intro level alist
+      >> A1 in Ui                                     
+      x1:A1 >> A2 in Ui
+      .
+      .
+      x1:A1,..,xn:An >> B in Ui
+      >>a1 in A1
+      .
+      .
+      >>an in An[a1,..,an-1/x1,..,xn-1]
+      >>B[a1,..,an/x1,..xn]
+
+
+
+
+
+   IIc:  Elimination
+   -----------------
+
+   H, A1&A2..&An,H' >> T                                    and_elim hyp
+      H, H', A1, A2,.., An >> T
+
+   H, A1|A2|..|An, H' >> T                                  or_elim hyp
+      A1 >> T
+      A2 >> T     
+      .
+      .
+      An >> T
+
+   H, A=>B, H' >> T                                         imp_elim hyp
+      >> A
+      B >> T
+
+   H, A<=>B, H' >> T                                        equiv_elim_left hyp
+      >> A
+      B >> T
+
+   H, A<=>B, H' >> T                                        equiv_elim_right hyp
+      >> B
+      A >> T
+
+   H, FALSE, H' >> T                                        false_elim hyp
+
+   H, A, H' >> T                                           not_elim hyp
+      H, H'>> A
+
+   H, x1:A1....xn:An.B, H' >> T                           all_elim_on inst_list hyp
+      >> a1 in A1
+      .
+      .
+      >> an in An[a1,..,an-1/x1,..xn-1]
+      B[a1,..,an/x1,..xn] >> T
+
+   H, x1:A1....xn:An.B, H' >> T                           some_elim hyp
+      H, H', x1:A1,.., xn:An, B >> T                        some_elim_for n hyp
+
+
+
+   IId:  Computation                            
+   -----------------                            
+
+   There is no computation for logic expressions
+   ------------------------------------------------------------------------------------   
+
+
+   
+
+
+
+   III. Tactics
+   ------------
+
+   H >> x:A.B                by AllIntro j AUjtac                
+      x:A >> B
+
+   H >> x1:A1...xn:An.B     by RepeatAllIntro j AiUjtacs
+      x1:A1,.., xn:An >> B
+                              
+   H >> y:A.B                by SomeIntro j a atac BUjtac
+      >> B[a/y]
+
+   H >> y1:A1... yn:An.B    by RepeatSomeIntro j ailist aitacs AiUjtacs BUjtac
+      >> B[a1,..,an/y1,..yn]                                
+
+   H >> A => B                by ImpIntro j AUjtac                
+      A >> B
+   
+   H >> A <=> B               by EquivIntro j AUjtac BUjtac
+      A >> B
+      B >> A
+
+   
+      aitacs must prove  ">> ai in Ai[a1,..ai-1/x1,..xi-1]"
+      AiUjtacs           ">> Ai in Uj"
+      BUjtac             ">> B in Uj
+      
+      Using IDTAC instead leaves the corresponding subgoals open
+
+
+   Short forms:
+   -----------
+   level j = 1 
+      -  All_intro AU1tac  
+      -  Repeat_all_intro AiU1tacs
+      -  Some_intro a atac BU1tac
+      -  Repeat_some_intro ailist aitacs AiU1tacs BU1tac 
+      -  Imp_intro   AU1tac
+      -  Equiv_intro AU1tac BU1tac
+      -
+
+   level j = 1 and AU1tac = membership (+BU1tac = membership)
+      -  Allintro
+      -  Impintro
+      -  Equivintro
+
+   to be written:
+   Repeat_and_equality
+   Repeat_and_equality_for n
+
+   Repeat_and_intro
+   Repeat_and_intro_for n
+
+
+   ------------------------------------------------------------------------------------   %
+   
+
+
+
+
+   All-introduction for general PRL-types 
+   --------------------------------------
+
+    int_all_intro          = All_intro Intro;;
+    int_induction proof    =
+      ( l = length (hypotheses proof)
+       in
+         int_all_intro  THEN Int_elim (l+1) THEN Thinning [l+1]
+      ) proof
+   ;;
+
+   
+    ------ THE NEW MEMBERSHIP TACTIC ----------------------------------------------
+   
+      intended to be better and more understandable than membership
+      has clearer defined stop-points 
+      uses 
+      .  better typeguessing 
+      .  a type-vector for standard types which has the form
+         (object-constructor, type constructor) list
+         (e.g. (N,U1) . ( {1..n},N ->U1 ) etc.)
+      .  more about cumulativity
+      .  and, some -elimination if they are related to the conclusion or one of its vars 
+            (e.g. if a var is a member of some set)
+      .  logical rules (everybody needs them) like and-intro, all intro
+         (some-intro with guessing?)
+      .  top-level computation rules (?)
+      .  new naming concept
+      .  guessing of over terms ?
+      .  Theorem application 
+      .  neither immediate nor Member as subtactics
+   
+      Hope I will have time to write it and it's documentation
+      

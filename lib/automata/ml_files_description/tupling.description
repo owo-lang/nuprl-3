@@ -1,0 +1,167 @@
+%-------------------------------------------------------------------------------------------+
+|                                                                                           |
+|  tupling.ml:     PRL-extensions for tupling, multifunctions etc.                          |
+|                                                                                           |
++-------------------------------------------------------------------------------------------%
+
+
+
+   I. Constructors, Destructors & Predicates
+   -----------------------------------------
+
+
+
+   Ia:   Constructors
+   ------------------
+   
+    make_tup2_term         = term -> term -> term                    a b into      "(a,b)"
+    make_tup3_term         = term -> term -> term -> term            a b c into    "(a,b,c)"
+    make_tup4_term         = term -> term -> term -> term -> term    a b c d into  "(a,b,c,d)"
+    make_where2_term       = term -> term -> term -> term            
+      t a b t' into     "t - where (a,b) = t'"
+    make_where3_term       = term -> term -> term -> term -> term    
+      t a b c t' into   "t - where (a,b,c) = t'"
+    make_where4_term       = term -> term -> term -> term -> term -> term
+      t a b c d t' into "t - where (a,b,c,d) = t'"
+    make_id_function_term  = term                                                   "\x.x"
+    make_lambda2_term      = term -> term -> term -> term            x y t into     "ˆx,y.t"
+    make_apply2_term       = term -> term -> term -> term            f a b into     "f(a,b)"
+    id                     = make_id_function_term
+      
+    make_equal_int_term    =  term list -> term                   [x;y;..] into  "x=y..in int"
+
+
+
+   Ib:   Destructors
+   ------------------
+
+   Ic:   Predicates
+   ------------------
+      --- as usual ---
+   -------------------------------------------------------------------------------  
+
+
+
+
+   II. Rules
+   ---------
+
+
+   IIa:  Formation   
+   ---------------
+
+   No formation Rules for tupling
+   
+
+
+   IIb:  Introduction                        
+   ------------------
+
+   H >> (a1,a2,..,an) in x1:A1 # x2:A2 #... # An            tup_equality level
+      >> a1 in A1                                           tup_equality_for n level
+      >> a2 in A2[a1/x1]                                    tup2_equality level
+      .                                                     tup3_equality level
+      .                                                     tup4_equality level
+      >> an in An [a1,..,an-1/ x1,..,xn-1]
+      x1:A1,..,xn-1:An-1 >> An in Ui                        ( if xj = `NIL` (independent)
+      .                                                       then the subgoal
+      .                                                       x1:A1,..xj:Aj >> Aj+1 in Ui
+      x1:A1 >> A2 in Ui                                       does not appear )
+
+
+   H >> t - where (a,b) = x - in T                          where2_equality using
+      >> x in y:A#B
+      a1:A, b1:B[a1/y], x = (a1,b1) in y:A#B >> t[a1,b1/a,b] in T
+
+   H >> t - where (a,b,c) = x - in T                        where3_equality using level
+      >> x in y1:A1 # y2:A2 # A3
+      y1:A1 >> y2:A2 # A3 in Ui                                        (missing if y1 = `NIL`)
+      a1:A, b1:A2[a1/y1], c1:A3[a1,b1/y1,y2], x = (a1,b1,c1) in y1:A1 # y2:A2 # A3 
+       >> t[a1,b1,c1/a,b,c] in T
+
+   H >> t - where (a,b,c,d) = x - in T                      where4_equality using level
+      >> x in y1:A1 # y2:A2 # y3:A3 # A4
+      y1:A1,y2:A2 >> y3:A3 # A4 in Ui                                  (missing if y2 = `NIL`)
+      y1:A1 >> y2:A2 # y3:A3 # A4 in Ui                                (missing if y1 = `NIL`)
+      a1:A, b1:A2[a1/y1], c1:A3[a1,b1/y1,y2], d1:A4[a1,b1,c1/y1,y2,y3]
+       x = (a1,b1,c1,d1) in y1:A1 # y2:A2 # y3:A3 #A4
+       >> t[a1,b1,c1,d1/a,b,c,d] in T
+
+
+   H >> ˆa,b.t in y:(x:A#B) -> C                            lambda2_equality level
+      a:A, b:B[a/x] >> t in C
+      >> x:A#B in Ui
+
+   H >> f(a,b) in C                                         apply2_equality using level
+      >> f in y:(x:A#B) -> C
+      >> a in A
+      >> b in B[a/x]
+      x:A >> B in Ui
+
+
+
+
+   IIc:  Elimination
+   -----------------
+
+
+
+   IId:  Computation                                        ( TO BE WRITTEN)
+   -----------------                            
+
+
+   H >> t - where (a1,..,an) = (b1,..,bn) -  = t' in T by treduce 1     tup_reduce where
+      >> t[b1,..,bn/a1,..,an] = t' in T
+
+   H >> (ˆx,y.t)(a,b) = t' in T  by treduce 1                           lambda2_reduce where
+      >> t[a,b/x,y] = t' in T
+ 
+   H >> t - where (a1,..,an) = (b1,..,bn)  by tcompute                  tup_compute 
+      >> t[b1,..,bn/a1,..,an] 
+
+   H >> (ˆx,y.t)(a,b)   by tcompute                                     lambda2_compute 
+      >> t[a,b/x,y] 
+
+   H, t - where (a1,..,an) = (b1,..,bn) - = t' in T, H' >> T'           tup_reducehyp i 1
+      H, t[b1,..,bn/a1,..,an] = t' in T, H' >> T'
+
+   H, t - where (a1,..,an) = (b1,..,bn) - , H' >> T'                    tup_computehyp i 
+      H, t[b1,..,bn/a1,..,an], H' >> T'
+
+   H, (ˆx,y.t)(a,b) = t' in T, H' >> T'                                 lambda2_reducehyp i 1
+      H, t[a,b/x,y] = t' in T, H' >> T'
+
+   H, (ˆx,y.t)(a,b), H' >> T'                                           lambda2_computehyp i 
+      H, t[a,b/x,y], H' >> T'
+   -----------------------------------------------------------------------------------------
+
+
+
+   
+
+   III. Tactics
+   ------------
+
+
+      COMPUTATION
+
+      H >> f(x,redex) [= t] in T                Compute_apply2_arg2
+         >> f(x,contractum) [= t] in T
+
+      H >> t = f(x,redex) in T                  Compute_snd_apply2_arg2
+         >> t = f(x,contractum) in T
+
+      H >> f(redex,w) [= t] in T                Compute_apply2_arg1
+         >> f(contractum,w) [= t] in T
+
+      H >> t = f(redex,w) in T                  Compute_snd_apply2_arg1
+         >> t = f(contractum,w) in T
+
+      H >> redex(x,w) [= t] in T                Compute_apply2_fun
+         >> contractum(x,w) [= t] in T
+
+      H >> t = redex(x,w) in T                  Compute_snd_apply2_fun
+         >> t = contractum(x,w) in T
+
+   
+

@@ -1,0 +1,657 @@
+* DEFS
+  DEF *************************************
+      General purpose DEFs
+      *************************************
+
+* c
+  DEF %<comment>%
+
+* t
+  DEF (<tactic> ...)
+
+* ts
+  DEF (<tactic> ...!)
+
+* nt
+  DEF -- <tactic>
+
+* tc
+  DEF (<tactic> ...*)
+
+* te
+  DEF --w/elims <tactic>
+
+* tce
+  DEF --*w/elims <Tactic>
+
+* tm
+  DEF -- <tactic>
+
+* to
+  DEF -- <tactic>
+
+* nothing
+  DEF <anything>
+
+* squash
+  DEF (<type>)
+
+* spread
+  DEF let <var>,<var>=<term> in <term>
+
+* dblspread
+  DEF let <var>,<var>,<var>,<var>=<term>,<term> in <term>
+
+* and
+  DEF <prop> & <prop>
+
+* or
+  DEF <prop>  <prop>
+
+* imp
+  DEF <prop> => <prop>
+
+* not
+  DEF (<prop>)
+
+* neq
+  DEF <term>  <term> in <type>
+
+* iff
+  DEF <prop> <=> <prop>
+
+* all
+  DEF <var>:<type>. <prop>
+
+* all2
+  DEF <var>,<var>:<type>. <prop>
+
+* all3
+  DEF <var>,<var>,<var>:<type>. <prop>
+
+* all4
+  DEF <var>,<var>,<var>,<var>:<type>. <prop>
+
+* all_where
+  DEF <var>:<type> where <prop>. <prop>
+
+* all2_where
+  DEF <var>,<var>:<type> where <prop>.<prop>
+
+* all3_where
+  DEF <var>,<var>,<var>:<type> where <prop>.<prop>
+
+* some
+  DEF <var>:<type>. <prop>
+
+* some2
+  DEF <var>,<var>:<type>. <prop>
+
+* some3
+  DEF <var>,<var>,<var>:<type>.<prop>
+
+* some_where
+  DEF <var>:<type> where <prop>
+
+* some2_where
+  DEF <var>,<var>:<type> where <prop>
+
+* true
+  DEF true
+
+* false
+  DEF false
+
+* set
+  DEF {<var>:<type>|<prop>}
+
+* p1
+  DEF <tuple>.1
+
+* p2
+  DEF <tuple>.2
+
+* p3
+  DEF <tuple>.3
+
+* let2
+  DEF let <var>,<var> = <pair> in <term>
+
+* let3
+  DEF let <var>,<var>,<var> = <triple> in <term>
+
+* let4
+  DEF let <var>,<var>,<var>,<var> = <quad> in <term>
+
+* if_eq
+  DEF if <int>=<int> then <term> else <term>
+
+* l
+  DEF ˆ<var>. <term>
+
+* l2
+  DEF ˆ <var> <var>. <term>
+
+* prim_rec
+  DEF [ 0  <base case> ; <int var>, <var>  <term> ; @ <int>]
+
+* list_rec
+  DEF [ nil  <term>; <var>.<var>,<var>  <term>; @ <list>]
+
+* cons
+  DEF <A>.<A list>
+
+* ap
+  DEF <term><term>
+
+* bin_ap
+  DEF <term>(<term>,<term>)
+
+* type_ap
+  DEF <term><term>
+
+* le
+  DEF <Int><Int>
+
+* lele
+  DEF <Int><Int><Int>
+
+* lle
+  DEF <Int><<Int><Int>
+
+* lel
+  DEF <Int><Int><<Int>
+
+* ll
+  DEF <Int><<Int><<Int>
+
+* Int_abs_
+  THM >> Int -> Int
+      
+
+* Int_abs
+  DEF |<Int>|
+
+* eq
+  DEF <Int> = <Int>
+
+* N_
+  THM >> U1
+      
+
+* N
+  DEF N
+
+* Int_tail_
+  THM >> Int -> U1
+      
+
+* Int_tail
+  DEF {<Int>..}
+
+* Int_seg_
+  THM >> Int -> Int -> U1
+      
+
+* Int_seg
+  DEF {<Int>..<Int>}
+
+* N_plus_
+  THM >> U1
+      
+
+* N_plus
+  DEF N+
+
+* hd_
+  THM >> object 
+
+* hd
+  DEF hd
+
+* hd__
+  THM >> A:U1. l:A list. l  nil in A list => hd(l) in A
+      
+
+* tl_
+  THM >> object
+      
+
+* tl
+  DEF tl
+
+* tl__
+  THM >> A:U1. l:A list. tl(l) in A list
+      
+
+* append_
+  THM >> object
+      
+
+* append
+  DEF <list>@<list>
+
+* append__
+  THM >> A:U1. l1,l2:A list. l1@l2 in A list
+      
+
+* cons_of_append
+  THM >> A:U1. a:A. x,y:A list. a.(x@y) = (a.x)@y in A list
+      
+
+* append_assoc
+  THM >> A:U1. x,y,z:A list. x@(y@z) = (x@y)@z in A list
+      
+
+* append_to_nil
+  THM >> A:U1. x:A list. x@nil = x in A list
+      
+
+* all_tails
+  DEF  tails <var>.<var> of <list>. <prop>
+
+* if_hd
+  DEF if <var> = hd(<list>) then <prop>
+
+* all_elements
+  DEF <member><list>. <prop>
+
+* all_elements_of_append
+  THM >> A:U1. P:A->U1. x,y:A list. 
+         ax. P(a) => ay. P(a) => ax@y. P(a)
+      
+
+* append_of_all_elements
+  THM >> A:U1. P:A->U1. x,y:A list. 
+         ax@y. P(a) => ax. P(a) & ay. P(a)
+      
+      
+
+* null_
+  THM >> object
+      
+
+* null
+  DEF null
+
+* null__
+  THM >> A:U1. l:A list. null(l) in U1
+
+* null_lemma
+  THM >> A:U1. l:A list. null(l) => l = nil in A list
+      
+
+* trans_n_
+  THM >> T:U1. r:T->T->U1. n:N. T->T->U1
+      
+
+* trans_n_unroll
+  THM >> T:U1. r:T->T->U1. n:N. t1,t2:T. 
+         {T}r^(n+1)(t1,t2) = tn:T. r(tn,t2) & {T}r^n(t1,tn) in U1
+      
+
+* trans_n_unroll_2
+  THM >> T:U1. r:T->T->U1. n:N. t1,t2:T. 0<n => 
+         {T}r^(n)(t1,t2) = tk:T. r(tk,t2) & {T}r^(n-1)(t1,tk) in U1
+      
+      
+
+* trans_n
+  DEF {<type>}<reln>^<N>
+
+* star_
+  THM >> T:U1. r:T->T->U1. T->T->U1
+      
+
+* star
+  DEF {<type>}<reln>^*
+
+* star_char_1
+  THM >> T:U1. r:T->T->U1. t0,tn:T. 
+         {T}r^*(t0,tn)
+         => P:T->U1. 
+            P(t0) => (t1,t2:T. P(t1) => r(t1,t2) => P(t2)) => P(tn)
+      
+
+* star_char_2
+  THM >> T:U1. r:T->T->U1. t0,tn:T. 
+         P:T->U1. 
+            P(t0) => (t1,t2:T. P(t1) => r(t1,t2) => P(t2)) => P(tn)
+         => {T}r^*(t0,tn)
+      
+      
+
+* star_char_3
+  THM >> T:U1. r:T->T->U1. P:T->T->U1. 
+         t:T. P(t,t)
+         => t1,t2,t3:T. P(t1,t2) => P(t2,t3) => P(t1,t3) 
+         => t1,t2:T. r(t1,t2) => P(t1,t2)
+         => t1,t2:T. {T}r^*(t1,t2) => P(t1,t2)
+      
+
+* star_bigger
+  THM >> T:U1. r:T->T->U1. t1,t2:T. r(t1,t2) => {T}r^*(t1,t2)
+      
+
+* star_refl
+  THM >> T:U1. r:T->T->U1. t:T. {T}r^*(t,t)
+      
+      
+
+* star_trans
+  THM >> T:U1. r:T->T->U1. t1,t2,t3:T. 
+         {T}r^*(t1,t2) => {T}r^*(t2,t3) => {T}r^*(t1,t3)
+      
+
+* star_sym
+  THM >> T:U1. r:T->T->U1. 
+           t1,t2:T. r(t1,t2) => r(t2,t1)
+           => 
+           t1,t2:T. {T}r^*(t1,t2) => {T}r^*(t2,t1)
+      
+      
+      
+
+* star_fold_eq
+  THM >> T:U1. r:T->T->U1. t1,t2:T. 
+          t1=t2 in T => {T}r^*(t1,t2)
+      
+      
+      
+
+* star_fold
+  THM >> T:U1. r:T->T->U1. t1,t2:T. 
+          t:T. {T}r^*(t1,t) & r(t,t2) => {T}r^*(t1,t2)
+      
+      
+      
+
+* star_unfold
+  THM >> T:U1. r:T->T->U1. t1,t2:T. 
+          {T}r^*(t1,t2) => t1=t2 in T  t:T. {T}r^*(t1,t) & r(t,t2)
+      
+      
+
+* perm1_
+  THM >> A:U1 -> (A list) -> (A list) -> U1
+      
+
+* perm1
+  DEF <list> 1 <list> in <member type> list
+
+* perm1_sym
+  THM >> A:U1. l1,l2:A list. l1 1 l2 in A list => l2 1 l1 in A list
+      
+
+* perm_
+  THM >> A:U1 -> (A list) -> (A list) -> U1
+      
+
+* perm
+  DEF <list>  <list> in <member type> list
+
+* length_
+  THM >> object
+      
+
+* length
+  DEF |<list>|
+
+* length__
+  THM >> A:U1. l:A list. |l| in Int
+      
+
+* length_nonneg
+  THM >> A:U1. l:A list. 0|l|
+      
+
+* length_of_cons
+  THM >> A:U1. h:A. t:A list. |h.t| = 1+|t|
+      
+
+* length_of_append
+  THM >> A:U1. l1,l2:A list. |l1@l2| = |l1|+|l2|
+      
+      
+
+* list_induction
+  THM >> A:U1. P:(A list)->U1. 
+         ll:A list. ( x:A list. |x|<|ll| => P(x) ) => P(ll)
+         => l:A list. P(l)
+      
+
+* list_induction_2
+  THM >> A:U1. l:A list. P:(A list)->U1. 
+         ll:A list. ( x:A list. |x|<|ll| => P(x) ) => P(ll)
+         => P(l)
+      
+      
+
+* ListInduction
+  ML 
+
+* PermInduction
+  ML 
+
+* PermInduction2
+  ML 
+
+* perm_refl
+  THM >> A:U1. l:A list. l  l in A list
+      
+      
+
+* perm_sym
+  THM >> A:U1. l1,l2:A list. l1  l2 in A list => l2  l1 in A list
+      
+
+* perm_trans
+  THM >> A:U1. l1,l2,l3:A list. 
+         l1  l2 in A list => l2  l3 in A list => l1  l3 in A list
+      
+      
+
+* perm_invariant
+  THM >> A:U1. P:A->U1. x,y:A list. 
+         x  y in A list => ax. P(a) => ay. P(a)
+      
+
+* append_perm
+  THM >> A:U1. w,x,y,z:A list. 
+         x  y in A list => w@x@z  w@y@z in A list
+      
+
+* append_perm_left
+  THM >> A:U1. x,u,v:A list. u  v in A list => u@x  v@x in A list
+      
+
+* append_perm_right
+  THM >> A:U1. x,u,v:A list. u  v in A list => x@u  x@v in A list
+      
+      
+
+* cons_perm
+  THM >> A:U1. u,v:A list. a:A. 
+          u  v in A list => a.u  a.v in A list
+      
+
+* perm1_length
+  THM >> A:U1. x,y:A list. x 1 y in A list => |x| = |y| in Int
+      
+      
+
+* perm_length
+  THM >> A:U1. x,y:A list. x  y in A list => |x| = |y| in Int
+      
+
+* head_swap
+  THM >> A:U1. a,b:A. l:A list. a.b.l  b.a.l in A list
+      
+
+* swap
+  THM >> A:U1. x,y:A list. a,b:A. x@(a.b.y)  x@(b.a.y) in A list
+      
+
+* big_swap
+  THM >> A:U1. a:A. x,y:A list. a.(x@y)  x@(a.y) in A list
+      
+
+* partition
+  THM >> x:Int list. n:Int. y,z:Int list where 
+         iy. i<n & iz. ni & n.x  y@n.z in Int list
+
+* sorted_
+  THM >> (Int list) -> U1
+      
+
+* sorted
+  DEF sorted(<Int list>)
+
+* sort_lemma
+  THM >> x,y:Int list. n:Int. ix. i<n => iy. ni
+          => sorted(x) => sorted(y) => sorted(x@n.y)
+      
+
+* quicksort_length_lemma
+  THM >> A:U1. x,y:A list. a:A. |x|<|x@a.y| & |y|<|x@a.y|
+      
+
+* quicksort
+  THM >> l1:Int list. l2:Int list
+           where sorted(l2) & l1  l2 in Int list
+      
+
+* eval_defs
+  EVAL 
+
+
+
+
+EXTRACTED TERMS FROM THEOREMS USED AS DEFINITIONS
+
+
+term_of(Int_abs_):
+
+ˆ n.  less(n;0;-n;n)
+
+
+
+term_of(N_):
+
+{n:Int|0n}
+
+
+
+term_of(Int_tail_):
+
+ˆm.  {n:int|mn}
+
+
+
+term_of(Int_seg_):
+
+ˆ  m  n .  {i:Int|lele min}
+
+
+
+term_of(N_plus_):
+
+{n:Int|0<n}
+
+
+
+term_of(hd_):
+
+ˆl. list_ind(l;"uu";h,t,v.h)
+
+
+
+term_of(hd__):
+
+\A.(\l.(\v0.(\v1.(\v5.(\v6.v6)(v5(axiom)))(v1(l)))(\l10.list_ind(l10;\v3.axi
+      om;h8,t9,v2.\v4.axiom))))
+
+
+
+term_of(tl_):
+
+ˆl. list_ind(l;nil;h,t,v.t)
+
+
+
+term_of(tl__):
+
+\A.(\l.(\v0.(\v4.(\v5.v5)(v4(axiom)))(v0(l)))(\l6.list_ind(l6;\v2.axiom;h4,t
+      5,v1.\v3.axiom)))
+
+
+
+term_of(append_):
+
+ˆ l1 l2. [ nil  l2; h.t,v  h.v; @ l1]
+
+
+
+term_of(append__):
+
+\A.(\l1.(\l2.list_ind(l1;axiom;h7,l1,v0.axiom)))
+
+
+
+term_of(null_):
+
+ˆl. [ nil  true; h.t,v  false; @ l]
+
+
+
+term_of(null__):
+
+\A.(\l.(\v0.(\v4.(\v5.v5)(v4(axiom)))(v0(l)))(\l6.list_ind(l6;\v2.axiom;h4
+      ,t5,v1.\v3.axiom)))
+
+
+
+term_of(trans_n_):
+
+ˆ T r. ˆ n t0. 
+      [ 0  ˆt. t0 = t in T ; i, P  ˆt. tn:T. r(tn,t) & P(tn) ; @ n]
+
+
+
+term_of(star_):
+
+ˆ T r. ˆ t1 t2. n:N. {T}r^n(t1,t2)
+
+
+
+term_of(perm1_):
+
+ˆA. ˆ l1 l2. 
+       x,y:A list. a,b:A. l1 = x@(a.b.y) in A list & l2 = x@(b.a.y) in A list
+
+
+
+term_of(perm_):
+
+ˆA. {A list}(ˆ l1 l2. l1 1 l2 in A list)^*
+
+
+
+term_of(length_):
+
+ˆl. [ nil  0; h.t,v  1+v; @ l]
+
+
+
+term_of(length__):
+
+\A.(\l.axiom)
+
+
+
+term_of(sorted_):
+
+ˆl.  tails h.t of l. if ht = hd(t) then hht
+
+
+

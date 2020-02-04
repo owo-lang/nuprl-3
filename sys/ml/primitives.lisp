@@ -415,7 +415,7 @@
 
 (defmlfun |complete_nuprl_path| (directories file)
 	  ( (tok list) -> (tok -> tok) )
-  (intern (or (complete-nuprl-path directories file)
+  (intern (or (namestring (complete-nuprl-path directories file))
 	      (breakout evaluation '|complete_nuprl_path: not implemented.|))
 	  (find-package 'nuprl)))
 

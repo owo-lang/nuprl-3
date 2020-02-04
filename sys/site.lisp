@@ -39,7 +39,7 @@
 (defun complete-nuprl-path (directories file)  
   #+(or symbolics unix mach)
   (flet ((add-separator (x) (concatenate 'string x #+symbolics ";" #+(or unix mach) "/")))
-    (reduce #'(lambda (x y) (concatenate 'string x y))
+    (reduce #'(lambda (x y) (merge-pathnames y x))
 	    `(,*nuprl-path-prefix*
 	      ,@(mapcar #'add-separator (mapcar #'string directories))
 	      ,(string file))))

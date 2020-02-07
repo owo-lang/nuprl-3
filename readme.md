@@ -34,7 +34,7 @@ CL-USER> (in-package "NUPRL")
 ;; TODO: handle these to ASDF
 NUPRL> (initialize)
 NUPRL> (setf *nuprl-path-prefix* ...)
-;; load tacits
+;; load tactics
 NUPRL> (ml-load nil (complete-nuprl-path '(|ml|) '|load|))
 NUPRL> (nuprl "")
 ;; have fun
